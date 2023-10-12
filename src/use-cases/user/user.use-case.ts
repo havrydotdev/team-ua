@@ -12,20 +12,6 @@ export class UserUseCases {
   async create(dto: CreateUserDto): Promise<User> {
     const user = this.userFactory.create(dto);
 
-    const userWithSameTgId = await this.getByTgId(user.userId);
-
-    // if user with same tgId exists, update chatId
-    if (userWithSameTgId) {
-      if (userWithSameTgId.chatId !== user.chatId) {
-        userWithSameTgId.chatId = user.chatId;
-
-        await this.userService.update(userWithSameTgId.id, userWithSameTgId);
-      }
-
-      // return user with same tgId
-      return userWithSameTgId;
-    }
-
     return this.userService.create(user);
   }
 

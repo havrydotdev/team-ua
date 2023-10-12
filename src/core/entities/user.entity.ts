@@ -4,10 +4,14 @@ import { Profile } from './profile.entity';
 
 @Entity('users')
 class User extends IEntity {
-  @Column()
+  @Column({
+    unique: true,
+  })
   userId: number;
 
-  @Column()
+  @Column({
+    unique: true,
+  })
   chatId: number;
 
   @OneToOne(() => Profile, (profile) => profile.user, {

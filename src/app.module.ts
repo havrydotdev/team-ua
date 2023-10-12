@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TelegramModule, UserModule } from './services';
-import { AppUpdate } from './updates';
+import { ReplyModule, TelegramModule, UserModule } from './services';
+import { AppUpdate } from './controllers';
 import { DatabaseModule } from './services';
-import { UserUseCaseModule } from './use-cases/user';
+import { UserUseCasesModule } from './use-cases/user';
+import { ReplyUseCasesModule } from './use-cases/reply';
+import { I18nModule } from './services/i18n/i18n.module';
 
 @Module({
   imports: [
@@ -13,7 +15,10 @@ import { UserUseCaseModule } from './use-cases/user';
     TelegramModule,
     DatabaseModule,
     UserModule,
-    UserUseCaseModule,
+    UserUseCasesModule,
+    ReplyModule,
+    ReplyUseCasesModule,
+    I18nModule,
   ],
   controllers: [],
   providers: [AppUpdate],

@@ -9,7 +9,7 @@ class TypeOrmUserService implements IUserService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
   ) {}
 
-  findByTgId(tgId: number): Promise<User> {
+  async findByTgId(tgId: number): Promise<User> {
     return this.userRepo.findOne({ where: { userId: tgId } });
   }
 

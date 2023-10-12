@@ -1,18 +1,27 @@
-import { Telegram } from 'telegraf';
 import { Context } from '../interfaces';
-import ApiClient from 'telegraf/typings/core/network/client';
-
-type Tail<T> = T extends [unknown, ...infer U] ? U : never;
-
-type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
-  Parameters<Telegram[FName]>
->;
+import { I18nService } from 'nestjs-i18n';
+import { Language } from '../enums/languages.enum';
+import { I18nTranslations } from 'src/generated/i18n.generated';
+import { Extra } from '../types';
+import { PathImpl2 } from '@nestjs/config';
 
 abstract class IReplyService {
-  abstract sendMessage(
+  constructor(protected readonly i18n: I18nService<I18nTranslations>) {}
+
+  abstract reply(
     ctx: Context,
-    ...args: Shorthand<'sendMessage'>
+    msgCode: PathImpl2<I18nTranslations>,
+    args?: Extra,
   ): Promise<void>;
+
+  protected translate(
+    key: PathImpl2<I18nTranslations>,
+    lang: Language,
+  ): string {
+    return this.i18n.t(key, {
+      lang,
+    });
+  }
 }
 
 export { IReplyService };

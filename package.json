@@ -27,6 +27,7 @@
     "@telegraf/session": "^2.0.0-beta.6",
     "better-sqlite3": "^8.7.0",
     "kysely": "^0.23.5",
+    "nestjs-i18n": "^10.3.6",
     "nestjs-telegraf": "^2.7.0",
     "pg": "^8.11.3",
     "reflect-metadata": "^0.1.13",
