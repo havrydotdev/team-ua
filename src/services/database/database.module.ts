@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
@@ -18,7 +18,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
           entities: [__dirname + '/../../**/*.entity{.ts,.js}'],
         };
       },
-      inject: [ConfigModule],
+      inject: [ConfigService],
     }),
   ],
 })

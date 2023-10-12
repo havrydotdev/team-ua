@@ -1,9 +1,11 @@
 import { User } from '../entities';
 
 abstract class IUserService {
-  abstract createUser(user: User): Promise<void>;
+  abstract create(user: User): Promise<User>;
 
-  abstract updateUser(user: User): Promise<void>;
+  abstract update(userId: number, user: User): Promise<User>;
+
+  abstract findByTgId(tgId: number): Promise<User>;
 }
 
 export { IUserService };

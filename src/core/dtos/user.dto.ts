@@ -1,6 +1,6 @@
 class CreateUserDto {
-  chatId: string;
-  userId: string;
+  chatId: number;
+  userId: number;
 }
 
 class UpdateUserDto implements Partial<CreateUserDto> {}

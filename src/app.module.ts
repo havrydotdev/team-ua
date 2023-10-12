@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TelegramModule } from './services/telegram/telegram.module';
+import { TelegramModule, UserModule } from './services';
 import { AppUpdate } from './updates';
+import { DatabaseModule } from './services';
+import { UserUseCaseModule } from './use-cases/user';
 
 @Module({
   imports: [
@@ -9,6 +11,9 @@ import { AppUpdate } from './updates';
       isGlobal: true,
     }),
     TelegramModule,
+    DatabaseModule,
+    UserModule,
+    UserUseCaseModule,
   ],
   controllers: [],
   providers: [AppUpdate],

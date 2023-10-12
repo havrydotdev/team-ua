@@ -5,10 +5,10 @@ import { Profile } from './profile.entity';
 @Entity('users')
 class User extends IEntity {
   @Column()
-  userId: string;
+  userId: number;
 
   @Column()
-  chatId: string;
+  chatId: number;
 
   @OneToOne(() => Profile, (profile) => profile.user, {
     nullable: true,
