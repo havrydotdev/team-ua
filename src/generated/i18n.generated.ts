@@ -4,10 +4,12 @@ import { Path } from "nestjs-i18n";
 export type I18nTranslations = {
     "messages": {
         "start": string;
+        "help": string;
         "lang_changed": string;
         "select_lang": string;
+        "new_user": string;
         "update_lang": string;
-        "help": string;
+        "enter_name": string;
     };
 };
 export type I18nPath = Path<I18nTranslations>;

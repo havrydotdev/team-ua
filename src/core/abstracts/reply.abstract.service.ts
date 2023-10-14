@@ -1,4 +1,4 @@
-import { Context } from '../interfaces';
+import { Context } from 'telegraf';
 import { I18nService } from 'nestjs-i18n';
 import { Language } from '../enums/languages.enum';
 import { I18nTranslations } from 'src/generated/i18n.generated';

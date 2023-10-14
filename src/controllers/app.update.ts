@@ -1,9 +1,17 @@
-import { Command, Ctx, Hears, Help, Start, Update } from 'nestjs-telegraf';
-import { Context } from 'src/core';
+import {
+  Command,
+  Ctx,
+  Hears,
+  Help,
+  Message,
+  Start,
+  Update,
+} from 'nestjs-telegraf';
+import { Context } from 'telegraf';
+import { REGISTER_WIZARD_ID } from 'src/core/constants';
 import { Language } from 'src/core/enums/languages.enum';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { UserUseCases } from 'src/use-cases/user/user.use-case';
-import { Message } from 'telegraf/typings/core/types/typegram';
 
 @Update()
 export class AppUpdate {
@@ -22,13 +30,13 @@ export class AppUpdate {
       });
     }
 
-    await this.replyUseCases.start(ctx);
+    await this.replyUseCases.startCommandMessage(ctx);
   }
 
   @Hears(/🇺🇦|🇬🇧|🇷🇺/)
-  async onUa(@Ctx() ctx: Context) {
+  async onUa(@Ctx() ctx: Context, @Message() msg: { text: string }) {
     // convert ctx.message to Message.TextMessage so we can access text property
-    switch ((ctx.message as Message.TextMessage).text) {
+    switch (msg.text) {
       case '🇺🇦':
         ctx.session.lang = Language.UA;
         break;
@@ -40,7 +48,14 @@ export class AppUpdate {
         break;
     }
 
-    await this.replyUseCases.langChanged(ctx);
+    await this.replyUseCases.languageChanged(ctx);
+
+    if (!ctx.session.user || !ctx.session.user.profile) {
+      // if profile does not exist, create it
+      await this.replyUseCases.newUser(ctx);
+
+      await ctx.scene.enter(REGISTER_WIZARD_ID);
+    }
   }
 
   @Command('language')
@@ -50,6 +65,6 @@ export class AppUpdate {
 
   @Help()
   async onHelp(@Ctx() ctx: Context) {
-    await this.replyUseCases.help(ctx);
+    await this.replyUseCases.helpCommandMessage(ctx);
   }
 }

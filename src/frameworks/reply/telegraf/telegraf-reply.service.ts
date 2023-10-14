@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PathImpl2 } from '@nestjs/config';
 import { I18nService } from 'nestjs-i18n';
-import { Context } from 'src/core';
 import { IReplyService } from 'src/core/abstracts/reply.abstract.service';
 import { Extra } from 'src/core/types';
 import { I18nTranslations } from 'src/generated/i18n.generated';
+import { Context } from 'telegraf/typings';
 
 @Injectable()
 class TelegrafReplyService extends IReplyService {

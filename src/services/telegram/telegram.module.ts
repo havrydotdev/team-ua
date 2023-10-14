@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { TelegrafModule } from 'nestjs-telegraf';
+import { TelegrafModule, TelegrafModuleOptions } from 'nestjs-telegraf';
 import { session } from 'telegraf';
 import { SQLite } from '@telegraf/session/sqlite';
 
 @Module({
   imports: [
     TelegrafModule.forRootAsync({
-      useFactory: (configService: ConfigService) => {
+      useFactory: (configService: ConfigService): TelegrafModuleOptions => {
         const store = SQLite({
           filename: './dev.sqlite',
         });

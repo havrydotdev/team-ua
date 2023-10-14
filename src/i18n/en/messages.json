@@ -1,7 +1,9 @@
 {
   "start": "Welcome! I'm the first ukrainian service to search teammates for games.",
+  "help": "Help text",
   "lang_changed": "Language changed to English",
   "select_lang": "Firstly, select interface language",
+  "new_user": "Let's start with creating your profile",
   "update_lang": "Select new interface language",
-  "help": "Help text"
+  "enter_name": "Enter your name"
 }

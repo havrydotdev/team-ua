@@ -6,6 +6,7 @@ import { DatabaseModule } from './services';
 import { UserUseCasesModule } from './use-cases/user';
 import { ReplyUseCasesModule } from './use-cases/reply';
 import { I18nModule } from './services/i18n/i18n.module';
+import { RegisterWizard } from './controllers/register.wizard';
 
 @Module({
   imports: [
@@ -20,7 +21,6 @@ import { I18nModule } from './services/i18n/i18n.module';
     ReplyUseCasesModule,
     I18nModule,
   ],
-  controllers: [],
-  providers: [AppUpdate],
+  providers: [AppUpdate, RegisterWizard],
 })
 export class AppModule {}
