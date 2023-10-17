@@ -76,4 +76,28 @@ export class ReplyUseCases {
       reply_markup,
     });
   }
+
+  async enterAge(ctx: Context) {
+    await this.replyService.reply(ctx, 'messages.enter_age');
+  }
+
+  async invalidAge(ctx: Context) {
+    await this.replyService.reply(ctx, 'messages.invalid_age');
+  }
+
+  async sendLocation(ctx: Context) {
+    await this.replyService.reply(ctx, 'messages.send_location');
+  }
+
+  async sendPicture(ctx: Context) {
+    await this.replyService.reply(ctx, 'messages.send_picture');
+  }
+
+  async sendGames(ctx: Context) {
+    await this.replyService.reply(ctx, 'messages.send_games');
+  }
+
+  async invalidGame(ctx: Context) {
+    await this.replyService.reply(ctx, 'messages.invalid_game');
+  }
 }

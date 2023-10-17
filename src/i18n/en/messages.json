@@ -5,5 +5,11 @@
   "select_lang": "Firstly, select interface language",
   "new_user": "Let's start with creating your profile",
   "update_lang": "Select new interface language",
-  "enter_name": "Enter your name"
+  "enter_name": "Enter your name",
+  "enter_age": "Enter your age",
+  "invalid_age": "Please, enter valid age",
+  "send_picture": "Send photo for your profile",
+  "send_location": "Send city you live in",
+  "send_games": "Send games you play",
+  "invalid_game": "Please, enter valid game"
 }

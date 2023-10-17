@@ -4,11 +4,11 @@ import { Context } from 'telegraf';
 import { Language } from 'src/core/enums';
 
 declare module 'telegraf/typings' {
-  export interface Context extends CustomSessionContext, CustomSceneContext {}
+  interface Context extends CustomSessionContext, CustomSceneContext {}
 }
 
 declare module 'telegraf/typings/scenes' {
-  export interface WizardContext extends CustomSessionContext {}
+  interface WizardContext extends CustomSessionContext {}
 }
 
 interface CustomSessionContext {

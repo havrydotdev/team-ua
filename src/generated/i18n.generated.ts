@@ -10,6 +10,12 @@ export type I18nTranslations = {
         "new_user": string;
         "update_lang": string;
         "enter_name": string;
+        "enter_age": string;
+        "invalid_age": string;
+        "send_picture": string;
+        "send_location": string;
+        "send_games": string;
+        "invalid_game": string;
     };
 };
 export type I18nPath = Path<I18nTranslations>;

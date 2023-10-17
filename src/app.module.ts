@@ -7,6 +7,8 @@ import { UserUseCasesModule } from './use-cases/user';
 import { ReplyUseCasesModule } from './use-cases/reply';
 import { I18nModule } from './services/i18n/i18n.module';
 import { RegisterWizard } from './controllers/register.wizard';
+import { GameModule } from './services/game/game.module';
+import { GameUseCasesModule } from './use-cases/game';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { RegisterWizard } from './controllers/register.wizard';
     UserUseCasesModule,
     ReplyModule,
     ReplyUseCasesModule,
+    GameModule,
+    GameUseCasesModule,
     I18nModule,
   ],
   providers: [AppUpdate, RegisterWizard],
