@@ -1,28 +1,55 @@
-import { CreateUserDto, IUserService, User } from 'src/core';
+import { CreateUserDto, IUserService, UpdateUserDto, User } from 'src/core';
 import { UserUseCases } from '../user.use-case';
 import { UserFactoryService } from '../user-factory.service';
+import { TypeOrmUserService } from 'src/frameworks/user/typeorm/typeorm-user.service';
+import { ConfigModule } from '@nestjs/config';
+import { Test, TestingModule } from '@nestjs/testing';
+import { MockDatabaseModule } from 'src/services/mock-database/mock-database.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
-// TODO: refactor
 describe('UserUseCases', () => {
-  let userUseCases: UserUseCases;
-  let userService: IUserService;
-  let userFactory: UserFactoryService;
+  let useCases: UserUseCases;
+  let service: IUserService;
+  let factory: UserFactoryService;
 
-  beforeEach(() => {
-    userService = {} as IUserService;
-    userFactory = {} as UserFactoryService;
-    userUseCases = new UserUseCases(userService, userFactory);
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        MockDatabaseModule,
+        TypeOrmModule.forFeature([User]),
+        ConfigModule.forRoot({
+          isGlobal: true,
+        }),
+      ],
+      providers: [
+        UserUseCases,
+        UserFactoryService,
+        {
+          provide: IUserService,
+          useClass: TypeOrmUserService,
+        },
+      ],
+    }).compile();
+
+    useCases = module.get<UserUseCases>(UserUseCases);
+    service = module.get<IUserService>(IUserService);
+    factory = module.get<UserFactoryService>(UserFactoryService);
   });
 
   describe('create', () => {
     it('should create a new user and return it', async () => {
-      const dto: CreateUserDto = { name: 'John Doe', age: 30 };
-      const user: User = { id: 1, name: 'John Doe', age: 30 };
-      spyOn(userFactory, 'create').and.returnValue(user);
-      spyOn(userService, 'create').and.returnValue(user);
-      const result = await userUseCases.create(dto);
-      expect(userFactory.create).toHaveBeenCalledWith(dto);
-      expect(userService.create).toHaveBeenCalledWith(user);
+      const dto: CreateUserDto = { chatId: 123, userId: 312321 };
+      const user: User = User.create({
+        ...dto,
+      });
+
+      jest.spyOn(factory, 'create').mockReturnValueOnce(user);
+      jest.spyOn(service, 'create').mockImplementationOnce(async () => user);
+
+      const result = await useCases.create(dto);
+
+      expect(factory.create).toHaveBeenCalledWith(dto);
+      expect(service.create).toHaveBeenCalledWith(user);
       expect(result).toEqual(user);
     });
   });
@@ -30,24 +57,36 @@ describe('UserUseCases', () => {
   describe('update', () => {
     it('should update an existing user and return it', async () => {
       const userId = 1;
-      const dto: UpdateUserDto = { name: 'Jane Doe', age: 35 };
-      const user: User = { id: 1, name: 'Jane Doe', age: 35 };
-      spyOn(userFactory, 'update').and.returnValue(user);
-      spyOn(userService, 'update').and.returnValue(user);
-      const result = await userUseCases.update(userId, dto);
-      expect(userFactory.update).toHaveBeenCalledWith(dto);
-      expect(userService.update).toHaveBeenCalledWith(userId, user);
+      const dto: UpdateUserDto = { chatId: 123, userId: 312321 };
+      const user: User = User.create({
+        ...dto,
+      });
+
+      jest.spyOn(factory, 'update').mockReturnValueOnce(user);
+      jest.spyOn(service, 'update').mockImplementationOnce(async () => user);
+
+      const result = await useCases.update(userId, dto);
+
+      expect(factory.update).toHaveBeenCalledWith(dto);
+      expect(service.update).toHaveBeenCalledWith(userId, user);
       expect(result).toEqual(user);
     });
   });
 
   describe('getByTgId', () => {
     it('should return a user by their Telegram ID', async () => {
-      const tgId = 12345;
-      const user: User = { id: 1, name: 'John Doe', age: 30 };
-      spyOn(userService, 'findByTgId').and.returnValue(user);
-      const result = await userUseCases.getByTgId(tgId);
-      expect(userService.findByTgId).toHaveBeenCalledWith(tgId);
+      const chatId = 12345;
+      const user: User = User.create({
+        chatId,
+      });
+
+      jest
+        .spyOn(service, 'findByTgId')
+        .mockImplementationOnce(async () => user);
+
+      const result = await useCases.getByTgId(chatId);
+
+      expect(service.findByTgId).toHaveBeenCalledWith(chatId);
       expect(result).toEqual(user);
     });
   });

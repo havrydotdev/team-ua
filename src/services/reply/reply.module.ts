@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { TelegrafReplyModule } from 'src/frameworks/reply/telegraf/telegraf-reply.module';
+import { TelegrafReplyModule } from 'src/frameworks/reply/telegraf';
 
 @Module({
   imports: [TelegrafReplyModule],
