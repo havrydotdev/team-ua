@@ -1,30 +1,43 @@
 import { Injectable } from '@nestjs/common';
-import {
-  CreateProfileDto,
-  IProfileService,
-  UpdateProfileDto,
-  User,
-} from 'src/core';
+import { InjectRepository } from '@nestjs/typeorm';
+import { IProfileService, Profile } from 'src/core';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class TypeOrmProfileService implements IProfileService {
-  async createProfile(dto: CreateProfileDto): Promise<void> {
-    throw new Error('Method not implemented.');
+  constructor(
+    @InjectRepository(Profile)
+    private readonly profileRepo: Repository<Profile>,
+  ) {}
+
+  async findByUser(userId: number): Promise<Profile> {
+    return this.profileRepo.findOne({
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+    });
   }
 
-  async updateProfile(dto: UpdateProfileDto): Promise<void> {
-    throw new Error('Method not implemented.');
+  async createProfile(profile: Profile): Promise<void> {
+    await this.profileRepo.insert(profile);
   }
 
-  async deleteProfile(id: number): Promise<void> {
-    throw new Error('Method not implemented.');
+  async updateProfile(profileId: number, profile: Profile): Promise<void> {
+    await this.profileRepo.update(profileId, profile);
   }
 
-  async findByUser(userId: number): Promise<void> {
-    throw new Error('Method not implemented.');
+  async deleteProfile(profileId: number): Promise<void> {
+    await this.profileRepo.delete(profileId);
   }
 
-  async findRecommended(user: User, skip: number): Promise<void> {
-    throw new Error('Method not implemented.');
+  // TODO
+  async findRecommended(user: Profile, skip: number): Promise<void> {
+    await this.profileRepo.find({
+      skip,
+      take: 1,
+      order: {},
+    });
   }
 }

@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmGameService } from '../typeorm-game.service';
 import { Game } from 'src/core';
 import { Repository } from 'typeorm';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 import { MockDatabaseModule } from 'src/services/mock-database/mock-database.module';
 
 describe('TypeOrmGameService', () => {
@@ -16,7 +16,7 @@ describe('TypeOrmGameService', () => {
     }).compile();
 
     service = module.get<TypeOrmGameService>(TypeOrmGameService);
-    repo = module.get<Repository<Game>>(Repository<Game>);
+    repo = module.get<Repository<Game>>(getRepositoryToken(Game));
   });
 
   it('should return an array of games', async () => {
