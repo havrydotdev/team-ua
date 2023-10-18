@@ -3,6 +3,7 @@ import { Context } from 'telegraf';
 import { IReplyService } from 'src/core/abstracts/reply.abstract.service';
 import { Markup } from 'telegraf';
 import { ReplyKeyboardMarkup } from 'telegraf/typings/core/types/typegram';
+import { Game } from 'src/core';
 
 @Injectable()
 export class ReplyUseCases {
@@ -90,14 +91,28 @@ export class ReplyUseCases {
   }
 
   async sendPicture(ctx: Context) {
-    await this.replyService.reply(ctx, 'messages.send_picture');
+    await this.replyService.reply(ctx, 'messages.send_picture', {
+      reply_markup: Markup.removeKeyboard().reply_markup,
+    });
   }
 
-  async sendGames(ctx: Context) {
-    await this.replyService.reply(ctx, 'messages.send_games');
+  async sendGames(ctx: Context, games: Game[]) {
+    const reply_markup = Markup.keyboard(
+      games.map((game) => Markup.button.callback(game.title, game.title)),
+    ).reply_markup;
+
+    reply_markup.resize_keyboard = true;
+
+    await this.replyService.reply(ctx, 'messages.send_games', {
+      reply_markup,
+    });
   }
 
   async invalidGame(ctx: Context) {
     await this.replyService.reply(ctx, 'messages.invalid_game');
+  }
+
+  async gameAdded(ctx: Context) {
+    await this.replyService.reply(ctx, 'messages.game_added');
   }
 }

@@ -21,7 +21,7 @@ class Profile extends IEntity {
   user: User;
 
   @ManyToMany(() => Game, (game) => game.profiles)
-  game: Game[];
+  games: Game[];
 }
 
 export { Profile };

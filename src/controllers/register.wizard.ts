@@ -1,6 +1,7 @@
 import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
-import { Game } from 'src/core';
+import { Game, User } from 'src/core';
 import { REGISTER_WIZARD_ID } from 'src/core/constants';
+import { Language } from 'src/core/enums';
 import { GameUseCases } from 'src/use-cases/game';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { UserUseCases } from 'src/use-cases/user';
@@ -18,6 +19,7 @@ export class RegisterWizard {
     private readonly gameUseCases: GameUseCases,
   ) {
     this.gameUseCases.findAll().then((games: Game[]) => {
+      console.log(games);
       this.games = games;
     });
   }
@@ -75,7 +77,7 @@ export class RegisterWizard {
 
     ctx.wizard.next();
 
-    await this.replyUseCases.sendGames(ctx);
+    await this.replyUseCases.sendGames(ctx, this.games);
   }
 
   @On('text')
@@ -87,6 +89,8 @@ export class RegisterWizard {
     if (msg.text === '✅') {
       ctx.wizard.next();
 
+      await this.replyUseCases.sendPicture(ctx);
+
       return;
     }
 
@@ -97,18 +101,30 @@ export class RegisterWizard {
       return;
     }
 
+    if (ctx.wizard.state['games']?.includes(game.id)) {
+      await this.replyUseCases.invalidGame(ctx);
+
+      return;
+    }
+
+    if (!ctx.wizard.state['games']) {
+      ctx.wizard.state['games'] = [];
+    }
+
     ctx.wizard.state['games'].push(game.id);
 
-    await this.replyUseCases.sendPicture(ctx);
+    await this.replyUseCases.gameAdded(ctx);
   }
 
-  @On('photo')
+  @On('message')
   @WizardStep(6)
   async onPhoto(
     @Ctx()
     ctx: Context & WizardContext,
     @Message() msg: MessageType.PhotoMessage,
   ) {
+    if (msg.photo.length === 0) {
+    }
     const imageId = msg.photo.pop().file_id;
 
     ctx.wizard.state['photo'] = imageId;
@@ -119,18 +135,22 @@ export class RegisterWizard {
   @WizardStep(7)
   async onDone(
     @Ctx()
-    ctx: Context &
-      WizardContext & {
-        wizard: {
-          state: {
-            name: string;
-            location: string;
-            age: number;
-            games: number[];
-          };
+    ctx: WizardContext & {
+      session: {
+        user?: User;
+        lang: Language;
+      };
+    } & {
+      wizard: {
+        state: {
+          name: string;
+          location: string;
+          age: number;
+          games: number[];
         };
-      },
+      };
+    },
   ) {
-    console.log(ctx.wizard.state);
+    await ctx.scene.leave();
   }
 }

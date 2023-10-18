@@ -16,6 +16,7 @@ export type I18nTranslations = {
         "send_location": string;
         "send_games": string;
         "invalid_game": string;
+        "game_added": string;
     };
 };
 export type I18nPath = Path<I18nTranslations>;

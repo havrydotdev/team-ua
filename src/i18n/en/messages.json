@@ -11,5 +11,6 @@
   "send_picture": "Send photo for your profile",
   "send_location": "Send city you live in",
   "send_games": "Send games you play",
-  "invalid_game": "Please, enter valid game"
+  "invalid_game": "Please, enter valid game",
+  "game_added": "Game added"
 }

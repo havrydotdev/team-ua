@@ -20,12 +20,15 @@ export class TypeOrmProfileService implements IProfileService {
     });
   }
 
-  async createProfile(profile: Profile): Promise<void> {
-    await this.profileRepo.insert(profile);
+  async createProfile(profile: Profile): Promise<Profile> {
+    return this.profileRepo.save(profile);
   }
 
-  async updateProfile(profileId: number, profile: Profile): Promise<void> {
-    await this.profileRepo.update(profileId, profile);
+  async updateProfile(profileId: number, profile: Profile): Promise<Profile> {
+    return await this.profileRepo.save({
+      id: profileId,
+      ...profile,
+    });
   }
 
   async deleteProfile(profileId: number): Promise<void> {
@@ -33,11 +36,13 @@ export class TypeOrmProfileService implements IProfileService {
   }
 
   // TODO
-  async findRecommended(user: Profile, skip: number): Promise<void> {
-    await this.profileRepo.find({
+  async findRecommended(user: Profile, skip: number): Promise<Profile> {
+    const result = await this.profileRepo.find({
       skip,
       take: 1,
       order: {},
     });
+
+    return result[0];
   }
 }

@@ -1,3 +1,5 @@
+import { autoImplement } from '../utils';
+
 class CreateProfileDto {
   userId: number;
 
@@ -12,6 +14,6 @@ class CreateProfileDto {
   games: number[];
 }
 
-class UpdateProfileDto implements Partial<CreateProfileDto> {}
+class UpdateProfileDto extends autoImplement<Partial<CreateProfileDto>>() {}
 
 export { CreateProfileDto, UpdateProfileDto };

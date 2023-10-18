@@ -1,8 +1,10 @@
+import { autoImplement } from '../utils';
+
 class CreateUserDto {
   chatId: number;
   userId: number;
 }
 
-class UpdateUserDto implements Partial<CreateUserDto> {}
+class UpdateUserDto extends autoImplement<Partial<CreateUserDto>>() {}
 
 export { CreateUserDto, UpdateUserDto };

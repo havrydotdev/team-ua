@@ -11,6 +11,10 @@ export class TypeOrmGameService implements IGameService {
   ) {}
 
   async findAll(): Promise<Game[]> {
-    return this.gameRepo.find();
+    return this.gameRepo.find({
+      order: {
+        created_at: 'DESC',
+      },
+    });
   }
 }

@@ -6,6 +6,6 @@ export class GameUseCases {
   constructor(private readonly gameService: IGameService) {}
 
   async findAll() {
-    return await this.gameService.findAll();
+    return this.gameService.findAll();
   }
 }
