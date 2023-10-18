@@ -2,9 +2,23 @@
   "name": "ua-teammates",
   "version": "0.0.1",
   "description": "Bot for searching teammates for games from Ukraine",
-  "author": "Havrylenko Ivan",
+  "author": "Havrylenko Ivan <havrylenko.inbox@gmail.com>",
   "private": true,
   "license": "MIT",
+  "keywords": [
+    "nest",
+    "nestjs",
+    "telegraf",
+    "telegram",
+    "telegram bot",
+    "telegram bot api",
+    "bot",
+    "bot api"
+  ],
+  "bugs": {
+    "url": "https://github.com/gavrylenkoIvan/ua-teammates/issues"
+  },
+  "repository": "git@github.com:gavrylenkoIvan/ua-teammates.git",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -17,7 +31,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typedoc:build": "typedoc --tsconfig ./tsconfig.typedoc.json",
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -36,6 +54,7 @@
     "typeorm": "^0.3.17"
   },
   "devDependencies": {
+    "@commitlint/config-angular": "^17.8.0",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
