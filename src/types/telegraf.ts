@@ -1,13 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { WizardContext } from 'telegraf/typings/scenes';
+import {
+  SceneContext,
+  SceneContextScene,
+  WizardContext as TelegrafWizardCtx,
+} from 'telegraf/typings/scenes';
 import { Context } from 'telegraf';
 import { Language } from 'src/core/enums';
+import { User } from 'src/core';
 
 type MessageContext = Context & CustomSceneContext & CustomSessionContext;
 
 type WizardMessageContext = Context & WizardContext;
 
-type WizardContext = WizardContext & {
+type WizardContext = TelegrafWizardCtx & {
   session: {
     user?: User;
     lang: Language;
@@ -33,3 +38,5 @@ type CustomSessionContext = {
 type CustomSceneContext = {
   scene: SceneContextScene<SceneContext>;
 };
+
+export { MessageContext, WizardMessageContext, WizardContext };

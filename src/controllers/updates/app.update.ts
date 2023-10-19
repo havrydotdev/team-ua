@@ -34,7 +34,7 @@ export class AppUpdate {
   }
 
   @Hears(/🇺🇦|🇬🇧|🇷🇺/)
-  async onUa(@Ctx() ctx: MessageContext, @Message() msg: { text: string }) {
+  async onLang(@Ctx() ctx: MessageContext, @Message() msg: { text: string }) {
     // convert ctx.message to Message.TextMessage so we can access text property
     switch (msg.text) {
       case '🇺🇦':

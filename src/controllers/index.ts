@@ -1,2 +1,2 @@
-export * from './app.update';
-export * from './register.wizard';
+export * from './updates/app.update';
+export * from './wizards/register.wizard';
