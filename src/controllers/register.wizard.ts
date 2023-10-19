@@ -1,20 +1,16 @@
 import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
-import { Game, User } from 'src/core';
+import { Game } from 'src/core';
 import { REGISTER_WIZARD_ID } from 'src/core/constants';
-import { Language } from 'src/core/enums';
+import { WizardMessageContext, WizardContext } from 'src/types/telegraf';
 import { GameUseCases } from 'src/use-cases/game';
 import { ReplyUseCases } from 'src/use-cases/reply';
-import { UserUseCases } from 'src/use-cases/user';
-import { Context } from 'telegraf/typings';
 import { Message as MessageType } from 'telegraf/typings/core/types/typegram';
-import { WizardContext } from 'telegraf/typings/scenes';
 
 @Wizard(REGISTER_WIZARD_ID)
 export class RegisterWizard {
   private games: Game[];
 
   constructor(
-    private readonly userUseCases: UserUseCases,
     private readonly replyUseCases: ReplyUseCases,
     private readonly gameUseCases: GameUseCases,
   ) {
@@ -24,7 +20,7 @@ export class RegisterWizard {
   }
 
   @WizardStep(1)
-  async onEnter(@Ctx() ctx: Context & WizardContext) {
+  async onEnter(@Ctx() ctx: WizardMessageContext) {
     ctx.wizard.next();
 
     await this.replyUseCases.enterName(ctx);
@@ -33,7 +29,7 @@ export class RegisterWizard {
   @On('text')
   @WizardStep(2)
   async onName(
-    @Ctx() ctx: Context & WizardContext,
+    @Ctx() ctx: WizardMessageContext,
     @Message() msg: { text: string },
   ) {
     ctx.wizard.state['name'] = msg.text;
@@ -46,7 +42,7 @@ export class RegisterWizard {
   @On('text')
   @WizardStep(3)
   async onAge(
-    @Ctx() ctx: Context & WizardContext,
+    @Ctx() ctx: WizardMessageContext,
     @Message() msg: { text: string },
   ) {
     const age = parseInt(msg.text);
@@ -67,7 +63,7 @@ export class RegisterWizard {
   @On('text')
   @WizardStep(4)
   async onLocation(
-    @Ctx() ctx: Context & WizardContext,
+    @Ctx() ctx: WizardMessageContext,
     @Message() msg: { text: string },
   ) {
     const location = msg.text;
@@ -82,7 +78,7 @@ export class RegisterWizard {
   @On('text')
   @WizardStep(5)
   async onGame(
-    @Ctx() ctx: Context & WizardContext,
+    @Ctx() ctx: WizardMessageContext,
     @Message() msg: { text: string },
   ) {
     if (msg.text === '✅') {
@@ -119,7 +115,7 @@ export class RegisterWizard {
   @WizardStep(6)
   async onPhoto(
     @Ctx()
-    ctx: Context & WizardContext,
+    ctx: WizardMessageContext,
     @Message() msg: MessageType.PhotoMessage,
   ) {
     if (msg.photo.length === 0) {
@@ -134,21 +130,7 @@ export class RegisterWizard {
   @WizardStep(7)
   async onDone(
     @Ctx()
-    ctx: WizardContext & {
-      session: {
-        user?: User;
-        lang: Language;
-      };
-    } & {
-      wizard: {
-        state: {
-          name: string;
-          location: string;
-          age: number;
-          games: number[];
-        };
-      };
-    },
+    ctx: WizardContext,
   ) {
     await ctx.scene.leave();
   }

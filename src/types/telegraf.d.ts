@@ -3,21 +3,33 @@ import { WizardContext } from 'telegraf/typings/scenes';
 import { Context } from 'telegraf';
 import { Language } from 'src/core/enums';
 
-declare module 'telegraf/typings' {
-  interface Context extends CustomSessionContext, CustomSceneContext {}
-}
+type MessageContext = Context & CustomSceneContext & CustomSessionContext;
 
-declare module 'telegraf/typings/scenes' {
-  interface WizardContext extends CustomSessionContext {}
-}
+type WizardMessageContext = Context & WizardContext;
 
-interface CustomSessionContext {
+type WizardContext = WizardContext & {
   session: {
     user?: User;
     lang: Language;
   };
-}
+} & {
+  wizard: {
+    state: {
+      name?: string;
+      location?: string;
+      age?: number;
+      games?: number[];
+    };
+  };
+};
 
-interface CustomSceneContext {
+type CustomSessionContext = {
+  session: {
+    user?: User;
+    lang: Language;
+  };
+};
+
+type CustomSceneContext = {
   scene: SceneContextScene<SceneContext>;
-}
+};
