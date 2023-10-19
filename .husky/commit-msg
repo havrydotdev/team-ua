@@ -2,3 +2,5 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 npx --no -- commitlint --edit ${1}
+
+curl --data-binary @codecov.yml https://codecov.io/validate
