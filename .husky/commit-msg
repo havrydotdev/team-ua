@@ -3,4 +3,13 @@
 
 npx --no -- commitlint --edit ${1}
 
-curl --data-binary @codecov.yml https://codecov.io/validate
+response=$(curl --data-binary @codecov.yml -s https://codecov.io/validate)
+
+if echo $response | grep -q "Valid!"
+then
+  echo "codecov.yml is valid"
+else 
+  echo "codecov.yml is invalid"
+  echo $response
+  exit 1
+fi

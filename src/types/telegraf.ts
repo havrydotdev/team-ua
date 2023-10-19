@@ -7,6 +7,7 @@ import {
 import { Context } from 'telegraf';
 import { Language } from 'src/core/enums';
 import { User } from 'src/core';
+import { Message } from 'telegraf/typings/core/types/typegram';
 
 type MessageContext = Context & CustomSceneContext & CustomSessionContext;
 
@@ -39,4 +40,6 @@ type CustomSceneContext = {
   scene: SceneContextScene<SceneContext>;
 };
 
-export { MessageContext, WizardMessageContext, WizardContext };
+type PhotoMessage = Message.PhotoMessage;
+
+export { MessageContext, WizardMessageContext, WizardContext, PhotoMessage };

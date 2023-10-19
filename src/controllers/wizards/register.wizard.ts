@@ -1,10 +1,13 @@
 import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
 import { Game } from 'src/core';
 import { REGISTER_WIZARD_ID } from 'src/core/constants';
-import { WizardMessageContext, WizardContext } from 'src/types/telegraf';
+import {
+  WizardMessageContext,
+  WizardContext,
+  PhotoMessage,
+} from 'src/types/telegraf';
 import { GameUseCases } from 'src/use-cases/game';
 import { ReplyUseCases } from 'src/use-cases/reply';
-import { Message as MessageType } from 'telegraf/typings/core/types/typegram';
 
 @Wizard(REGISTER_WIZARD_ID)
 export class RegisterWizard {
@@ -116,7 +119,7 @@ export class RegisterWizard {
   async onPhoto(
     @Ctx()
     ctx: WizardMessageContext,
-    @Message() msg: MessageType.PhotoMessage,
+    @Message() msg: PhotoMessage,
   ) {
     if (msg.photo.length === 0) {
     }
