@@ -19,7 +19,6 @@ export class RegisterWizard {
     private readonly gameUseCases: GameUseCases,
   ) {
     this.gameUseCases.findAll().then((games: Game[]) => {
-      console.log(games);
       this.games = games;
     });
   }

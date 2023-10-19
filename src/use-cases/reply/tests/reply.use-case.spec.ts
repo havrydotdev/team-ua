@@ -103,7 +103,9 @@ describe('ReplyUseCases', () => {
     it('should send send_picture message', async () => {
       const replySpy = jest.spyOn(service, 'reply');
       await useCases.sendPicture(ctx);
-      expect(replySpy).toHaveBeenCalledWith(ctx, 'messages.send_picture');
+      expect(replySpy).toHaveBeenCalledWith(ctx, 'messages.send_picture', {
+        reply_markup: Markup.removeKeyboard().reply_markup,
+      });
     });
   });
 
@@ -111,9 +113,19 @@ describe('ReplyUseCases', () => {
     jest.useFakeTimers();
 
     it('should send send_games message', async () => {
+      const games = [];
+
+      const reply_markup = Markup.keyboard(
+        games.map((game) => Markup.button.callback(game.title, game.title)),
+      ).reply_markup;
+
+      reply_markup.resize_keyboard = true;
+
       const replySpy = jest.spyOn(service, 'reply');
-      await useCases.sendGames(ctx);
-      expect(replySpy).toHaveBeenCalledWith(ctx, 'messages.send_games');
+      await useCases.sendGames(ctx, games);
+      expect(replySpy).toHaveBeenCalledWith(ctx, 'messages.send_games', {
+        reply_markup,
+      });
     });
   });
 
