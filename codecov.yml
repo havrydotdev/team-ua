@@ -1,0 +1,10 @@
+ignore:
+  - '**/*.module.*'
+  - '**/*.entity.*'
+  - '**/*.dto.*'
+  - '**/*.enum.*'
+  - '**/*.generated.*'
+  - '**/*initializer.*'
+  - '**/*main.*'
+  - '**/config.mts'
+  - '**/index.ts'
