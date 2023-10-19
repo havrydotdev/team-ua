@@ -4,7 +4,7 @@ import { I18nService } from 'nestjs-i18n';
 import { IReplyService } from 'src/core/abstracts/reply.abstract.service';
 import { Extra } from 'src/core/types';
 import { I18nTranslations } from 'src/generated/i18n.generated';
-import { Context } from 'telegraf/typings';
+import { MessageContext } from 'src/types/telegraf';
 
 @Injectable()
 class TelegrafReplyService extends IReplyService {
@@ -13,7 +13,7 @@ class TelegrafReplyService extends IReplyService {
   }
 
   async reply(
-    ctx: Context,
+    ctx: MessageContext,
     msgCode: PathImpl2<I18nTranslations>,
     extra?: Extra,
   ): Promise<void> {
