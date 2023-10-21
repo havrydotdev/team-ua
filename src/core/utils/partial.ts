@@ -1,5 +1,5 @@
-function autoImplement<T>(): new () => T {
+function partial<T>(): new () => T {
   return class {} as any;
 }
 
-export { autoImplement };
+export { partial };

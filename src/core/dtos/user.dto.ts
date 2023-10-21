@@ -1,10 +1,10 @@
-import { autoImplement } from '../utils';
+import { partial } from '../utils';
 
 class CreateUserDto {
   chatId: number;
   userId: number;
 }
 
-class UpdateUserDto extends autoImplement<Partial<CreateUserDto>>() {}
+class UpdateUserDto extends partial<Partial<CreateUserDto>>() {}
 
 export { CreateUserDto, UpdateUserDto };

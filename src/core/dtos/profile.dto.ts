@@ -1,4 +1,4 @@
-import { autoImplement } from '../utils';
+import { partial } from '../utils';
 
 class CreateProfileDto {
   userId: number;
@@ -16,6 +16,6 @@ class CreateProfileDto {
   fileId: number;
 }
 
-class UpdateProfileDto extends autoImplement<Partial<CreateProfileDto>>() {}
+class UpdateProfileDto extends partial<Partial<CreateProfileDto>>() {}
 
 export { CreateProfileDto, UpdateProfileDto };

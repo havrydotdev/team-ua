@@ -39,6 +39,8 @@ export class AwsFileService implements IFileService {
       url: uploadResult.Location,
     });
 
+    console.log(newFile);
+
     return newFile.identifiers[0].id as number;
   }
 }
