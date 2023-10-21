@@ -7,6 +7,7 @@ import { File, IFileService } from 'src/core';
 import { Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 
+// TODO: migrate to @aws-sdk/client-s3
 @Injectable()
 export class AwsFileService implements IFileService {
   private readonly _s3Config: ClientConfiguration;

@@ -8,6 +8,8 @@ import { Context } from 'telegraf';
 import { Language } from 'src/core/enums';
 import { User } from 'src/core';
 import { Message } from 'telegraf/typings/core/types/typegram';
+import { PathImpl2 } from '@nestjs/config';
+import { I18nTranslations } from 'src/generated/i18n.generated';
 
 type MessageContext = Context & CustomSceneContext & CustomSessionContext;
 
@@ -44,4 +46,12 @@ type CustomSceneContext = {
 
 type PhotoMessage = Message.PhotoMessage;
 
-export { MessageContext, WizardMessageContext, WizardContext, PhotoMessage };
+type MsgKey = PathImpl2<I18nTranslations>;
+
+export {
+  MessageContext,
+  WizardMessageContext,
+  WizardContext,
+  PhotoMessage,
+  MsgKey,
+};

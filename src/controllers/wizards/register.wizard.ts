@@ -1,8 +1,10 @@
 import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
 import { CreateProfileDto, Game } from 'src/core';
 import { REGISTER_WIZARD_ID } from 'src/core/constants';
-import { fetchImage } from 'src/core/utils';
-import { WizardMessageContext, PhotoMessage } from 'src/types/telegraf';
+import { Extra } from 'src/core/types';
+import { fetchImage, getRemoveKeyboardMarkup } from 'src/core/utils';
+import { getGamesMarkup, getNameMarkup } from 'src/core/utils';
+import { WizardMessageContext, PhotoMessage, MsgKey } from 'src/types/telegraf';
 import { FileUseCases } from 'src/use-cases/file/file.use-case.service';
 import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
@@ -27,10 +29,13 @@ export class RegisterWizard {
   }
 
   @WizardStep(1)
-  async onEnter(@Ctx() ctx: WizardMessageContext) {
+  async onEnter(@Ctx() ctx: WizardMessageContext): Promise<[MsgKey, Extra]> {
     ctx.wizard.next();
 
-    await this.replyUseCases.enterName(ctx);
+    return [
+      'messages.enter_name',
+      { reply_markup: getNameMarkup(ctx.from.first_name) },
+    ];
   }
 
   @On('text')
@@ -38,12 +43,12 @@ export class RegisterWizard {
   async onName(
     @Ctx() ctx: WizardMessageContext,
     @Message() msg: { text: string },
-  ) {
+  ): Promise<MsgKey> {
     ctx.wizard.state['name'] = msg.text;
 
     ctx.wizard.next();
 
-    await this.replyUseCases.enterAge(ctx);
+    return 'messages.enter_age';
   }
 
   @On('text')
@@ -51,20 +56,18 @@ export class RegisterWizard {
   async onAge(
     @Ctx() ctx: WizardMessageContext,
     @Message() msg: { text: string },
-  ) {
+  ): Promise<MsgKey> {
     const age = parseInt(msg.text);
 
     if (isNaN(age)) {
-      await this.replyUseCases.invalidAge(ctx);
-
-      return;
+      return 'messages.invalid_age';
     }
 
     ctx.wizard.state['age'] = age;
 
     ctx.wizard.next();
 
-    await this.replyUseCases.sendLocation(ctx);
+    return 'messages.send_location';
   }
 
   @On('text')
@@ -72,14 +75,19 @@ export class RegisterWizard {
   async onLocation(
     @Ctx() ctx: WizardMessageContext,
     @Message() msg: { text: string },
-  ) {
+  ): Promise<[MsgKey, Extra]> {
     const location = msg.text;
 
     ctx.wizard.state['location'] = location;
 
     ctx.wizard.next();
 
-    await this.replyUseCases.sendGames(ctx, this.games);
+    return [
+      'messages.send_games',
+      {
+        reply_markup: getGamesMarkup(this.games),
+      },
+    ];
   }
 
   @On('text')
@@ -87,26 +95,25 @@ export class RegisterWizard {
   async onGame(
     @Ctx() ctx: WizardMessageContext,
     @Message() msg: { text: string },
-  ) {
+  ): Promise<MsgKey | [MsgKey, Extra]> {
     if (msg.text === '✅') {
       ctx.wizard.next();
 
-      await this.replyUseCases.sendPicture(ctx);
-
-      return;
+      return [
+        'messages.send_picture',
+        {
+          reply_markup: getRemoveKeyboardMarkup(),
+        },
+      ];
     }
 
     const game = this.games.find((game) => game.title === msg.text);
     if (!game) {
-      await this.replyUseCases.invalidGame(ctx);
-
-      return;
+      return 'messages.invalid_game';
     }
 
     if (ctx.wizard.state['games']?.includes(game.id)) {
-      await this.replyUseCases.invalidGame(ctx);
-
-      return;
+      return 'messages.invalid_game';
     }
 
     if (!ctx.wizard.state['games']) {
@@ -115,9 +122,10 @@ export class RegisterWizard {
 
     ctx.wizard.state['games'].push(game.id);
 
-    await this.replyUseCases.gameAdded(ctx);
+    return 'messages.game_added';
   }
 
+  // TODO: add tests for this handler
   @On('photo')
   @WizardStep(6)
   async onPhoto(
@@ -165,6 +173,6 @@ export class RegisterWizard {
 
     await ctx.scene.leave();
 
-    await this.replyUseCases.sendRegister(ctx);
+    return 'messages.register_completed';
   }
 }

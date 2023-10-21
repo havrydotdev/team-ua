@@ -11,7 +11,9 @@ import { REGISTER_WIZARD_ID } from 'src/core/constants';
 import { Language } from 'src/core/enums/languages.enum';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { UserUseCases } from 'src/use-cases/user/user.use-case';
-import { MessageContext } from 'src/types/telegraf';
+import { MessageContext, MsgKey } from 'src/types';
+import { Extra } from 'src/core/types';
+import { getSelectLangMarkup } from 'src/core/utils';
 
 @Update()
 export class AppUpdate {
@@ -21,20 +23,25 @@ export class AppUpdate {
   ) {}
 
   @Start()
-  async onStart(@Ctx() ctx: MessageContext) {
+  async onStart(@Ctx() ctx: MessageContext): Promise<MsgKey> {
     if (!ctx.session.user) {
       // if user does not exist in session, create it
       ctx.session.user = await this.userUseCases.create({
         chatId: ctx.chat.id,
         userId: ctx.from.id,
       });
+
+      await ctx.scene.enter(REGISTER_WIZARD_ID);
     }
 
-    await this.replyUseCases.startCommandMessage(ctx);
+    return 'messages.start';
   }
 
   @Hears(/🇺🇦|🇬🇧|🇷🇺/)
-  async onLang(@Ctx() ctx: MessageContext, @Message() msg: { text: string }) {
+  async onLang(
+    @Ctx() ctx: MessageContext,
+    @Message() msg: { text: string },
+  ): Promise<MsgKey> {
     // convert ctx.message to Message.TextMessage so we can access text property
     switch (msg.text) {
       case '🇺🇦':
@@ -48,19 +55,13 @@ export class AppUpdate {
         break;
     }
 
-    await this.replyUseCases.languageChanged(ctx);
-
-    if (!ctx.session.user || !ctx.session.user.profile) {
-      // if profile does not exist, create it
-      await this.replyUseCases.newUser(ctx);
-
-      await ctx.scene.enter(REGISTER_WIZARD_ID);
-    }
+    return 'messages.lang_changed';
   }
 
   @Command('language')
-  async onLanguage(@Ctx() ctx: MessageContext) {
-    await this.replyUseCases.updateLanguage(ctx);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async onLanguage(@Ctx() ctx: MessageContext): Promise<[MsgKey, Extra]> {
+    return ['messages.update_lang', { reply_markup: getSelectLangMarkup() }];
   }
 
   @Command('me')
@@ -73,7 +74,8 @@ export class AppUpdate {
   }
 
   @Help()
-  async onHelp(@Ctx() ctx: MessageContext) {
-    await this.replyUseCases.helpCommandMessage(ctx);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async onHelp(@Ctx() ctx: MessageContext): Promise<MsgKey> {
+    return 'messages.help';
   }
 }

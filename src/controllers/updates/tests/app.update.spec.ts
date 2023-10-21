@@ -4,12 +4,10 @@ import { UserUseCases } from 'src/use-cases/user/user.use-case';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { MessageContext } from 'src/types/telegraf';
 import { User } from 'src/core';
-import { REGISTER_WIZARD_ID } from 'src/core/constants';
 
 describe('AppUpdate', () => {
   let update: AppUpdate;
   let userUseCases: UserUseCases;
-  let replyUseCases: ReplyUseCases;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -27,6 +25,7 @@ describe('AppUpdate', () => {
             startCommandMessage: jest.fn(),
             languageChanged: jest.fn(),
             newUser: jest.fn(),
+            selectLangMarkup: jest.fn().mockReturnValue({}),
           },
         },
       ],
@@ -34,7 +33,6 @@ describe('AppUpdate', () => {
 
     update = module.get<AppUpdate>(AppUpdate);
     userUseCases = module.get<UserUseCases>(UserUseCases);
-    replyUseCases = module.get<ReplyUseCases>(ReplyUseCases);
   });
 
   describe('onStart', () => {
@@ -50,7 +48,10 @@ describe('AppUpdate', () => {
           id: userId,
         },
         session: {},
-      } as MessageContext;
+        scene: {
+          enter: jest.fn(),
+        },
+      } as unknown as MessageContext;
 
       const user = {
         id: 1,
@@ -58,18 +59,14 @@ describe('AppUpdate', () => {
 
       jest.spyOn(userUseCases, 'create').mockResolvedValue(user);
 
-      jest
-        .spyOn(replyUseCases, 'startCommandMessage')
-        .mockResolvedValue(undefined);
-
-      await update.onStart(ctx);
+      const resp = await update.onStart(ctx);
 
       expect(userUseCases.create).toHaveBeenCalledWith({
         chatId,
         userId,
       });
       expect(ctx.session.user).toEqual(user);
-      expect(replyUseCases.startCommandMessage).toHaveBeenCalledWith(ctx);
+      expect(resp).toEqual('messages.start');
     });
 
     it('should not create a new user if one already exists in the session', async () => {
@@ -82,11 +79,11 @@ describe('AppUpdate', () => {
         },
       } as MessageContext;
 
-      await update.onStart(ctx);
+      const resp = await update.onStart(ctx);
 
       expect(userUseCases.create).not.toHaveBeenCalled();
       expect(ctx.session.user).toEqual(user);
-      expect(replyUseCases.startCommandMessage).toHaveBeenCalledWith(ctx);
+      expect(resp).toEqual('messages.start');
     });
   });
 
@@ -100,9 +97,9 @@ describe('AppUpdate', () => {
       } as unknown as MessageContext;
       const msg = { text: '🇺🇦' };
 
-      await update.onLang(ctx, msg);
+      const resp = await update.onLang(ctx, msg);
 
-      expect(ctx.scene.enter).toHaveBeenCalledWith(REGISTER_WIZARD_ID);
+      expect(resp).toEqual('messages.lang_changed');
     });
   });
 });
