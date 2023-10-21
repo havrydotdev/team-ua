@@ -1,4 +1,4 @@
-import { Column, Entity, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { IEntity } from './base.entity';
 import { Profile } from './profile.entity';
 
@@ -14,8 +14,10 @@ class User extends IEntity {
   })
   chatId: number;
 
+  @JoinColumn()
   @OneToOne(() => Profile, (profile) => profile.user, {
     nullable: true,
+    cascade: true,
   })
   profile: Profile;
 }

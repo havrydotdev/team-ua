@@ -13,7 +13,7 @@ export class ProfileUseCases {
     return this.profileService.findByUser(userId);
   }
 
-  async createProfile(dto: CreateProfileDto) {
+  async create(dto: CreateProfileDto) {
     const profile = this.profileFactory.create(dto);
 
     return this.profileService.createProfile(profile);

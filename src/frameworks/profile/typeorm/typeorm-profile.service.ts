@@ -21,7 +21,15 @@ export class TypeOrmProfileService implements IProfileService {
   }
 
   async createProfile(profile: Profile): Promise<Profile> {
-    return this.profileRepo.save(profile);
+    const res = await this.profileRepo.insert(profile);
+    return this.profileRepo.findOne({
+      where: {
+        id: res.identifiers[0].id,
+      },
+      relations: {
+        file: true,
+      },
+    });
   }
 
   async updateProfile(profileId: number, profile: Profile): Promise<Profile> {

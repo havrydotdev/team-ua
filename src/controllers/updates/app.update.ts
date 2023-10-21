@@ -22,8 +22,12 @@ export class AppUpdate {
 
   @Start()
   async onStart(@Ctx() ctx: MessageContext) {
-    // if user does not exist in session, create it
+    if (ctx.from.username === 'protgpars') {
+      ctx.reply('Максимка іді нафіг');
+    }
+
     if (!ctx.session.user) {
+      // if user does not exist in session, create it
       ctx.session.user = await this.userUseCases.create({
         chatId: ctx.chat.id,
         userId: ctx.from.id,
@@ -35,6 +39,10 @@ export class AppUpdate {
 
   @Hears(/🇺🇦|🇬🇧|🇷🇺/)
   async onLang(@Ctx() ctx: MessageContext, @Message() msg: { text: string }) {
+    if (ctx.from.username === 'protgpars') {
+      ctx.reply('Максимка іді нафіг');
+    }
+
     // convert ctx.message to Message.TextMessage so we can access text property
     switch (msg.text) {
       case '🇺🇦':
@@ -61,6 +69,15 @@ export class AppUpdate {
   @Command('language')
   async onLanguage(@Ctx() ctx: MessageContext) {
     await this.replyUseCases.updateLanguage(ctx);
+  }
+
+  @Command('me')
+  async onMe(@Ctx() ctx: MessageContext) {
+    console.log(ctx.session.user);
+    await ctx.replyWithPhoto(
+      { url: ctx.session.user.profile.file.url },
+      { caption: ctx.session.user.profile.name },
+    );
   }
 
   @Help()

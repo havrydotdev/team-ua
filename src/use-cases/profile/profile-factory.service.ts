@@ -10,6 +10,9 @@ export class ProfileFactoryService {
         id: dto.userId,
       },
       games: dto.games.map((gameId) => ({ id: gameId })),
+      file: {
+        id: dto.fileId,
+      },
     });
   }
 
@@ -20,6 +23,9 @@ export class ProfileFactoryService {
         id: dto.userId,
       },
       games: dto.games.map((gameId) => ({ id: gameId })),
+      file: {
+        id: dto.fileId,
+      },
     });
   }
 }

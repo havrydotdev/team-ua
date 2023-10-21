@@ -115,4 +115,8 @@ export class ReplyUseCases {
   async gameAdded(ctx: Context) {
     await this.replyService.reply(ctx, 'messages.game_added');
   }
+
+  async sendRegister(ctx: Context) {
+    await this.replyService.reply(ctx, 'messages.register_completed');
+  }
 }

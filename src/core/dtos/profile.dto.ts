@@ -12,6 +12,8 @@ class CreateProfileDto {
   about: string;
 
   games: number[];
+
+  fileId: number;
 }
 
 class UpdateProfileDto extends autoImplement<Partial<CreateProfileDto>>() {}

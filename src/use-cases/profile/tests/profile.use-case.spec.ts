@@ -54,7 +54,7 @@ describe('ProfileUseCases', () => {
     jest.spyOn(factory, 'create').mockReturnValue(profile);
     jest.spyOn(service, 'createProfile').mockResolvedValue(profile);
 
-    const result = await useCases.createProfile(dto);
+    const result = await useCases.create(dto);
 
     expect(result).toEqual(profile);
     expect(factory.create).toHaveBeenCalledWith(dto);

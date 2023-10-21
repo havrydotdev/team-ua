@@ -1,13 +1,12 @@
 import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
-import { Game } from 'src/core';
+import { CreateProfileDto, Game } from 'src/core';
 import { REGISTER_WIZARD_ID } from 'src/core/constants';
-import {
-  WizardMessageContext,
-  WizardContext,
-  PhotoMessage,
-} from 'src/types/telegraf';
+import { WizardMessageContext, PhotoMessage } from 'src/types/telegraf';
+import { FileUseCases } from 'src/use-cases/file/file.use-case.service';
 import { GameUseCases } from 'src/use-cases/game';
+import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
+import { UserUseCases } from 'src/use-cases/user';
 
 @Wizard(REGISTER_WIZARD_ID)
 export class RegisterWizard {
@@ -16,6 +15,9 @@ export class RegisterWizard {
   constructor(
     private readonly replyUseCases: ReplyUseCases,
     private readonly gameUseCases: GameUseCases,
+    private readonly userUseCases: UserUseCases,
+    private readonly fileUseCases: FileUseCases,
+    private readonly profileUseCases: ProfileUseCases,
   ) {
     this.gameUseCases.findAll().then((games: Game[]) => {
       this.games = games;
@@ -25,6 +27,8 @@ export class RegisterWizard {
   @WizardStep(1)
   async onEnter(@Ctx() ctx: WizardMessageContext) {
     ctx.wizard.next();
+
+    console.log(ctx);
 
     await this.replyUseCases.enterName(ctx);
   }
@@ -114,7 +118,7 @@ export class RegisterWizard {
     await this.replyUseCases.gameAdded(ctx);
   }
 
-  @On('message')
+  @On('photo')
   @WizardStep(6)
   async onPhoto(
     @Ctx()
@@ -122,19 +126,43 @@ export class RegisterWizard {
     @Message() msg: PhotoMessage,
   ) {
     if (msg.photo.length === 0) {
+      console.log('error');
+
+      return;
     }
-    const imageId = msg.photo.pop().file_id;
 
-    ctx.wizard.state['photo'] = imageId;
+    const tgFileId = msg.photo.pop().file_id;
 
-    ctx.wizard.next();
-  }
+    const user = await this.userUseCases.getByTgId(ctx.from.id);
 
-  @WizardStep(7)
-  async onDone(
-    @Ctx()
-    ctx: WizardContext,
-  ) {
+    if (!user) {
+      console.log('error');
+
+      return;
+    }
+
+    const fileUrl = await ctx.telegram.getFileLink(tgFileId);
+
+    const file = await (await fetch(fileUrl)).arrayBuffer();
+
+    const fileId = await this.fileUseCases.upload(Buffer.from(file), tgFileId);
+
+    const profileDto: CreateProfileDto = {
+      userId: user.id,
+      name: ctx.wizard.state['name'],
+      age: ctx.wizard.state['age'],
+      location: ctx.wizard.state['location'],
+      games: ctx.wizard.state['games'],
+      about: '',
+      fileId,
+    };
+
+    const profile = await this.profileUseCases.create(profileDto);
+
+    ctx.session.user.profile = profile;
+
     await ctx.scene.leave();
+
+    await this.replyUseCases.sendRegister(ctx);
   }
 }

@@ -11,14 +11,7 @@ import { Message } from 'telegraf/typings/core/types/typegram';
 
 type MessageContext = Context & CustomSceneContext & CustomSessionContext;
 
-type WizardMessageContext = Context & WizardContext;
-
-type WizardContext = TelegrafWizardCtx & {
-  session: {
-    user?: User;
-    lang: Language;
-  };
-} & {
+type WizardState = {
   wizard: {
     state: {
       name?: string;
@@ -28,6 +21,15 @@ type WizardContext = TelegrafWizardCtx & {
     };
   };
 };
+
+type WizardMessageContext = Context & WizardContext & WizardState;
+
+type WizardContext = TelegrafWizardCtx & {
+  session: {
+    user?: User;
+    lang: Language;
+  };
+} & WizardState;
 
 type CustomSessionContext = {
   session: {
