@@ -6,6 +6,9 @@ import { WizardMessageContext } from 'src/types/telegraf';
 import { Game } from 'src/core';
 import { MockDatabaseModule } from 'src/services/mock-database/mock-database.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserUseCases } from 'src/use-cases/user';
+import { FileUseCases } from 'src/use-cases/file';
+import { ProfileUseCases } from 'src/use-cases/profile';
 
 describe('RegisterWizard', () => {
   let wizard: RegisterWizard;
@@ -27,6 +30,24 @@ describe('RegisterWizard', () => {
           useValue: {
             enterName: jest.fn(),
             enterAge: jest.fn(),
+          },
+        },
+        {
+          provide: UserUseCases,
+          useValue: {
+            create: jest.fn(),
+          },
+        },
+        {
+          provide: FileUseCases,
+          useValue: {
+            upload: jest.fn(),
+          },
+        },
+        {
+          provide: ProfileUseCases,
+          useValue: {
+            create: jest.fn(),
           },
         },
       ],

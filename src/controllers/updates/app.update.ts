@@ -22,10 +22,6 @@ export class AppUpdate {
 
   @Start()
   async onStart(@Ctx() ctx: MessageContext) {
-    if (ctx.from.username === 'protgpars') {
-      ctx.reply('Максимка іді нафіг');
-    }
-
     if (!ctx.session.user) {
       // if user does not exist in session, create it
       ctx.session.user = await this.userUseCases.create({
@@ -39,10 +35,6 @@ export class AppUpdate {
 
   @Hears(/🇺🇦|🇬🇧|🇷🇺/)
   async onLang(@Ctx() ctx: MessageContext, @Message() msg: { text: string }) {
-    if (ctx.from.username === 'protgpars') {
-      ctx.reply('Максимка іді нафіг');
-    }
-
     // convert ctx.message to Message.TextMessage so we can access text property
     switch (msg.text) {
       case '🇺🇦':

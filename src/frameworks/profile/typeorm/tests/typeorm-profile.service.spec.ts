@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmProfileService } from '../typeorm-profile.service';
 import { Profile } from 'src/core';
-import { Repository } from 'typeorm';
+import { InsertResult, Repository } from 'typeorm';
 import { MockDatabaseModule } from 'src/services/mock-database/mock-database.module';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 
@@ -37,13 +37,18 @@ describe('TypeOrmProfileService', () => {
   });
 
   it('should create a profile', async () => {
-    const profile = new Profile();
-    jest.spyOn(repo, 'save').mockResolvedValue(profile);
+    const profile = Profile.create();
+
+    jest.spyOn(repo, 'insert').mockResolvedValue({
+      identifiers: [{ id: 1 }],
+    } as unknown as InsertResult);
+
+    jest.spyOn(repo, 'findOne').mockResolvedValue(profile);
 
     const result = await service.createProfile(profile);
 
     expect(result).toEqual(profile);
-    expect(repo.save).toHaveBeenCalledWith(profile);
+    expect(repo.insert).toHaveBeenCalledWith(profile);
   });
 
   it('should update a profile', async () => {
