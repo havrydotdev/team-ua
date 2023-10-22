@@ -13,5 +13,6 @@
   "send_games": "Send games you play",
   "invalid_game": "Please, enter valid game",
   "game_added": "Game added",
-  "register_completed": "Registration completed"
+  "register_completed": "Registration completed",
+  "invalid_lang": "Please, enter valid language"
 }

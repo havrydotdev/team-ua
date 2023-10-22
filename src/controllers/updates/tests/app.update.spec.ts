@@ -86,20 +86,4 @@ describe('AppUpdate', () => {
       expect(resp).toEqual('messages.start');
     });
   });
-
-  describe('onLang', () => {
-    it('should call startCommandMessage on the reply use cases', async () => {
-      const ctx = {
-        session: {},
-        scene: {
-          enter: jest.fn(),
-        },
-      } as unknown as MessageContext;
-      const msg = { text: '🇺🇦' };
-
-      const resp = await update.onLang(ctx, msg);
-
-      expect(resp).toEqual('messages.lang_changed');
-    });
-  });
 });

@@ -95,10 +95,8 @@ describe('RegisterWizard', () => {
       const resp = await wizard.onEnter(ctx);
 
       expect(resp).toEqual([
-        'messages.enter_name',
-        {
-          reply_markup: getNameMarkup('John'),
-        },
+        ['messages.new_user', 'messages.enter_name'],
+        [{}, { reply_markup: getNameMarkup(ctx.from.first_name) }],
       ]);
       expect(ctx.wizard.next).toHaveBeenCalled();
     });

@@ -18,6 +18,7 @@ export type I18nTranslations = {
         "invalid_game": string;
         "game_added": string;
         "register_completed": string;
+        "invalid_lang": string;
     };
 };
 export type I18nPath = Path<I18nTranslations>;

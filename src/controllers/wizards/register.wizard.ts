@@ -8,7 +8,6 @@ import { WizardMessageContext, PhotoMessage, MsgKey } from 'src/types/telegraf';
 import { FileUseCases } from 'src/use-cases/file/file.use-case.service';
 import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
-import { ReplyUseCases } from 'src/use-cases/reply';
 import { UserUseCases } from 'src/use-cases/user';
 
 // TODO: add global exception filter
@@ -17,7 +16,6 @@ export class RegisterWizard {
   private games: Game[];
 
   constructor(
-    private readonly replyUseCases: ReplyUseCases,
     private readonly gameUseCases: GameUseCases,
     private readonly userUseCases: UserUseCases,
     private readonly fileUseCases: FileUseCases,
@@ -29,12 +27,14 @@ export class RegisterWizard {
   }
 
   @WizardStep(1)
-  async onEnter(@Ctx() ctx: WizardMessageContext): Promise<[MsgKey, Extra]> {
+  async onEnter(
+    @Ctx() ctx: WizardMessageContext,
+  ): Promise<[MsgKey[], Extra[]]> {
     ctx.wizard.next();
 
     return [
-      'messages.enter_name',
-      { reply_markup: getNameMarkup(ctx.from.first_name) },
+      ['messages.new_user', 'messages.enter_name'],
+      [{}, { reply_markup: getNameMarkup(ctx.from.first_name) }],
     ];
   }
 

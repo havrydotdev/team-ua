@@ -15,6 +15,7 @@ import { ProfileModule } from './services/profile/profile.module';
 import { ProfileUseCasesModule } from './use-cases/profile/profile.use-case.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { I18nInterceptor } from './core/interceptors/i18n.interceptor';
+import { ChangeLangWizard } from './controllers/wizards/change-lang.wizard';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { I18nInterceptor } from './core/interceptors/i18n.interceptor';
   providers: [
     AppUpdate,
     RegisterWizard,
+    ChangeLangWizard,
     {
       provide: APP_INTERCEPTOR,
       useClass: I18nInterceptor,

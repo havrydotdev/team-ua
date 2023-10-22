@@ -18,12 +18,32 @@ export class I18nInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       map((data) => {
-        return typeof data === 'string'
-          ? this.replyUseCases.replyI18n(telegrafCtx, data as MsgKey)
-          : this.replyUseCases.replyI18n(
-              telegrafCtx,
-              ...(data as [MsgKey, Extra]),
-            );
+        switch (typeof data) {
+          case 'string':
+            this.replyUseCases.replyI18n(telegrafCtx, data as MsgKey);
+            break;
+          case 'undefined':
+            break;
+          default:
+            switch (typeof data[0]) {
+              case 'string':
+                this.replyUseCases.replyI18n(
+                  telegrafCtx,
+                  data[0] as MsgKey,
+                  data[1] as Extra,
+                );
+                break;
+              default:
+                for (let i = 0; i < data[0].length; i++) {
+                  this.replyUseCases.replyI18n(
+                    telegrafCtx,
+                    data[0][i] as MsgKey,
+                    data[1][i] as Extra,
+                  );
+                }
+                break;
+            }
+        }
       }),
     );
   }
