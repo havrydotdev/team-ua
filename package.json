@@ -66,6 +66,7 @@
     "@babel/plugin-proposal-private-methods": "^7.18.6",
     "@commitlint/config-angular": "^17.8.0",
     "@compodoc/compodoc": "^1.1.21",
+    "@golevelup/ts-jest": "^0.4.0",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",

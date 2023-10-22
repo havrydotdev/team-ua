@@ -4,7 +4,7 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { map } from 'rxjs';
+import { tap } from 'rxjs';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { Extra } from '../types';
 import { MsgKey } from 'src/types';
@@ -17,7 +17,8 @@ export class I18nInterceptor implements NestInterceptor {
     const telegrafCtx = ctx.getArgByIndex(0);
 
     return next.handle().pipe(
-      map((data) => {
+      tap((data) => {
+        console.log(data);
         switch (typeof data) {
           case 'string':
             this.replyUseCases.replyI18n(telegrafCtx, data as MsgKey);
@@ -34,13 +35,14 @@ export class I18nInterceptor implements NestInterceptor {
                 );
                 break;
               default:
-                for (let i = 0; i < data[0].length; i++) {
+                for (let i = 0; i < data.length; i++) {
                   this.replyUseCases.replyI18n(
                     telegrafCtx,
-                    data[0][i] as MsgKey,
-                    data[1][i] as Extra,
+                    data[i][0] as MsgKey,
+                    data[i][0] as Extra,
                   );
                 }
+
                 break;
             }
         }
