@@ -44,22 +44,36 @@ describe('ChangeLangWizard', () => {
 
   describe('onLang', () => {
     it('should enter register scene if profile is undefined', async () => {
-      const ctx = createMock<WizardContext>({
-        session: {
-          user: {},
+      [
+        {
+          input: '🇺🇦',
+          language: Language.UA,
         },
-        scene: {
-          leave: jest.fn(),
-          enter: jest.fn(),
+        {
+          input: '🇬🇧',
+          language: Language.EN,
         },
+        {
+          input: '🇷🇺',
+          language: Language.RU,
+        },
+      ].forEach(async (testCase) => {
+        const ctx = createMock<WizardContext>({
+          session: {
+            user: {},
+          },
+          scene: {
+            leave: jest.fn(),
+            enter: jest.fn(),
+          },
+        });
+
+        await wizard.onLang(ctx, { text: testCase.input });
+
+        expect(ctx.session.lang).toEqual(testCase.language);
+        expect(ctx.scene.leave).toHaveBeenCalled();
+        expect(ctx.scene.enter).toHaveBeenCalledWith(REGISTER_WIZARD_ID);
       });
-      const msg = { text: '🇺🇦' };
-
-      await wizard.onLang(ctx, msg);
-
-      expect(ctx.session.lang).toEqual(Language.UA);
-      expect(ctx.scene.leave).toHaveBeenCalled();
-      expect(ctx.scene.enter).toHaveBeenCalledWith(REGISTER_WIZARD_ID);
     });
 
     it('should not enter register scene if profile is defined', async () => {
