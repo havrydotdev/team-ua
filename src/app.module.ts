@@ -1,21 +1,24 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ReplyModule, TelegramModule, UserModule } from './services';
-import { AppUpdate } from './controllers';
-import { DatabaseModule } from './services';
-import { UserUseCasesModule } from './use-cases/user';
-import { ReplyUseCasesModule } from './use-cases/reply';
-import { I18nModule } from './services/i18n/i18n.module';
-import { RegisterWizard } from './controllers/wizards/register.wizard';
-import { GameModule } from './services/game/game.module';
-import { GameUseCasesModule } from './use-cases/game';
-import { FileModule } from './services/file/file.module';
-import { FileUseCasesModule } from './use-cases/file/file.use-case.module';
-import { ProfileModule } from './services/profile/profile.module';
-import { ProfileUseCasesModule } from './use-cases/profile/profile.use-case.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { I18nInterceptor } from './core/interceptors/i18n.interceptor';
-import { ChangeLangWizard } from './controllers/wizards/change-lang.wizard';
+import { AppUpdate } from './controllers/updates';
+import { ChangeLangWizard, RegisterWizard } from './controllers/wizards';
+import { ContextInterceptor, I18nInterceptor } from './core/interceptors';
+import {
+  DatabaseModule,
+  ReplyModule,
+  TelegramModule,
+  UserModule,
+} from './services';
+import { FileModule } from './services/file/file.module';
+import { GameModule } from './services/game/game.module';
+import { I18nModule } from './services/i18n/i18n.module';
+import { ProfileModule } from './services/profile/profile.module';
+import { FileUseCasesModule } from './use-cases/file';
+import { GameUseCasesModule } from './use-cases/game';
+import { ProfileUseCasesModule } from './use-cases/profile';
+import { ReplyUseCasesModule } from './use-cases/reply';
+import { UserUseCasesModule } from './use-cases/user';
 
 @Module({
   imports: [
@@ -43,6 +46,10 @@ import { ChangeLangWizard } from './controllers/wizards/change-lang.wizard';
     {
       provide: APP_INTERCEPTOR,
       useClass: I18nInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ContextInterceptor,
     },
   ],
 })

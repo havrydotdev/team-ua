@@ -1,6 +1,7 @@
+import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
+import { IFileService } from 'src/core/abstracts';
 import { FileUseCases } from '../file.use-case.service';
-import { IFileService } from 'src/core';
 
 describe('FileUseCases', () => {
   let useCases: FileUseCases;
@@ -12,9 +13,9 @@ describe('FileUseCases', () => {
         FileUseCases,
         {
           provide: IFileService,
-          useValue: {
+          useValue: createMock<IFileService>({
             upload: jest.fn().mockResolvedValue(1),
-          },
+          }),
         },
       ],
     }).compile();

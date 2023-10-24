@@ -3,7 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { S3 } from 'aws-sdk';
 import { ClientConfiguration } from 'aws-sdk/clients/acm';
-import { File, IFileService } from 'src/core';
+import { IFileService } from 'src/core/abstracts';
+import { File } from 'src/core/entities';
 import { Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 

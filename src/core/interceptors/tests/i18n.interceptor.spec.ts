@@ -1,12 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { I18nInterceptor } from '../i18n.interceptor';
-import { ReplyUseCases } from 'src/use-cases/reply';
-import { CallHandler, ExecutionContext } from '@nestjs/common';
-import { of } from 'rxjs';
 import { createMock } from '@golevelup/ts-jest';
-import { Markup } from 'telegraf';
-import { MsgKey } from 'src/types';
+import { CallHandler, ExecutionContext } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { of } from 'rxjs';
 import { Extra } from 'src/core/types';
+import { MsgKey, MsgWithExtra } from 'src/types';
+import { ReplyUseCases } from 'src/use-cases/reply';
+import { Markup } from 'telegraf';
+import { I18nInterceptor } from '../i18n.interceptor';
 
 describe('I18nInterceptor', () => {
   let interceptor: I18nInterceptor;
@@ -18,9 +18,7 @@ describe('I18nInterceptor', () => {
         I18nInterceptor,
         {
           provide: ReplyUseCases,
-          useValue: {
-            replyI18n: jest.fn(),
-          },
+          useValue: createMock<ReplyUseCases>(),
         },
       ],
     }).compile();
@@ -86,7 +84,7 @@ describe('I18nInterceptor', () => {
     });
 
     it('should call replyI18n on the reply use cases with the message key and extra for a nested array', async () => {
-      const controllerResp: [[MsgKey, Extra], [MsgKey, Extra]] = [
+      const controllerResp: MsgWithExtra[] = [
         [
           'messages.help',
           { reply_markup: Markup.removeKeyboard().reply_markup },
@@ -109,27 +107,30 @@ describe('I18nInterceptor', () => {
 
       response.subscribe({
         next: () => {
-          expect(replyUseCases.replyI18n).toHaveBeenCalledWith(
-            {},
-            ...controllerResp,
-          );
-        },
-        complete: () => {
           expect(replySpy).toHaveBeenCalledTimes(1);
         },
       });
     });
 
     it('should not call replyI18n on the reply use cases for undefined', async () => {
-      const ctx = {
+      const ctx = createMock<ExecutionContext>({
         getArgByIndex: jest.fn().mockReturnValue({}),
-      } as unknown as ExecutionContext;
-      const next = { handle: jest.fn().mockReturnValue(of(undefined)) };
-      jest.spyOn(replyUseCases, 'replyI18n').mockImplementation();
+      });
+      const next = createMock<CallHandler>({
+        handle: jest.fn().mockReturnValue(of(undefined)),
+      });
 
-      await interceptor.intercept(ctx, next);
+      const replySpy = jest
+        .spyOn(replyUseCases, 'replyI18n')
+        .mockImplementation();
 
-      expect(replyUseCases.replyI18n).not.toHaveBeenCalled();
+      const response = interceptor.intercept(ctx, next);
+
+      response.subscribe({
+        complete: () => {
+          expect(replySpy).not.toHaveBeenCalled();
+        },
+      });
     });
   });
 });

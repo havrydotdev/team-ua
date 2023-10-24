@@ -1,10 +1,11 @@
+import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ReplyUseCases } from '../reply.use-case';
-import { IReplyService } from 'src/core';
-import { Context } from 'telegraf';
-import { MsgKey } from 'src/types';
+import { IReplyService } from 'src/core/abstracts';
 import { Extra } from 'src/core/types';
 import { getRemoveKeyboardMarkup } from 'src/core/utils';
+import { MsgKey } from 'src/types';
+import { Context } from 'telegraf';
+import { ReplyUseCases } from '../reply.use-case';
 
 describe('ReplyUseCases', () => {
   let useCases: ReplyUseCases;
@@ -16,9 +17,7 @@ describe('ReplyUseCases', () => {
         ReplyUseCases,
         {
           provide: IReplyService,
-          useValue: {
-            reply: jest.fn(),
-          },
+          useValue: createMock<IReplyService>(),
         },
       ],
     }).compile();
@@ -29,7 +28,7 @@ describe('ReplyUseCases', () => {
 
   describe('replyI18n', () => {
     it('should call reply on the reply service with the correct arguments', async () => {
-      const ctx = {} as Context;
+      const ctx = createMock<Context>();
       const key: MsgKey = 'messages.enter_age';
       const params: Extra = {
         reply_markup: getRemoveKeyboardMarkup(),

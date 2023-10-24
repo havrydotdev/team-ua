@@ -13,3 +13,5 @@ else
   echo $response
   exit 1
 fi
+
+npm run format

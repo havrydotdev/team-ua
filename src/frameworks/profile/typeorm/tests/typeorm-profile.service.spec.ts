@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TypeOrmProfileService } from '../typeorm-profile.service';
-import { Profile } from 'src/core';
-import { InsertResult, Repository } from 'typeorm';
-import { MockDatabaseModule } from 'src/services/mock-database/mock-database.module';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
+import { Profile } from 'src/core/entities';
+import { MockDatabaseModule } from 'src/services/mock-database/mock-database.module';
+import { InsertResult, Repository } from 'typeorm';
+import { TypeOrmProfileService } from '../typeorm-profile.service';
 
 describe('TypeOrmProfileService', () => {
   let service: TypeOrmProfileService;

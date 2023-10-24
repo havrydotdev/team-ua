@@ -1,10 +1,20 @@
 import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
-import { CreateProfileDto, Game } from 'src/core';
 import { REGISTER_WIZARD_ID } from 'src/core/constants';
+import { CreateProfileDto } from 'src/core/dtos';
+import { Game } from 'src/core/entities';
 import { Extra } from 'src/core/types';
-import { fetchImage, getRemoveKeyboardMarkup } from 'src/core/utils';
-import { getGamesMarkup, getNameMarkup } from 'src/core/utils';
-import { WizardMessageContext, PhotoMessage, MsgKey } from 'src/types/telegraf';
+import {
+  fetchImage,
+  getGamesMarkup,
+  getNameMarkup,
+  getRemoveKeyboardMarkup,
+} from 'src/core/utils';
+import {
+  MsgKey,
+  MsgWithExtra,
+  PhotoMessage,
+  WizardMessageContext,
+} from 'src/types/telegraf';
 import { FileUseCases } from 'src/use-cases/file/file.use-case.service';
 import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
@@ -27,14 +37,15 @@ export class RegisterWizard {
   }
 
   @WizardStep(1)
-  async onEnter(
-    @Ctx() ctx: WizardMessageContext,
-  ): Promise<[MsgKey[], Extra[]]> {
+  async onEnter(@Ctx() ctx: WizardMessageContext): Promise<MsgWithExtra[]> {
     ctx.wizard.next();
 
     return [
-      ['messages.new_user', 'messages.enter_name'],
-      [{}, { reply_markup: getNameMarkup(ctx.from.first_name) }],
+      ['messages.new_user', {}],
+      [
+        'messages.enter_name',
+        { reply_markup: getNameMarkup(ctx.from.first_name) },
+      ],
     ];
   }
 

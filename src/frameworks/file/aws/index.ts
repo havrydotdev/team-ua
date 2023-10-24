@@ -1,2 +1,2 @@
-export * from './aws-file.service';
 export * from './aws-file.module';
+export * from './aws-file.service';

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
+import { UserModule } from 'src/services';
 import { UserFactoryService } from './user-factory.service';
 import { UserUseCases } from './user.use-case';
-import { UserModule } from 'src/services';
 
 @Module({
   imports: [UserModule],

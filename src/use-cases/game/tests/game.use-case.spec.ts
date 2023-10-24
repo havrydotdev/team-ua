@@ -1,10 +1,10 @@
-import { IGameService } from 'src/core/abstracts/game.abstract.service';
-import { GameUseCases } from '../game.use-case';
+import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TypeOrmGameService } from 'src/frameworks/game/typeorm';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Game } from 'src/core';
+import { IGameService } from 'src/core/abstracts/game.abstract.service';
+import { Game } from 'src/core/entities';
 import { MockDatabaseModule } from 'src/services/mock-database/mock-database.module';
+import { GameUseCases } from '../game.use-case';
 
 describe('GameUseCases', () => {
   let gameUseCases: GameUseCases;
@@ -17,7 +17,7 @@ describe('GameUseCases', () => {
         GameUseCases,
         {
           provide: IGameService,
-          useClass: TypeOrmGameService,
+          useValue: createMock<IGameService>(),
         },
       ],
     }).compile();
@@ -33,13 +33,13 @@ describe('GameUseCases', () => {
         Game.create({ id: 2, title: 'Game 2' }),
       ];
 
-      jest
+      const findAllSpy = jest
         .spyOn(gameService, 'findAll')
         .mockImplementationOnce(async () => games);
 
       const result = await gameUseCases.findAll();
 
-      expect(gameService.findAll).toBeCalledTimes(1);
+      expect(findAllSpy).toBeCalledTimes(1);
       expect(result).toEqual(games);
     });
   });

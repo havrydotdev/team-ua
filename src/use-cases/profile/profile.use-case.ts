@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CreateProfileDto, IProfileService } from 'src/core';
+import { IProfileService } from 'src/core/abstracts';
+import { CreateProfileDto } from 'src/core/dtos';
 import { ProfileFactoryService } from './profile-factory.service';
 
 @Injectable()

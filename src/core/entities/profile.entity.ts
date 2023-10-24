@@ -7,9 +7,9 @@ import {
   OneToOne,
 } from 'typeorm';
 import { IEntity } from './base.entity';
+import { File } from './file.entity';
 import { Game } from './game.entity';
 import { User } from './user.entity';
-import { File } from './file.entity';
 
 @Entity('profiles')
 class Profile extends IEntity {

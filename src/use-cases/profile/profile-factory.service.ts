@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CreateProfileDto, Profile, UpdateProfileDto } from 'src/core';
+import { CreateProfileDto, UpdateProfileDto } from 'src/core/dtos';
+import { Profile } from 'src/core/entities';
 
 @Injectable()
 export class ProfileFactoryService {

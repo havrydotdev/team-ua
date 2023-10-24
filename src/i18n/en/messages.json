@@ -14,5 +14,6 @@
   "invalid_game": "Please, enter valid game",
   "game_added": "Game added",
   "register_completed": "Registration completed",
-  "invalid_lang": "Please, enter valid language"
+  "invalid_lang": "Please, enter valid language",
+  "only_private": "Sorry, I can't work in groups. Use me in private chat"
 }

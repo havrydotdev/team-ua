@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PathImpl2 } from '@nestjs/config';
 import { I18nService } from 'nestjs-i18n';
-import { IReplyService } from 'src/core/abstracts/reply.abstract.service';
+import { IReplyService } from 'src/core/abstracts';
 import { Extra } from 'src/core/types';
 import { I18nTranslations } from 'src/generated/i18n.generated';
 import { MessageContext } from 'src/types/telegraf';

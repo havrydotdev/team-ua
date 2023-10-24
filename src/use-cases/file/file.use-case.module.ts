@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { FileUseCases } from './file.use-case.service';
 import { FileModule } from 'src/services/file/file.module';
+import { FileUseCases } from './file.use-case.service';
 
 @Module({
   imports: [FileModule],

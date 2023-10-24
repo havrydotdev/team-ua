@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { File, IFileService } from 'src/core';
-import { AwsFileService } from './aws-file.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { IFileService } from 'src/core/abstracts';
+import { File } from 'src/core/entities';
+import { AwsFileService } from './aws-file.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([File])],

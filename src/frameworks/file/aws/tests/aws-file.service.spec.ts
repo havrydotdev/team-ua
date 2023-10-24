@@ -1,11 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AwsFileService } from '../aws-file.service';
 import { ConfigService } from '@nestjs/config';
-import { S3 } from 'aws-sdk';
-import { InsertResult, Repository } from 'typeorm';
-import { File } from 'src/core';
-import { MockDatabaseModule } from 'src/services/mock-database/mock-database.module';
+import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
+import { S3 } from 'aws-sdk';
+import { File } from 'src/core/entities';
+import { MockDatabaseModule } from 'src/services/mock-database/mock-database.module';
+import { InsertResult, Repository } from 'typeorm';
+import { AwsFileService } from '../aws-file.service';
 
 describe('AwsFileService', () => {
   let service: AwsFileService;

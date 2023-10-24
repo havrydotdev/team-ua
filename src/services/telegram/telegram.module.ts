@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { SQLite } from '@telegraf/session/sqlite';
 import { TelegrafModule, TelegrafModuleOptions } from 'nestjs-telegraf';
 import { session } from 'telegraf';
-import { SQLite } from '@telegraf/session/sqlite';
 
 @Module({
   imports: [

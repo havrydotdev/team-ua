@@ -1,15 +1,24 @@
+import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ChangeLangWizard } from '../change-lang.wizard';
+import { REGISTER_WIZARD_ID } from 'src/core/constants';
 import { Language } from 'src/core/enums';
 import { getSelectLangMarkup } from 'src/core/utils';
 import { WizardContext } from 'src/types';
+import { ReplyUseCases } from 'src/use-cases/reply';
+import { ChangeLangWizard } from '../change-lang.wizard';
 
 describe('ChangeLangWizard', () => {
   let wizard: ChangeLangWizard;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ChangeLangWizard],
+      providers: [
+        ChangeLangWizard,
+        {
+          provide: ReplyUseCases,
+          useValue: createMock<ReplyUseCases>(),
+        },
+      ],
     }).compile();
 
     wizard = module.get<ChangeLangWizard>(ChangeLangWizard);
@@ -17,11 +26,11 @@ describe('ChangeLangWizard', () => {
 
   describe('onEnter', () => {
     it('should return the select language message with the select language markup', async () => {
-      const ctx = {
+      const ctx = createMock<WizardContext>({
         wizard: {
           next: jest.fn(),
         },
-      } as unknown as WizardContext;
+      });
 
       const result = wizard.onEnter(ctx);
 
@@ -34,13 +43,37 @@ describe('ChangeLangWizard', () => {
   });
 
   describe('onLang', () => {
-    it('should set the session language and return the lang changed message', async () => {
-      const ctx = {
-        session: {},
+    it('should enter register scene if profile is undefined', async () => {
+      const ctx = createMock<WizardContext>({
+        session: {
+          user: {},
+        },
         scene: {
           leave: jest.fn(),
+          enter: jest.fn(),
         },
-      } as unknown as WizardContext;
+      });
+      const msg = { text: '🇺🇦' };
+
+      await wizard.onLang(ctx, msg);
+
+      expect(ctx.session.lang).toEqual(Language.UA);
+      expect(ctx.scene.leave).toHaveBeenCalled();
+      expect(ctx.scene.enter).toHaveBeenCalledWith(REGISTER_WIZARD_ID);
+    });
+
+    it('should not enter register scene if profile is defined', async () => {
+      const ctx = createMock<WizardContext>({
+        session: {
+          user: {
+            profile: {},
+          },
+        },
+        scene: {
+          leave: jest.fn(),
+          enter: jest.fn(),
+        },
+      });
       const msg = { text: '🇺🇦' };
 
       const result = await wizard.onLang(ctx, msg);
@@ -51,12 +84,12 @@ describe('ChangeLangWizard', () => {
     });
 
     it('should return the invalid lang message for an invalid language', async () => {
-      const ctx = {
+      const ctx = createMock<WizardContext>({
         session: {},
         scene: {
           leave: jest.fn(),
         },
-      } as unknown as WizardContext;
+      });
       const msg = { text: 'invalid' };
 
       const result = await wizard.onLang(ctx, msg);

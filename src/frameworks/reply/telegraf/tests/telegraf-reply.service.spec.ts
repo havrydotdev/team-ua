@@ -1,21 +1,21 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { TelegrafReplyService } from '../telegraf-reply.service';
-import { I18nService } from 'nestjs-i18n';
-import { I18nTranslations } from 'src/generated/i18n.generated';
-import { Context } from 'telegraf/typings';
-import { Extra } from 'src/core/types';
+import { createMock } from '@golevelup/ts-jest';
 import { PathImpl2 } from '@nestjs/config';
+import { Test, TestingModule } from '@nestjs/testing';
+import { I18nService } from 'nestjs-i18n';
 import { Language } from 'src/core/enums';
+import { Extra } from 'src/core/types';
+import { I18nTranslations } from 'src/generated/i18n.generated';
+import { MessageContext } from 'src/types';
+import { TelegrafReplyService } from '../telegraf-reply.service';
 
 describe('TelegrafReplyService', () => {
   let service: TelegrafReplyService;
   let i18n: I18nService<I18nTranslations>;
-  const ctx = {
+  const ctx = createMock<MessageContext>({
     session: {
       lang: Language.UA,
     },
-    reply: jest.fn(),
-  } as unknown as Context;
+  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

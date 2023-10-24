@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { PathImpl2 } from '@nestjs/config';
+import { User } from 'src/core/entities';
+import { Language } from 'src/core/enums';
+import { Extra } from 'src/core/types';
+import { I18nTranslations } from 'src/generated/i18n.generated';
+import { Context } from 'telegraf';
+import { Message } from 'telegraf/typings/core/types/typegram';
 import {
   SceneContext,
   SceneContextScene,
   WizardContext as TelegrafWizardCtx,
 } from 'telegraf/typings/scenes';
-import { Context } from 'telegraf';
-import { Language } from 'src/core/enums';
-import { User } from 'src/core';
-import { Message } from 'telegraf/typings/core/types/typegram';
-import { PathImpl2 } from '@nestjs/config';
-import { I18nTranslations } from 'src/generated/i18n.generated';
 
 type MessageContext = Context & CustomSceneContext & CustomSessionContext;
 
@@ -48,10 +49,13 @@ type PhotoMessage = Message.PhotoMessage;
 
 type MsgKey = PathImpl2<I18nTranslations>;
 
+type MsgWithExtra = [MsgKey, Extra];
+
 export {
   MessageContext,
-  WizardMessageContext,
-  WizardContext,
-  PhotoMessage,
   MsgKey,
+  MsgWithExtra,
+  PhotoMessage,
+  WizardContext,
+  WizardMessageContext,
 };

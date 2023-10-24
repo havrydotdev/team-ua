@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { IReplyService } from 'src/core/abstracts/reply.abstract.service';
+import { IReplyService } from 'src/core/abstracts';
 import { TelegrafReplyService } from './telegraf-reply.service';
 
 @Module({

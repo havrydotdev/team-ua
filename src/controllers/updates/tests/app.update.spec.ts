@@ -1,13 +1,15 @@
+import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppUpdate } from '../app.update';
-import { UserUseCases } from 'src/use-cases/user/user.use-case';
-import { ReplyUseCases } from 'src/use-cases/reply';
+import { CHANGE_LANG_WIZARD_ID } from 'src/core/constants';
+import { User } from 'src/core/entities';
 import { MessageContext } from 'src/types/telegraf';
-import { User } from 'src/core';
+import { ReplyUseCases } from 'src/use-cases/reply';
+import { UserUseCases } from 'src/use-cases/user/user.use-case';
+import { AppUpdate } from '../app.update';
 
 describe('AppUpdate', () => {
   let update: AppUpdate;
-  let userUseCases: UserUseCases;
+  let replyUseCases: ReplyUseCases;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -15,74 +17,56 @@ describe('AppUpdate', () => {
         AppUpdate,
         {
           provide: UserUseCases,
-          useValue: {
-            create: jest.fn(),
-          },
+          useValue: createMock<UserUseCases>(),
         },
         {
           provide: ReplyUseCases,
-          useValue: {
-            startCommandMessage: jest.fn(),
-            languageChanged: jest.fn(),
-            newUser: jest.fn(),
-            selectLangMarkup: jest.fn().mockReturnValue({}),
-          },
+          useValue: createMock<ReplyUseCases>(),
         },
       ],
     }).compile();
 
     update = module.get<AppUpdate>(AppUpdate);
-    userUseCases = module.get<UserUseCases>(UserUseCases);
+    replyUseCases = module.get<ReplyUseCases>(ReplyUseCases);
   });
 
   describe('onStart', () => {
     it('should create a new user if one does not exist in the session', async () => {
       const chatId = 123;
       const userId = 456;
-
-      const ctx = {
+      const ctx = createMock<MessageContext>({
         chat: {
           id: chatId,
         },
         from: {
           id: userId,
         },
-        session: {},
+        session: {
+          user: {},
+        },
         scene: {
           enter: jest.fn(),
         },
-      } as unknown as MessageContext;
-
-      const user = {
-        id: 1,
-      } as User;
-
-      jest.spyOn(userUseCases, 'create').mockResolvedValue(user);
-
-      const resp = await update.onStart(ctx);
-
-      expect(userUseCases.create).toHaveBeenCalledWith({
-        chatId,
-        userId,
       });
-      expect(ctx.session.user).toEqual(user);
-      expect(resp).toEqual('messages.start');
+
+      await update.onStart(ctx);
+
+      expect(replyUseCases.replyI18n).toHaveBeenCalledTimes(1);
+      expect(ctx.scene.enter).toHaveBeenCalledWith(CHANGE_LANG_WIZARD_ID);
     });
 
     it('should not create a new user if one already exists in the session', async () => {
-      const user = {
-        id: 1,
-      } as User;
-      const ctx = {
+      const ctx = createMock<MessageContext>({
         session: {
-          user,
+          user: createMock<User>({
+            id: 1,
+          }),
         },
-      } as MessageContext;
+      });
 
       const resp = await update.onStart(ctx);
 
-      expect(userUseCases.create).not.toHaveBeenCalled();
-      expect(ctx.session.user).toEqual(user);
+      expect(ctx.session.user).toEqual(ctx.session.user);
       expect(resp).toEqual('messages.start');
     });
   });

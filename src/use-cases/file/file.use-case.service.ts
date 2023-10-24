@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IFileService } from 'src/core';
+import { IFileService } from 'src/core/abstracts';
 
 @Injectable()
 export class FileUseCases {

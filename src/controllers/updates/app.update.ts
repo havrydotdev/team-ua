@@ -1,22 +1,20 @@
 import { Command, Ctx, Help, Start, Update } from 'nestjs-telegraf';
-import { CHANGE_LANG_WIZARD_ID, REGISTER_WIZARD_ID } from 'src/core/constants';
-import { UserUseCases } from 'src/use-cases/user/user.use-case';
+import { CHANGE_LANG_WIZARD_ID } from 'src/core/constants';
 import { MessageContext, MsgKey } from 'src/types';
+import { ReplyUseCases } from 'src/use-cases/reply';
 
 @Update()
 export class AppUpdate {
-  constructor(private readonly userUseCases: UserUseCases) {}
+  constructor(private readonly replyUseCases: ReplyUseCases) {}
 
   @Start()
   async onStart(@Ctx() ctx: MessageContext): Promise<MsgKey> {
-    if (!ctx.session.user) {
-      // if user does not exist in session, create it
-      ctx.session.user = await this.userUseCases.create({
-        chatId: ctx.chat.id,
-        userId: ctx.from.id,
-      });
+    if (!ctx.session.user.profile) {
+      await this.replyUseCases.replyI18n(ctx, 'messages.start');
 
-      await ctx.scene.enter(REGISTER_WIZARD_ID);
+      await ctx.scene.enter(CHANGE_LANG_WIZARD_ID);
+
+      return;
     }
 
     return 'messages.start';
