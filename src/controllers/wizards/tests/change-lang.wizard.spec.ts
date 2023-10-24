@@ -25,10 +25,13 @@ describe('ChangeLangWizard', () => {
   });
 
   describe('onEnter', () => {
-    it('should return the select language message with the select language markup', async () => {
+    it('should return the select language message with the select language markup if profile is undefined', async () => {
       const ctx = createMock<WizardContext>({
         wizard: {
           next: jest.fn(),
+        },
+        session: {
+          user: {},
         },
       });
 
@@ -36,6 +39,27 @@ describe('ChangeLangWizard', () => {
 
       expect(result).toEqual([
         'messages.select_lang',
+        { reply_markup: getSelectLangMarkup() },
+      ]);
+      expect(ctx.wizard.next).toHaveBeenCalled();
+    });
+
+    it('should return the update language message with the select language markup', async () => {
+      const ctx = createMock<WizardContext>({
+        wizard: {
+          next: jest.fn(),
+        },
+        session: {
+          user: {
+            profile: {},
+          },
+        },
+      });
+
+      const result = wizard.onEnter(ctx);
+
+      expect(result).toEqual([
+        'messages.update_lang',
         { reply_markup: getSelectLangMarkup() },
       ]);
       expect(ctx.wizard.next).toHaveBeenCalled();

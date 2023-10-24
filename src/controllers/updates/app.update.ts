@@ -1,5 +1,6 @@
 import { Command, Ctx, Help, Start, Update } from 'nestjs-telegraf';
 import { CHANGE_LANG_WIZARD_ID } from 'src/core/constants';
+import { getCaption } from 'src/core/utils';
 import { MessageContext, MsgKey } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
 
@@ -28,10 +29,12 @@ export class AppUpdate {
 
   @Command('me')
   async onMe(@Ctx() ctx: MessageContext) {
-    console.log(ctx.session.user);
+    console.log(ctx.session);
     await ctx.replyWithPhoto(
       { url: ctx.session.user.profile.file.url },
-      { caption: ctx.session.user.profile.name },
+      {
+        caption: getCaption(ctx.session.user.profile),
+      },
     );
   }
 

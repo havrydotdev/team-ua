@@ -1,18 +1,16 @@
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
-import { IEntity } from './base.entity';
+import {
+  BaseEntity,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryColumn,
+} from 'typeorm';
 import { Profile } from './profile.entity';
 
 @Entity('users')
-class User extends IEntity {
-  @Column({
-    unique: true,
-  })
-  userId: number;
-
-  @Column({
-    unique: true,
-  })
-  chatId: number;
+class User extends BaseEntity {
+  @PrimaryColumn()
+  id: number;
 
   @JoinColumn()
   @OneToOne(() => Profile, (profile) => profile.user, {

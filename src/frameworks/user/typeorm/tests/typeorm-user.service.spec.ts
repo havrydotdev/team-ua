@@ -19,21 +19,6 @@ describe('TypeOrmUserService', () => {
     repo = module.get<Repository<User>>(getRepositoryToken(User));
   });
 
-  it('should return a user for a given Telegram ID', async () => {
-    const tgId = 123;
-    const user = User.create();
-    jest.spyOn(repo, 'findOne').mockResolvedValue(user);
-
-    const result = await service.findByTgId(tgId);
-
-    expect(result).toEqual(user);
-    expect(repo.findOne).toHaveBeenCalledWith({
-      where: {
-        userId: tgId,
-      },
-    });
-  });
-
   it('should create a user', async () => {
     const user = User.create();
     jest.spyOn(repo, 'save').mockResolvedValue(user);

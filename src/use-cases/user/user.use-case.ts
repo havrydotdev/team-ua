@@ -23,7 +23,7 @@ export class UserUseCases {
     return this.userService.update(userId, user);
   }
 
-  async getByTgId(tgId: number): Promise<User> {
-    return this.userService.findByTgId(tgId);
+  async findById(userId: number): Promise<User | null> {
+    return this.userService.findById(userId);
   }
 }

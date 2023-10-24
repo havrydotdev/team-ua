@@ -4,7 +4,7 @@ import { CreateProfileDto } from 'src/core/dtos';
 import { Game } from 'src/core/entities';
 import { Extra } from 'src/core/types';
 import {
-  fetchImage,
+  fileFromMsg,
   getGamesMarkup,
   getNameMarkup,
   getRemoveKeyboardMarkup,
@@ -54,12 +54,17 @@ export class RegisterWizard {
   async onName(
     @Ctx() ctx: WizardMessageContext,
     @Message() msg: { text: string },
-  ): Promise<MsgKey> {
+  ): Promise<[MsgKey, Extra]> {
     ctx.wizard.state['name'] = msg.text;
 
     ctx.wizard.next();
 
-    return 'messages.enter_age';
+    return [
+      'messages.enter_age',
+      {
+        reply_markup: getRemoveKeyboardMarkup(),
+      },
+    ];
   }
 
   @On('text')
@@ -151,25 +156,12 @@ export class RegisterWizard {
       return;
     }
 
-    const tgFileId = msg.photo.pop().file_id;
+    const file = await fileFromMsg(ctx, msg);
 
-    const user = await this.userUseCases.getByTgId(ctx.from.id);
-
-    //  TODO: handle error
-    if (!user) {
-      console.log('error');
-
-      return;
-    }
-
-    const fileUrl = await ctx.telegram.getFileLink(tgFileId);
-
-    const file = await fetchImage(fileUrl);
-
-    const fileId = await this.fileUseCases.upload(file, tgFileId);
+    const fileId = await this.fileUseCases.upload(file.content, file.name);
 
     const profileDto: CreateProfileDto = {
-      userId: user.id,
+      userId: ctx.from.id,
       name: ctx.wizard.state['name'],
       age: ctx.wizard.state['age'],
       location: ctx.wizard.state['location'],

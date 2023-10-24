@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateProfileDto, UpdateProfileDto } from 'src/core/dtos';
-import { Profile } from 'src/core/entities';
+import { Game, Profile } from 'src/core/entities';
 
 @Injectable()
 export class ProfileFactoryService {
@@ -10,7 +10,7 @@ export class ProfileFactoryService {
       user: {
         id: dto.userId,
       },
-      games: dto.games.map((gameId) => ({ id: gameId })),
+      games: dto.games.map((gameId) => Game.create({ id: gameId })),
       file: {
         id: dto.fileId,
       },

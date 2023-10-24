@@ -5,7 +5,7 @@ import { User } from 'src/core/entities';
 import { MessageContext } from 'src/types';
 import { UserUseCases } from 'src/use-cases/user';
 import { BotException } from '../../errors';
-import { ContextInterceptor } from '../validation.interceptor';
+import { ContextInterceptor } from '../context.interceptor';
 
 describe('ContextInterceptor', () => {
   let interceptor: ContextInterceptor;
@@ -44,7 +44,7 @@ describe('ContextInterceptor', () => {
       const ctx = createMock<ExecutionContext>({
         getArgByIndex: jest.fn().mockReturnValue({
           chat: { type: 'private' },
-          from: { id: 1 },
+          from: { id: 12345 },
           session: { user: undefined },
         }),
       });
@@ -53,11 +53,11 @@ describe('ContextInterceptor', () => {
         id: 1,
       });
 
-      jest.spyOn(userUseCases, 'getByTgId').mockResolvedValue(user);
+      jest.spyOn(userUseCases, 'findById').mockResolvedValue(user);
 
       await interceptor.intercept(ctx, next);
 
-      expect(userUseCases.getByTgId).toHaveBeenCalledWith(1);
+      expect(userUseCases.findById).toHaveBeenCalledWith(12345);
       expect((ctx.getArgByIndex(0) as MessageContext).session.user).toEqual(
         user,
       );
@@ -68,7 +68,7 @@ describe('ContextInterceptor', () => {
       const ctx = createMock<ExecutionContext>({
         getArgByIndex: jest.fn().mockReturnValue({
           chat: { type: 'private', id: 1 },
-          from: { id: 1 },
+          from: { id: 12345 },
           session: { user: undefined },
         }),
       });
@@ -77,15 +77,14 @@ describe('ContextInterceptor', () => {
         id: 1,
       });
 
-      jest.spyOn(userUseCases, 'getByTgId').mockResolvedValue(undefined);
+      jest.spyOn(userUseCases, 'findById').mockResolvedValue(undefined);
       jest.spyOn(userUseCases, 'create').mockResolvedValue(user);
 
       await interceptor.intercept(ctx, next);
 
-      expect(userUseCases.getByTgId).toHaveBeenCalledWith(1);
+      expect(userUseCases.findById).toHaveBeenCalledWith(12345);
       expect(userUseCases.create).toHaveBeenCalledWith({
-        chatId: 1,
-        userId: 1,
+        id: 12345,
       });
       expect((ctx.getArgByIndex(0) as MessageContext).session.user).toEqual(
         user,

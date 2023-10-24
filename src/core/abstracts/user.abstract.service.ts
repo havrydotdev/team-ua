@@ -5,7 +5,7 @@ abstract class IUserService {
 
   abstract update(userId: number, user: User): Promise<User>;
 
-  abstract findByTgId(tgId: number): Promise<User>;
+  abstract findById(userId: number): Promise<User | null>;
 }
 
 export { IUserService };

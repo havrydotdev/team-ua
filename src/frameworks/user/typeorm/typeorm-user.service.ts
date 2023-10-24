@@ -10,10 +10,6 @@ class TypeOrmUserService implements IUserService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
   ) {}
 
-  async findByTgId(tgId: number): Promise<User> {
-    return this.userRepo.findOne({ where: { userId: tgId } });
-  }
-
   async create(user: User): Promise<User> {
     return this.userRepo.save(user);
   }
@@ -23,6 +19,12 @@ class TypeOrmUserService implements IUserService {
 
     return this.userRepo.findOneBy({
       id: user.id,
+    });
+  }
+
+  async findById(userId: number): Promise<User | null> {
+    return this.userRepo.findOneBy({
+      id: userId,
     });
   }
 }

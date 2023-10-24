@@ -15,7 +15,12 @@ export class ChangeLangWizard {
   onEnter(@Ctx() ctx: WizardContext): [MsgKey, Extra] {
     ctx.wizard.next();
 
-    return ['messages.select_lang', { reply_markup: getSelectLangMarkup() }];
+    return [
+      ctx.session.user.profile
+        ? 'messages.update_lang'
+        : 'messages.select_lang',
+      { reply_markup: getSelectLangMarkup() },
+    ];
   }
 
   @On('text')

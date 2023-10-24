@@ -42,7 +42,8 @@
     "compodoc:build": "compodoc -p tsconfig.doc.json -n 'Ua teammates documentation' -s -r 3000",
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
-    "docs:preview": "vitepress preview"
+    "docs:preview": "vitepress preview",
+    "sessions:drop": "sqlite3 ./dev.sqlite 'DROP TABLE \"telegraf-sessions\"'"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

@@ -1,8 +1,7 @@
 import { partial } from '../utils';
 
 class CreateUserDto {
-  chatId: number;
-  userId: number;
+  id: number;
 }
 
 class UpdateUserDto extends partial<Partial<CreateUserDto>>() {}

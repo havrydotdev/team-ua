@@ -1,7 +1,7 @@
+import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { Profile } from 'src/core/entities';
-import { MockDatabaseModule } from 'src/services/mock-database/mock-database.module';
 import { InsertResult, Repository } from 'typeorm';
 import { TypeOrmProfileService } from '../typeorm-profile.service';
 
@@ -10,18 +10,24 @@ describe('TypeOrmProfileService', () => {
   let repo: Repository<Profile>;
 
   beforeEach(async () => {
+    const repoToken = getRepositoryToken(Profile);
     const module: TestingModule = await Test.createTestingModule({
-      imports: [MockDatabaseModule, TypeOrmModule.forFeature([Profile])],
-      providers: [TypeOrmProfileService],
+      providers: [
+        TypeOrmProfileService,
+        {
+          provide: repoToken,
+          useValue: createMock<Repository<Profile>>(),
+        },
+      ],
     }).compile();
 
     service = module.get<TypeOrmProfileService>(TypeOrmProfileService);
-    repo = module.get<Repository<Profile>>(getRepositoryToken(Profile));
+    repo = module.get<Repository<Profile>>(repoToken);
   });
 
   it('should return a profile for a given user ID', async () => {
     const userId = 1;
-    const profile = new Profile();
+    const profile = createMock<Profile>();
     jest.spyOn(repo, 'findOne').mockResolvedValue(profile);
 
     const result = await service.findByUser(userId);
@@ -37,7 +43,7 @@ describe('TypeOrmProfileService', () => {
   });
 
   it('should create a profile', async () => {
-    const profile = Profile.create();
+    const profile = createMock<Profile>();
 
     jest.spyOn(repo, 'insert').mockResolvedValue({
       identifiers: [{ id: 1 }],
@@ -48,12 +54,12 @@ describe('TypeOrmProfileService', () => {
     const result = await service.createProfile(profile);
 
     expect(result).toEqual(profile);
-    expect(repo.insert).toHaveBeenCalledWith(profile);
+    expect(repo.save).toHaveBeenCalledWith(profile);
   });
 
   it('should update a profile', async () => {
     const profileId = 1;
-    const profile = new Profile();
+    const profile = createMock<Profile>();
     jest.spyOn(repo, 'save').mockResolvedValue(profile);
 
     const result = await service.updateProfile(profileId, profile);
@@ -67,10 +73,11 @@ describe('TypeOrmProfileService', () => {
 
   it('should delete a profile', async () => {
     const profileId = 1;
-    jest.spyOn(repo, 'delete').mockResolvedValue(undefined);
+
+    const deleteSpy = jest.spyOn(repo, 'delete').mockResolvedValue(undefined);
 
     await service.deleteProfile(profileId);
 
-    expect(repo.delete).toHaveBeenCalledWith(profileId);
+    expect(deleteSpy).toHaveBeenCalledWith(profileId);
   });
 });

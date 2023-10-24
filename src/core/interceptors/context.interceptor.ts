@@ -19,13 +19,12 @@ export class ContextInterceptor implements NestInterceptor {
     }
 
     if (!tgCtx.session.user) {
-      const user = await this.userUseCases.getByTgId(tgCtx.from.id);
+      const user = await this.userUseCases.findById(tgCtx.from.id);
       if (user) {
         tgCtx.session.user = user;
       } else {
         tgCtx.session.user = await this.userUseCases.create({
-          chatId: tgCtx.chat.id,
-          userId: tgCtx.from.id,
+          id: tgCtx.from.id,
         });
       }
     }

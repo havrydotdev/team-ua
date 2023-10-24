@@ -1,7 +1,8 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CHANGE_LANG_WIZARD_ID } from 'src/core/constants';
-import { User } from 'src/core/entities';
+import { Game, User } from 'src/core/entities';
+import { getCaption } from 'src/core/utils';
 import { MessageContext } from 'src/types/telegraf';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { UserUseCases } from 'src/use-cases/user/user.use-case';
@@ -95,17 +96,24 @@ describe('AppUpdate', () => {
                 url: 'url',
               }),
               name: 'name',
+              games: [
+                createMock<Game>({
+                  title: 'CS:GO',
+                }),
+                createMock<Game>({
+                  title: 'CS 2',
+                }),
+              ],
             }),
           }),
         },
-        replyWithPhoto: jest.fn(),
       });
 
       await update.onMe(ctx);
 
       expect(ctx.replyWithPhoto).toHaveBeenCalledWith(
         { url: ctx.session.user.profile.file.url },
-        { caption: ctx.session.user.profile.name },
+        { caption: getCaption(ctx.session.user.profile) },
       );
     });
   });

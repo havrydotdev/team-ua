@@ -13,6 +13,7 @@ import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { UserUseCases } from 'src/use-cases/user';
+import { Markup } from 'telegraf';
 
 const testGames = [
   {
@@ -101,7 +102,10 @@ describe('RegisterWizard', () => {
       const resp = await wizard.onName(ctx, msg);
 
       expect(ctx.wizard.state.name).toEqual(msg.text);
-      expect(resp).toEqual('messages.enter_age');
+      expect(resp).toEqual([
+        'messages.enter_age',
+        { reply_markup: Markup.removeKeyboard().reply_markup },
+      ]);
       expect(ctx.wizard.next).toHaveBeenCalled();
     });
   });

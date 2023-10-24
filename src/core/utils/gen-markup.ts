@@ -35,9 +35,18 @@ const getNameMarkup = (name: string): ReplyKeyboardMarkup => {
 };
 
 const getGamesMarkup = (games: Game[]): ReplyKeyboardMarkup => {
-  const reply_markup = Markup.keyboard(
-    games.map((game) => Markup.button.callback(game.title, game.title)),
-  ).reply_markup;
+  const markup = [];
+  for (let i = 0; i < games.length; i += 3) {
+    markup.push(
+      games
+        .slice(i, i + 3)
+        .map((game) => Markup.button.callback(game.title, game.title)),
+    );
+  }
+
+  markup.push([Markup.button.callback('✅', '✅')]);
+
+  const reply_markup = Markup.keyboard(markup).reply_markup;
 
   reply_markup.resize_keyboard = true;
 

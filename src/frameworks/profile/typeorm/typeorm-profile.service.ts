@@ -22,13 +22,16 @@ export class TypeOrmProfileService implements IProfileService {
   }
 
   async createProfile(profile: Profile): Promise<Profile> {
-    const res = await this.profileRepo.insert(profile);
+    console.log(profile);
+    const res = await this.profileRepo.save(profile);
+
     return this.profileRepo.findOne({
       where: {
-        id: res.identifiers[0].id,
+        id: res.id,
       },
       relations: {
         file: true,
+        games: true,
       },
     });
   }
