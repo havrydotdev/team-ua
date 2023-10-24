@@ -70,4 +70,53 @@ describe('AppUpdate', () => {
       expect(resp).toEqual('messages.start');
     });
   });
+
+  describe('onLanguage', () => {
+    it('should enter the change language wizard', async () => {
+      const ctx = createMock<MessageContext>({
+        scene: {
+          enter: jest.fn(),
+        },
+      });
+
+      await update.onLanguage(ctx);
+
+      expect(ctx.scene.enter).toHaveBeenCalledWith(CHANGE_LANG_WIZARD_ID);
+    });
+  });
+
+  describe('onMe', () => {
+    it('should reply with the user profile', async () => {
+      const ctx = createMock<MessageContext>({
+        session: {
+          user: createMock<User>({
+            profile: createMock<User['profile']>({
+              file: createMock<User['profile']['file']>({
+                url: 'url',
+              }),
+              name: 'name',
+            }),
+          }),
+        },
+        replyWithPhoto: jest.fn(),
+      });
+
+      await update.onMe(ctx);
+
+      expect(ctx.replyWithPhoto).toHaveBeenCalledWith(
+        { url: ctx.session.user.profile.file.url },
+        { caption: ctx.session.user.profile.name },
+      );
+    });
+  });
+
+  describe('onHelp', () => {
+    it('should reply with the help message', async () => {
+      const ctx = createMock<MessageContext>();
+
+      const resp = await update.onHelp(ctx);
+
+      expect(resp).toEqual('messages.help');
+    });
+  });
 });
