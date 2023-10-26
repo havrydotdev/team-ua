@@ -43,8 +43,7 @@ describe('ContextInterceptor', () => {
     it('should set the session user to an existing user and call next for a private chat with an existing user', async () => {
       const ctx = createMock<ExecutionContext>({
         getArgByIndex: jest.fn().mockReturnValue({
-          chat: { type: 'private' },
-          from: { id: 12345 },
+          chat: { type: 'private', id: 12345 },
           session: { user: undefined },
         }),
       });
@@ -67,8 +66,7 @@ describe('ContextInterceptor', () => {
     it('should set the session user to a new user and call next for a private chat without an existing user', async () => {
       const ctx = createMock<ExecutionContext>({
         getArgByIndex: jest.fn().mockReturnValue({
-          chat: { type: 'private', id: 1 },
-          from: { id: 12345 },
+          chat: { type: 'private', id: 12345 },
           session: { user: undefined },
         }),
       });

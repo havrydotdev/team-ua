@@ -25,7 +25,7 @@ export class ContextInterceptor implements NestInterceptor {
         tgCtx.session.user = user;
       } else {
         tgCtx.session.user = await this.userUseCases.create({
-          id: tgCtx.from.id,
+          id: tgCtx.chat.id,
         });
       }
     }
