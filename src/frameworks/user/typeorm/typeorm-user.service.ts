@@ -22,9 +22,17 @@ class TypeOrmUserService implements IUserService {
     });
   }
 
+  // TODO: add relations in prod
   async findById(userId: number): Promise<User | null> {
-    return this.userRepo.findOneBy({
-      id: userId,
+    return this.userRepo.findOne({
+      where: {
+        id: userId,
+      },
+      // relations: {
+      //   profile: {
+      //     games: true,
+      //   },
+      // },
     });
   }
 }

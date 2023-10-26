@@ -2,6 +2,15 @@
 
 import { Path } from "nestjs-i18n";
 export type I18nTranslations = {
+    "buttons": {
+        "profile": string;
+        "change_lang": string;
+        "help": string;
+        "partner": string;
+    };
+    "errors": {
+        "unknown": string;
+    };
     "messages": {
         "start": string;
         "help": string;
@@ -20,6 +29,7 @@ export type I18nTranslations = {
         "register_completed": string;
         "invalid_lang": string;
         "only_private": string;
+        "next_action": string;
     };
 };
 export type I18nPath = Path<I18nTranslations>;

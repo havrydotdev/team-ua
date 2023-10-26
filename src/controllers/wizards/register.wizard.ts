@@ -1,5 +1,5 @@
 import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
-import { REGISTER_WIZARD_ID } from 'src/core/constants';
+import { NEXT_WIZARD_ID, REGISTER_WIZARD_ID } from 'src/core/constants';
 import { CreateProfileDto } from 'src/core/dtos';
 import { Game } from 'src/core/entities';
 import { Extra } from 'src/core/types';
@@ -18,7 +18,7 @@ import {
 import { FileUseCases } from 'src/use-cases/file/file.use-case.service';
 import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
-import { UserUseCases } from 'src/use-cases/user';
+import { ReplyUseCases } from 'src/use-cases/reply';
 
 // TODO: add global exception filter
 @Wizard(REGISTER_WIZARD_ID)
@@ -27,7 +27,7 @@ export class RegisterWizard {
 
   constructor(
     private readonly gameUseCases: GameUseCases,
-    private readonly userUseCases: UserUseCases,
+    private readonly replyUseCases: ReplyUseCases,
     private readonly fileUseCases: FileUseCases,
     private readonly profileUseCases: ProfileUseCases,
   ) {
@@ -148,7 +148,7 @@ export class RegisterWizard {
     @Ctx()
     ctx: WizardMessageContext,
     @Message() msg: PhotoMessage,
-  ) {
+  ): Promise<MsgKey | MsgWithExtra> {
     // TODO: handle error
     if (msg.photo.length === 0) {
       console.log('error');
@@ -174,8 +174,9 @@ export class RegisterWizard {
 
     ctx.session.user.profile = profile;
 
-    await ctx.scene.leave();
+    await this.replyUseCases.replyI18n(ctx, 'messages.register_completed');
+    await ctx.scene.enter(NEXT_WIZARD_ID);
 
-    return 'messages.register_completed';
+    return;
   }
 }

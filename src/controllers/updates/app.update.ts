@@ -1,4 +1,4 @@
-import { Command, Ctx, Help, Start, Update } from 'nestjs-telegraf';
+import { Action, Command, Ctx, Help, Start, Update } from 'nestjs-telegraf';
 import { CHANGE_LANG_WIZARD_ID } from 'src/core/constants';
 import { getCaption } from 'src/core/utils';
 import { MessageContext, MsgKey } from 'src/types';
@@ -21,15 +21,16 @@ export class AppUpdate {
     return 'messages.start';
   }
 
+  @Action('language')
   @Command('language')
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async onLanguage(@Ctx() ctx: MessageContext): Promise<void> {
     await ctx.scene.enter(CHANGE_LANG_WIZARD_ID);
   }
 
+  @Action('me')
   @Command('me')
   async onMe(@Ctx() ctx: MessageContext) {
-    console.log(ctx.session);
     await ctx.replyWithPhoto(
       { url: ctx.session.user.profile.file.url },
       {
@@ -39,6 +40,7 @@ export class AppUpdate {
   }
 
   @Help()
+  @Action('help')
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async onHelp(@Ctx() ctx: MessageContext): Promise<MsgKey> {
     return 'messages.help';

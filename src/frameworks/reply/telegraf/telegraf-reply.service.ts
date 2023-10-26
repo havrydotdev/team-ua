@@ -5,6 +5,8 @@ import { IReplyService } from 'src/core/abstracts';
 import { Extra } from 'src/core/types';
 import { I18nTranslations } from 'src/generated/i18n.generated';
 import { MessageContext } from 'src/types/telegraf';
+import { Markup } from 'telegraf';
+import { InlineKeyboardMarkup } from 'telegraf/typings/core/types/typegram';
 
 @Injectable()
 class TelegrafReplyService extends IReplyService {
@@ -18,6 +20,33 @@ class TelegrafReplyService extends IReplyService {
     extra?: Extra,
   ): Promise<void> {
     await ctx.reply(this.translate(msgCode, ctx.session.lang), extra);
+  }
+
+  async getMainMenuMarkup(ctx: MessageContext): Promise<InlineKeyboardMarkup> {
+    const reply_markup = Markup.inlineKeyboard([
+      [
+        Markup.button.callback(
+          this.translate('buttons.profile', ctx.session.lang),
+          'me',
+        ),
+        Markup.button.callback(
+          this.translate('buttons.change_lang', ctx.session.lang),
+          'language',
+        ),
+        Markup.button.callback(
+          this.translate('buttons.help', ctx.session.lang),
+          'help',
+        ),
+      ],
+      [
+        Markup.button.callback(
+          this.translate('buttons.partner', ctx.session.lang),
+          'partnership',
+        ),
+      ],
+    ]).reply_markup;
+
+    return reply_markup;
   }
 }
 

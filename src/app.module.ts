@@ -1,8 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { AppUpdate } from './controllers/updates';
-import { ChangeLangWizard, RegisterWizard } from './controllers/wizards';
+import {
+  ChangeLangWizard,
+  NextActionWizard,
+  RegisterWizard,
+} from './controllers/wizards';
+import { GlobalFilter } from './core/filters';
 import { ContextInterceptor, I18nInterceptor } from './core/interceptors';
 import {
   DatabaseModule,
@@ -43,6 +48,7 @@ import { UserUseCasesModule } from './use-cases/user';
     AppUpdate,
     RegisterWizard,
     ChangeLangWizard,
+    NextActionWizard,
     {
       provide: APP_INTERCEPTOR,
       useClass: I18nInterceptor,
@@ -50,6 +56,10 @@ import { UserUseCasesModule } from './use-cases/user';
     {
       provide: APP_INTERCEPTOR,
       useClass: ContextInterceptor,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: GlobalFilter,
     },
   ],
 })

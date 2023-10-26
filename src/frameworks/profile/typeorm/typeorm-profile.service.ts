@@ -22,7 +22,6 @@ export class TypeOrmProfileService implements IProfileService {
   }
 
   async createProfile(profile: Profile): Promise<Profile> {
-    console.log(profile);
     const res = await this.profileRepo.save(profile);
 
     return this.profileRepo.findOne({

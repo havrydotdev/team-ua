@@ -1,1 +1,1 @@
-export * from './telegraf.error';
+export * from './bot.exception';

@@ -114,9 +114,8 @@ describe('ChangeLangWizard', () => {
       });
       const msg = { text: '🇺🇦' };
 
-      const result = await wizard.onLang(ctx, msg);
+      await wizard.onLang(ctx, msg);
 
-      expect(result).toEqual('messages.lang_changed');
       expect(ctx.session.lang).toEqual(Language.UA);
       expect(ctx.scene.leave).toHaveBeenCalled();
     });

@@ -1,10 +1,15 @@
 import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
-import { CHANGE_LANG_WIZARD_ID, REGISTER_WIZARD_ID } from 'src/core/constants';
+import {
+  CHANGE_LANG_WIZARD_ID,
+  NEXT_WIZARD_ID,
+  REGISTER_WIZARD_ID,
+} from 'src/core/constants';
 import { Language } from 'src/core/enums';
 import { Extra } from 'src/core/types';
 import { getSelectLangMarkup } from 'src/core/utils';
-import { MsgKey, WizardContext } from 'src/types';
+import { MsgKey, MsgWithExtra, WizardContext } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
+import { Markup } from 'telegraf';
 
 // TODO: do not hard-code languages
 @Wizard(CHANGE_LANG_WIZARD_ID)
@@ -28,7 +33,7 @@ export class ChangeLangWizard {
   async onLang(
     @Ctx() ctx: WizardContext,
     @Message() msg: { text: string },
-  ): Promise<MsgKey> {
+  ): Promise<MsgWithExtra | MsgKey> {
     switch (msg.text) {
       case '🇺🇦':
         ctx.session.lang = Language.UA;
@@ -52,6 +57,11 @@ export class ChangeLangWizard {
       return;
     }
 
-    return 'messages.lang_changed';
+    await this.replyUseCases.replyI18n(ctx, 'messages.lang_changed', {
+      reply_markup: Markup.removeKeyboard().reply_markup,
+    });
+    await ctx.scene.enter(NEXT_WIZARD_ID);
+
+    return;
   }
 }
