@@ -20,7 +20,6 @@ import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
 
-// TODO: add global exception filter
 @Wizard(REGISTER_WIZARD_ID)
 export class RegisterWizard {
   private games: Game[];

@@ -1,3 +1,4 @@
 {
-  "unknown": "Unknown error occurred. Try again later."
+  "unknown": "Unknown error occurred. Try again later.",
+  "only_private": "Sorry, I can't work in groups. Use me in private chat"
 }

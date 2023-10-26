@@ -11,7 +11,6 @@ import { MsgKey, MsgWithExtra, WizardContext } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { Markup } from 'telegraf';
 
-// TODO: do not hard-code languages
 @Wizard(CHANGE_LANG_WIZARD_ID)
 export class ChangeLangWizard {
   constructor(private readonly replyUseCases: ReplyUseCases) {}

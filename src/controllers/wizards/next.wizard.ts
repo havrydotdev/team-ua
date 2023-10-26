@@ -3,7 +3,6 @@ import { NEXT_WIZARD_ID } from 'src/core/constants';
 import { MessageContext, MsgWithExtra } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
 
-// TODO: add global exception filter
 @Wizard(NEXT_WIZARD_ID)
 export class NextActionWizard {
   constructor(private readonly replyUseCases: ReplyUseCases) {}

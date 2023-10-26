@@ -15,7 +15,7 @@ export class ContextInterceptor implements NestInterceptor {
   async intercept(ctx: ExecutionContext, next: CallHandler) {
     const tgCtx = ctx.getArgByIndex(0) as MessageContext;
     if (tgCtx.chat.type !== 'private') {
-      throw new BotException('messages.only_private');
+      throw new BotException('errors.only_private');
     }
 
     if (!tgCtx.session.user) {
