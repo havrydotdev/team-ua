@@ -1,12 +1,9 @@
 import { createMock } from '@golevelup/ts-jest';
-import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { IUserService } from 'src/core/abstracts';
 import { CreateUserDto } from 'src/core/dtos';
 import { User } from 'src/core/entities';
 import { TypeOrmUserService } from 'src/frameworks/user/typeorm/typeorm-user.service';
-import { MockDatabaseModule } from 'src/services/mock-database/mock-database.module';
 import { UserFactoryService } from '../user-factory.service';
 import { UserUseCases } from '../user.use-case';
 
@@ -17,19 +14,12 @@ describe('UserUseCases', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        MockDatabaseModule,
-        TypeOrmModule.forFeature([User]),
-        ConfigModule.forRoot({
-          isGlobal: true,
-        }),
-      ],
       providers: [
         UserUseCases,
         UserFactoryService,
         {
           provide: IUserService,
-          useClass: TypeOrmUserService,
+          useValue: createMock<TypeOrmUserService>(),
         },
       ],
     }).compile();
@@ -75,6 +65,24 @@ describe('UserUseCases', () => {
 
       expect(factory.update).toHaveBeenCalledWith(dto);
       expect(service.update).toHaveBeenCalledWith(user.id, user);
+      expect(result).toEqual(user);
+    });
+  });
+
+  describe('findById', () => {
+    it('should find an existing user and return it', async () => {
+      const id = 12345;
+      const user: User = createMock<User>({
+        id,
+      });
+
+      const findSpy = jest
+        .spyOn(service, 'findById')
+        .mockImplementationOnce(async () => user);
+
+      const result = await useCases.findById(id);
+
+      expect(findSpy).toHaveBeenCalledWith(id);
       expect(result).toEqual(user);
     });
   });
