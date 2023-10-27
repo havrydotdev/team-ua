@@ -1,18 +1,13 @@
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-} from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
 import { MessageContext, MsgKey } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { BotException } from '../errors';
 
-@Catch(HttpException)
+@Catch()
 export class GlobalFilter implements ExceptionFilter {
   constructor(private readonly replyUseCases: ReplyUseCases) {}
 
-  catch(exception: HttpException, host: ArgumentsHost) {
+  catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.getArgByIndex(0) as MessageContext;
     let message: MsgKey = 'errors.unknown';
 

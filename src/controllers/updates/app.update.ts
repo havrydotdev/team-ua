@@ -45,4 +45,10 @@ export class AppUpdate {
   async onHelp(@Ctx() ctx: MessageContext): Promise<MsgKey> {
     return 'messages.help';
   }
+
+  @Command('error')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async onError(@Ctx() ctx: MessageContext): Promise<MsgKey> {
+    throw new Error('Test error');
+  }
 }
