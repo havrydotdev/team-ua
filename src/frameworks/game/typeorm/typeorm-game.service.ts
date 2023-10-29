@@ -17,4 +17,35 @@ export class TypeOrmGameService implements IGameService {
       },
     });
   }
+
+  async findWithLimit(limit: number): Promise<Game[]> {
+    return this.gameRepo.find({
+      order: {
+        created_at: 'DESC',
+      },
+      take: limit,
+    });
+  }
+
+  async findStartsWith(title: string): Promise<Game[]> {
+    return this.gameRepo
+      .createQueryBuilder('game')
+      .select()
+      .addSelect('COUNT(profile.id) as profilesCount')
+      .where('game.title LIKE :title', { title: `%${title}%` })
+      .leftJoin('game.profiles', 'profile')
+      .groupBy('game.id')
+      .orderBy('profilesCount', 'DESC')
+      .addOrderBy('game.created_at', 'DESC')
+      .limit(20)
+      .getMany();
+  }
+
+  async findByTitle(title: string): Promise<Game | null> {
+    return this.gameRepo.findOne({
+      where: {
+        title,
+      },
+    });
+  }
 }

@@ -4,6 +4,7 @@ import { CHANGE_LANG_WIZARD_ID } from 'src/core/constants';
 import { Game, User } from 'src/core/entities';
 import { getCaption } from 'src/core/utils';
 import { MessageContext } from 'src/types/telegraf';
+import { GameUseCases } from 'src/use-cases/game';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { UserUseCases } from 'src/use-cases/user/user.use-case';
 import { AppUpdate } from '../app.update';
@@ -23,6 +24,10 @@ describe('AppUpdate', () => {
         {
           provide: ReplyUseCases,
           useValue: createMock<ReplyUseCases>(),
+        },
+        {
+          provide: GameUseCases,
+          useValue: createMock<GameUseCases>(),
         },
       ],
     }).compile();

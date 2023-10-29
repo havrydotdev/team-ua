@@ -8,4 +8,16 @@ export class GameUseCases {
   async findAll() {
     return this.gameService.findAll();
   }
+
+  async findWithLimit(limit: number) {
+    return this.gameService.findWithLimit(limit);
+  }
+
+  async findStartsWith(title: string) {
+    return this.gameService.findStartsWith(title);
+  }
+
+  async findByTitle(title: string) {
+    return this.gameService.findByTitle(title);
+  }
 }

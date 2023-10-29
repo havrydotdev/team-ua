@@ -18,7 +18,7 @@ type WizardState = {
   wizard: {
     state: {
       name?: string;
-      location?: string;
+      about?: string;
       age?: number;
       games?: number[];
     };

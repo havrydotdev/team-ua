@@ -19,7 +19,11 @@ class TelegrafReplyService extends IReplyService {
     msgCode: PathImpl2<I18nTranslations>,
     extra?: Extra,
   ): Promise<void> {
-    await ctx.reply(this.translate(msgCode, ctx.session.lang), extra);
+    await ctx.telegram.sendMessage(
+      ctx.from.id,
+      this.translate(msgCode, ctx.session.lang),
+      extra,
+    );
   }
 
   async getMainMenuMarkup(ctx: MessageContext): Promise<InlineKeyboardMarkup> {

@@ -7,6 +7,12 @@ class Game extends IEntity {
   @Column()
   title: string;
 
+  @Column()
+  description: string;
+
+  @Column()
+  image: string;
+
   @ManyToMany(() => Profile, (profile) => profile.games)
   profiles: Profile[];
 }

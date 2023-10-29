@@ -1,6 +1,5 @@
 import { Markup } from 'telegraf';
 import { ReplyKeyboardMarkup } from 'telegraf/typings/core/types/typegram';
-import { Game } from '../entities';
 
 const SELECT_LANG_MARKUP = Markup.keyboard([
   [
@@ -34,17 +33,8 @@ const getNameMarkup = (name: string): ReplyKeyboardMarkup => {
   return reply_markup;
 };
 
-const getGamesMarkup = (games: Game[]): ReplyKeyboardMarkup => {
-  const markup = [];
-  for (let i = 0; i < games.length; i += 3) {
-    markup.push(
-      games
-        .slice(i, i + 3)
-        .map((game) => Markup.button.callback(game.title, game.title)),
-    );
-  }
-
-  markup.push([Markup.button.callback('✅', '✅')]);
+const getGamesMarkup = (): ReplyKeyboardMarkup => {
+  const markup = [[Markup.button.callback('✅', '✅')]];
 
   const reply_markup = Markup.keyboard(markup).reply_markup;
 

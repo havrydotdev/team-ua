@@ -4,7 +4,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { User } from 'src/core/entities';
 import { MessageContext } from 'src/types';
 import { UserUseCases } from 'src/use-cases/user';
-import { BotException } from '../../errors';
 import { ContextInterceptor } from '../context.interceptor';
 
 describe('ContextInterceptor', () => {
@@ -27,23 +26,10 @@ describe('ContextInterceptor', () => {
   });
 
   describe('intercept', () => {
-    it('should throw a BotException for a non-private chat', async () => {
-      const ctx = {
-        getArgByIndex: jest.fn().mockReturnValue({
-          chat: { type: 'group' },
-        }),
-      } as unknown as ExecutionContext;
-      const next = { handle: jest.fn() };
-
-      await expect(interceptor.intercept(ctx, next)).rejects.toThrow(
-        BotException,
-      );
-    });
-
     it('should set the session user to an existing user and call next for a private chat with an existing user', async () => {
       const ctx = createMock<ExecutionContext>({
         getArgByIndex: jest.fn().mockReturnValue({
-          chat: { type: 'private', id: 12345 },
+          from: { id: 12345 },
           session: { user: undefined },
         }),
       });
@@ -66,7 +52,7 @@ describe('ContextInterceptor', () => {
     it('should set the session user to a new user and call next for a private chat without an existing user', async () => {
       const ctx = createMock<ExecutionContext>({
         getArgByIndex: jest.fn().mockReturnValue({
-          chat: { type: 'private', id: 12345 },
+          from: { id: 12345 },
           session: { user: undefined },
         }),
       });

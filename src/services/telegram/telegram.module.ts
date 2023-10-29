@@ -9,7 +9,7 @@ import { session } from 'telegraf';
     TelegrafModule.forRootAsync({
       useFactory: (configService: ConfigService): TelegrafModuleOptions => {
         const store = SQLite({
-          filename: './dev.sqlite',
+          filename: './dev.db',
         });
 
         return {

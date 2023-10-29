@@ -1,7 +1,7 @@
 import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
 import { NEXT_WIZARD_ID, REGISTER_WIZARD_ID } from 'src/core/constants';
 import { CreateProfileDto } from 'src/core/dtos';
-import { Game } from 'src/core/entities';
+import { BotException } from 'src/core/errors';
 import { Extra } from 'src/core/types';
 import {
   fileFromMsg,
@@ -22,18 +22,12 @@ import { ReplyUseCases } from 'src/use-cases/reply';
 
 @Wizard(REGISTER_WIZARD_ID)
 export class RegisterWizard {
-  private games: Game[];
-
   constructor(
-    private readonly gameUseCases: GameUseCases,
     private readonly replyUseCases: ReplyUseCases,
     private readonly fileUseCases: FileUseCases,
     private readonly profileUseCases: ProfileUseCases,
-  ) {
-    this.gameUseCases.findAll().then((games: Game[]) => {
-      this.games = games;
-    });
-  }
+    private readonly gameUseCases: GameUseCases,
+  ) {}
 
   @WizardStep(1)
   async onEnter(@Ctx() ctx: WizardMessageContext): Promise<MsgWithExtra[]> {
@@ -87,20 +81,20 @@ export class RegisterWizard {
 
   @On('text')
   @WizardStep(4)
-  async onLocation(
+  async onAbout(
     @Ctx() ctx: WizardMessageContext,
     @Message() msg: { text: string },
-  ): Promise<[MsgKey, Extra]> {
-    const location = msg.text;
+  ): Promise<MsgWithExtra> {
+    const about = msg.text;
 
-    ctx.wizard.state['location'] = location;
+    ctx.wizard.state['about'] = about;
 
     ctx.wizard.next();
 
     return [
       'messages.send_games',
       {
-        reply_markup: getGamesMarkup(this.games),
+        reply_markup: getGamesMarkup(),
       },
     ];
   }
@@ -110,7 +104,7 @@ export class RegisterWizard {
   async onGame(
     @Ctx() ctx: WizardMessageContext,
     @Message() msg: { text: string },
-  ): Promise<MsgKey | [MsgKey, Extra]> {
+  ): Promise<MsgKey | MsgWithExtra> {
     if (msg.text === '✅') {
       ctx.wizard.next();
 
@@ -122,20 +116,20 @@ export class RegisterWizard {
       ];
     }
 
-    const game = this.games.find((game) => game.title === msg.text);
+    const game = await this.gameUseCases.findByTitle(msg.text);
     if (!game) {
-      return 'messages.invalid_game';
+      throw new BotException('messages.invalid_game');
     }
 
-    if (ctx.wizard.state['games']?.includes(game.id)) {
-      return 'messages.invalid_game';
+    if (!ctx.wizard.state.games) {
+      ctx.wizard.state.games = [];
     }
 
-    if (!ctx.wizard.state['games']) {
-      ctx.wizard.state['games'] = [];
+    if (ctx.wizard.state.games.includes(game.id)) {
+      throw new BotException('messages.invalid_game');
     }
 
-    ctx.wizard.state['games'].push(game.id);
+    ctx.wizard.state.games.push(game.id);
 
     return 'messages.game_added';
   }

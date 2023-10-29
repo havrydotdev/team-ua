@@ -15,6 +15,12 @@ describe('TelegrafReplyService', () => {
     session: {
       lang: Language.UA,
     },
+    from: {
+      id: 12345,
+    },
+    telegram: {
+      sendMessage: jest.fn(),
+    },
   });
 
   beforeEach(async () => {
@@ -23,9 +29,7 @@ describe('TelegrafReplyService', () => {
         TelegrafReplyService,
         {
           provide: I18nService,
-          useValue: {
-            t: jest.fn(),
-          },
+          useValue: createMock<I18nService<I18nTranslations>>(),
         },
       ],
     }).compile();
@@ -46,6 +50,10 @@ describe('TelegrafReplyService', () => {
     expect(i18n.t).toHaveBeenCalledWith(msgCode, {
       lang: Language.UA,
     });
-    expect(ctx.reply).toHaveBeenCalledWith(message, extra);
+    expect(ctx.telegram.sendMessage).toHaveBeenCalledWith(
+      ctx.from.id,
+      message,
+      extra,
+    );
   });
 });

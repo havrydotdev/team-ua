@@ -2,6 +2,7 @@ import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { RegisterWizard } from 'src/controllers/wizards/register.wizard';
 import { Game } from 'src/core/entities';
+import { BotException } from 'src/core/errors';
 import {
   getGamesMarkup,
   getNameMarkup,
@@ -15,23 +16,9 @@ import { ReplyUseCases } from 'src/use-cases/reply';
 import { UserUseCases } from 'src/use-cases/user';
 import { Markup } from 'telegraf';
 
-const testGames = [
-  {
-    id: 1,
-    title: 'game1',
-  },
-  {
-    id: 2,
-    title: 'game2',
-  },
-  {
-    id: 3,
-    title: 'game3',
-  },
-];
-
 describe('RegisterWizard', () => {
   let wizard: RegisterWizard;
+  let gameUseCases: GameUseCases;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -39,9 +26,7 @@ describe('RegisterWizard', () => {
         RegisterWizard,
         {
           provide: GameUseCases,
-          useValue: createMock<GameUseCases>({
-            findAll: jest.fn().mockResolvedValue(testGames),
-          }),
+          useValue: createMock<GameUseCases>(),
         },
         {
           provide: ReplyUseCases,
@@ -63,6 +48,7 @@ describe('RegisterWizard', () => {
     }).compile();
 
     wizard = module.get<RegisterWizard>(RegisterWizard);
+    gameUseCases = module.get<GameUseCases>(GameUseCases);
   });
 
   describe('onEnter', () => {
@@ -142,8 +128,8 @@ describe('RegisterWizard', () => {
     });
   });
 
-  describe('onLocation', () => {
-    it('should set the location state and go to the next step', async () => {
+  describe('onAbout', () => {
+    it('should set the about state and go to the next step', async () => {
       const ctx = createMock<WizardMessageContext>({
         wizard: {
           next: jest.fn(),
@@ -151,14 +137,14 @@ describe('RegisterWizard', () => {
         },
       });
       const msg = { text: 'Kharkiv' };
-      const resp = await wizard.onLocation(ctx, msg);
+      const resp = await wizard.onAbout(ctx, msg);
 
-      expect(ctx.wizard.state.location).toEqual(msg.text);
+      expect(ctx.wizard.state.about).toEqual(msg.text);
       expect(ctx.wizard.next).toHaveBeenCalled();
       expect(resp).toEqual([
         'messages.send_games',
         {
-          reply_markup: getGamesMarkup(testGames as Game[]),
+          reply_markup: getGamesMarkup(),
         },
       ]);
     });
@@ -172,29 +158,40 @@ describe('RegisterWizard', () => {
           next: jest.fn(),
         },
       });
+
+      const findByTitleSpy = jest
+        .spyOn(gameUseCases, 'findByTitle')
+        .mockResolvedValueOnce(createMock<Game>({ id: 1 }));
+
       const msg = { text: 'game1' };
 
       const resp = await wizard.onGame(ctx, msg);
 
       expect(ctx.wizard.state.games).toEqual([1]);
       expect(ctx.wizard.next).not.toHaveBeenCalled();
+      expect(findByTitleSpy).toHaveBeenCalledWith(msg.text);
       expect(resp).toEqual('messages.game_added');
     });
 
-    it('should go to the next step if the game is not in the list', async () => {
+    it('should throw an error if the game is not in the list', async () => {
       const ctx = createMock<WizardMessageContext>({
         wizard: {
           state: {},
           next: jest.fn(),
         },
       });
-      const msg = { text: 'game4' };
+      const msg = { text: 'game_that_does_not_exist' };
 
-      const resp = await wizard.onGame(ctx, msg);
+      const findByTitleSpy = jest
+        .spyOn(gameUseCases, 'findByTitle')
+        .mockResolvedValueOnce(undefined);
 
-      expect(ctx.wizard.state['games']).toEqual(undefined);
+      expect(async () => await wizard.onGame(ctx, msg)).rejects.toThrowError(
+        new BotException('messages.invalid_game'),
+      );
+      expect(ctx.wizard.state.games).toEqual(undefined);
+      expect(findByTitleSpy).toHaveBeenCalledWith(msg.text);
       expect(ctx.wizard.next).not.toHaveBeenCalled();
-      expect(resp).toEqual('messages.invalid_game');
     });
 
     it('should send error message if game is already in state', async () => {
@@ -207,11 +204,17 @@ describe('RegisterWizard', () => {
         },
       });
       const msg = { text: 'game1' };
-      const resp = await wizard.onGame(ctx, msg);
 
+      const findByTitleSpy = jest
+        .spyOn(gameUseCases, 'findByTitle')
+        .mockResolvedValueOnce(createMock<Game>({ id: 1 }));
+
+      expect(async () => await wizard.onGame(ctx, msg)).rejects.toThrowError(
+        new BotException('messages.invalid_game'),
+      );
+      expect(findByTitleSpy).toHaveBeenCalledWith(msg.text);
       expect(ctx.wizard.state['games']).toEqual([1]);
       expect(ctx.wizard.next).not.toHaveBeenCalled();
-      expect(resp).toEqual('messages.invalid_game');
     });
 
     it('should go to the next step if the message is ✅', async () => {
