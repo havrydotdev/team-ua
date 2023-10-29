@@ -21,8 +21,8 @@ export class ChangeLangWizard {
 
     return [
       ctx.session.user.profile
-        ? 'messages.update_lang'
-        : 'messages.select_lang',
+        ? 'messages.lang.update'
+        : 'messages.lang.select',
       { reply_markup: getSelectLangMarkup() },
     ];
   }
@@ -44,19 +44,19 @@ export class ChangeLangWizard {
         ctx.session.lang = Language.RU;
         break;
       default:
-        return 'messages.invalid_lang';
+        return 'messages.lang.invalid';
     }
 
     await ctx.scene.leave();
 
     if (!ctx.session.user.profile) {
-      await this.replyUseCases.replyI18n(ctx, 'messages.lang_changed');
+      await this.replyUseCases.replyI18n(ctx, 'messages.lang.changed');
 
       await ctx.scene.enter(REGISTER_WIZARD_ID);
       return;
     }
 
-    await this.replyUseCases.replyI18n(ctx, 'messages.lang_changed', {
+    await this.replyUseCases.replyI18n(ctx, 'messages.lang.changed', {
       reply_markup: Markup.removeKeyboard().reply_markup,
     });
     await ctx.scene.enter(NEXT_WIZARD_ID);

@@ -65,9 +65,9 @@ describe('RegisterWizard', () => {
       const resp = await wizard.onEnter(ctx);
 
       expect(resp).toEqual([
-        ['messages.new_user', {}],
+        ['messages.user.new', {}],
         [
-          'messages.enter_name',
+          'messages.name.send',
           { reply_markup: getNameMarkup(ctx.from.first_name) },
         ],
       ]);
@@ -89,7 +89,7 @@ describe('RegisterWizard', () => {
 
       expect(ctx.wizard.state.name).toEqual(msg.text);
       expect(resp).toEqual([
-        'messages.enter_age',
+        'messages.age.send',
         { reply_markup: Markup.removeKeyboard().reply_markup },
       ]);
       expect(ctx.wizard.next).toHaveBeenCalled();
@@ -107,7 +107,7 @@ describe('RegisterWizard', () => {
 
       const resp = await wizard.onAge(ctx, { text: '17' });
 
-      expect(resp).toEqual('messages.send_location');
+      expect(resp).toEqual('messages.about.send');
       expect(ctx.wizard.state.age).toEqual(17);
       expect(ctx.wizard.next).toHaveBeenCalled();
     });
@@ -122,7 +122,7 @@ describe('RegisterWizard', () => {
 
       const resp = await wizard.onAge(ctx, { text: 'invalid age' });
 
-      expect(resp).toEqual('messages.invalid_age');
+      expect(resp).toEqual('messages.age.invalid');
       expect(ctx.wizard.next).not.toHaveBeenCalled();
       expect(ctx.wizard.state.age).toEqual(undefined);
     });
@@ -142,7 +142,7 @@ describe('RegisterWizard', () => {
       expect(ctx.wizard.state.about).toEqual(msg.text);
       expect(ctx.wizard.next).toHaveBeenCalled();
       expect(resp).toEqual([
-        'messages.send_games',
+        'messages.game.send',
         {
           reply_markup: getGamesMarkup(),
         },
@@ -170,7 +170,7 @@ describe('RegisterWizard', () => {
       expect(ctx.wizard.state.games).toEqual([1]);
       expect(ctx.wizard.next).not.toHaveBeenCalled();
       expect(findByTitleSpy).toHaveBeenCalledWith(msg.text);
-      expect(resp).toEqual('messages.game_added');
+      expect(resp).toEqual('messages.game.ok');
     });
 
     it('should throw an error if the game is not in the list', async () => {
@@ -187,7 +187,7 @@ describe('RegisterWizard', () => {
         .mockResolvedValueOnce(undefined);
 
       expect(async () => await wizard.onGame(ctx, msg)).rejects.toThrowError(
-        new BotException('messages.invalid_game'),
+        new BotException('messages.game.invalid'),
       );
       expect(ctx.wizard.state.games).toEqual(undefined);
       expect(findByTitleSpy).toHaveBeenCalledWith(msg.text);
@@ -210,7 +210,7 @@ describe('RegisterWizard', () => {
         .mockResolvedValueOnce(createMock<Game>({ id: 1 }));
 
       expect(async () => await wizard.onGame(ctx, msg)).rejects.toThrowError(
-        new BotException('messages.invalid_game'),
+        new BotException('messages.game.already_added'),
       );
       expect(findByTitleSpy).toHaveBeenCalledWith(msg.text);
       expect(ctx.wizard.state['games']).toEqual([1]);
@@ -231,7 +231,7 @@ describe('RegisterWizard', () => {
       expect(ctx.wizard.state['games']).toEqual(undefined);
       expect(ctx.wizard.next).toHaveBeenCalled();
       expect(resp).toEqual([
-        'messages.send_picture',
+        'messages.picture.send',
         {
           reply_markup: getRemoveKeyboardMarkup(),
         },

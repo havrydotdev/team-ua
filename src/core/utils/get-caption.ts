@@ -2,7 +2,7 @@ import { Game, Profile } from '../entities';
 
 const getCaption = (profile: Profile) => {
   return (
-    `${profile.name}, ${profile.location}, ${profile.age}\n${profile.about}\n` +
+    `${profile.name}, ${profile.age}\n${profile.about}\n` +
     getGamesCaption(profile.games)
   );
 };

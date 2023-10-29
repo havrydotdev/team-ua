@@ -22,19 +22,18 @@ export class AppUpdate {
     this.logger.log(`/start ${ctx.from.username}`);
 
     if (!ctx.session.user.profile) {
-      await this.replyUseCases.replyI18n(ctx, 'messages.start');
+      await this.replyUseCases.replyI18n(ctx, 'commands.start');
 
       await ctx.scene.enter(CHANGE_LANG_WIZARD_ID);
 
       return;
     }
 
-    return 'messages.start';
+    return 'commands.start';
   }
 
   @Action('language')
   @Command('language')
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async onLanguage(@Ctx() ctx: MessageContext): Promise<void> {
     this.logger.log(`/language ${ctx.from.username}`);
 
@@ -56,11 +55,10 @@ export class AppUpdate {
 
   @Help()
   @Action('help')
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async onHelp(@Ctx() ctx: MessageContext): Promise<MsgKey> {
     this.logger.log(`/help ${ctx.from.username}`);
 
-    return 'messages.help';
+    return 'commands.help';
   }
 
   @On('inline_query')
@@ -83,5 +81,13 @@ export class AppUpdate {
         }),
       ),
     );
+  }
+
+  @Action('coop')
+  @Command('coop')
+  async onCoop(@Ctx() ctx: MessageContext): Promise<MsgKey> {
+    this.logger.log(`/coop ${ctx.from.username}`);
+
+    return 'commands.coop';
   }
 }

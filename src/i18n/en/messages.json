@@ -1,20 +1,34 @@
 {
-  "start": "Welcome! I'm the first ukrainian service to search teammates for games.",
-  "help": "Help text",
-  "lang_changed": "Language changed to English",
-  "select_lang": "Firstly, select interface language",
-  "new_user": "Let's start with creating your profile",
-  "update_lang": "Select new interface language",
-  "enter_name": "Enter your name",
-  "enter_age": "Enter your age",
-  "invalid_age": "Please, enter valid age",
-  "send_picture": "Send photo for your profile",
-  "send_location": "Send city you live in",
-  "send_about": "Tell about yourself",
-  "send_games": "Send games you play (use @ua_teammates_bot to search available games)",
-  "invalid_game": "Please, enter valid game",
-  "game_added": "Game added",
-  "register_completed": "Registration completed",
-  "invalid_lang": "Please, enter valid language",
+  "lang": {
+    "update": "Select new interface language",
+    "select": "Firstly, select interface language",
+    "changed": "Language changed to English",
+    "invalid": "Please, enter valid language"
+  },
+  "user": {
+    "new": "Let's start with creating your profile"
+  },
+  "name": {
+    "send": "Enter your name"
+  },
+  "age": {
+    "invalid": "Please, enter valid age",
+    "send": "Enter your age"
+  },
+  "picture": {
+    "send": "Send photo for your profile"
+  },
+  "about": {
+    "send": "Tell about yourself"
+  },
+  "game": {
+    "invalid": "Please, enter valid game",
+    "ok": "Game added",
+    "already_added": "You already choosed this game",
+    "send": "Send games you play (use @ua_teammates_bot to search available games)"
+  },
+  "register": {
+    "completed": "Registration completed"
+  },
   "next_action": "What's next?"
 }

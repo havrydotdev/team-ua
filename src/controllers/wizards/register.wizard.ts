@@ -34,9 +34,9 @@ export class RegisterWizard {
     ctx.wizard.next();
 
     return [
-      ['messages.new_user', {}],
+      ['messages.user.new', {}],
       [
-        'messages.enter_name',
+        'messages.name.send',
         { reply_markup: getNameMarkup(ctx.from.first_name) },
       ],
     ];
@@ -48,12 +48,12 @@ export class RegisterWizard {
     @Ctx() ctx: WizardMessageContext,
     @Message() msg: { text: string },
   ): Promise<[MsgKey, Extra]> {
-    ctx.wizard.state['name'] = msg.text;
+    ctx.wizard.state.name = msg.text;
 
     ctx.wizard.next();
 
     return [
-      'messages.enter_age',
+      'messages.age.send',
       {
         reply_markup: getRemoveKeyboardMarkup(),
       },
@@ -69,14 +69,14 @@ export class RegisterWizard {
     const age = parseInt(msg.text);
 
     if (isNaN(age)) {
-      return 'messages.invalid_age';
+      return 'messages.age.invalid';
     }
 
     ctx.wizard.state['age'] = age;
 
     ctx.wizard.next();
 
-    return 'messages.send_location';
+    return 'messages.about.send';
   }
 
   @On('text')
@@ -92,7 +92,7 @@ export class RegisterWizard {
     ctx.wizard.next();
 
     return [
-      'messages.send_games',
+      'messages.game.send',
       {
         reply_markup: getGamesMarkup(),
       },
@@ -109,7 +109,7 @@ export class RegisterWizard {
       ctx.wizard.next();
 
       return [
-        'messages.send_picture',
+        'messages.picture.send',
         {
           reply_markup: getRemoveKeyboardMarkup(),
         },
@@ -118,7 +118,7 @@ export class RegisterWizard {
 
     const game = await this.gameUseCases.findByTitle(msg.text);
     if (!game) {
-      throw new BotException('messages.invalid_game');
+      throw new BotException('messages.game.invalid');
     }
 
     if (!ctx.wizard.state.games) {
@@ -126,12 +126,12 @@ export class RegisterWizard {
     }
 
     if (ctx.wizard.state.games.includes(game.id)) {
-      throw new BotException('messages.invalid_game');
+      throw new BotException('messages.game.already_added');
     }
 
     ctx.wizard.state.games.push(game.id);
 
-    return 'messages.game_added';
+    return 'messages.game.ok';
   }
 
   // TODO: add tests for this handler
@@ -142,24 +142,16 @@ export class RegisterWizard {
     ctx: WizardMessageContext,
     @Message() msg: PhotoMessage,
   ): Promise<MsgKey | MsgWithExtra> {
-    // TODO: handle error
-    if (msg.photo.length === 0) {
-      console.log('error');
-
-      return;
-    }
-
     const file = await fileFromMsg(ctx, msg);
 
     const fileId = await this.fileUseCases.upload(file.content, file.name);
 
     const profileDto: CreateProfileDto = {
       userId: ctx.from.id,
-      name: ctx.wizard.state['name'],
-      age: ctx.wizard.state['age'],
-      location: ctx.wizard.state['location'],
-      games: ctx.wizard.state['games'],
-      about: '',
+      name: ctx.wizard.state.name,
+      age: ctx.wizard.state.age,
+      games: ctx.wizard.state.games,
+      about: ctx.wizard.state.about,
       fileId,
     };
 
@@ -167,7 +159,7 @@ export class RegisterWizard {
 
     ctx.session.user.profile = profile;
 
-    await this.replyUseCases.replyI18n(ctx, 'messages.register_completed');
+    await this.replyUseCases.replyI18n(ctx, 'messages.register.completed');
     await ctx.scene.enter(NEXT_WIZARD_ID);
 
     return;

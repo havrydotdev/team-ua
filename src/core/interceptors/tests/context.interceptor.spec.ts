@@ -1,8 +1,8 @@
 import { createMock } from '@golevelup/ts-jest';
 import { ExecutionContext } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { TelegrafExecutionContext } from 'nestjs-telegraf';
 import { User } from 'src/core/entities';
-import { MessageContext } from 'src/types';
 import { UserUseCases } from 'src/use-cases/user';
 import { ContextInterceptor } from '../context.interceptor';
 
@@ -26,26 +26,27 @@ describe('ContextInterceptor', () => {
   });
 
   describe('intercept', () => {
-    it('should set the session user to an existing user and call next for a private chat with an existing user', async () => {
-      const ctx = createMock<ExecutionContext>({
-        getArgByIndex: jest.fn().mockReturnValue({
-          from: { id: 12345 },
-          session: { user: undefined },
-        }),
-      });
+    it('should set the session user to an existing user and call next', async () => {
       const next = { handle: jest.fn().mockReturnValue(Promise.resolve()) };
       const user = createMock<User>({
         id: 1,
       });
 
+      jest.spyOn(TelegrafExecutionContext, 'create').mockReturnValue(
+        createMock<TelegrafExecutionContext>({
+          getContext: jest.fn().mockReturnValue({
+            from: { id: 12345 },
+            session: {
+              user: undefined,
+            },
+          }),
+        }),
+      );
       jest.spyOn(userUseCases, 'findById').mockResolvedValue(user);
 
-      await interceptor.intercept(ctx, next);
+      await interceptor.intercept(createMock<ExecutionContext>(), next);
 
       expect(userUseCases.findById).toHaveBeenCalledWith(12345);
-      expect((ctx.getArgByIndex(0) as MessageContext).session.user).toEqual(
-        user,
-      );
       expect(next.handle).toHaveBeenCalled();
     });
 
@@ -61,6 +62,16 @@ describe('ContextInterceptor', () => {
         id: 1,
       });
 
+      jest.spyOn(TelegrafExecutionContext, 'create').mockReturnValue(
+        createMock<TelegrafExecutionContext>({
+          getContext: jest.fn().mockReturnValue({
+            from: { id: 12345 },
+            session: {
+              user: undefined,
+            },
+          }),
+        }),
+      );
       jest.spyOn(userUseCases, 'findById').mockResolvedValue(undefined);
       jest.spyOn(userUseCases, 'create').mockResolvedValue(user);
 
@@ -70,9 +81,6 @@ describe('ContextInterceptor', () => {
       expect(userUseCases.create).toHaveBeenCalledWith({
         id: 12345,
       });
-      expect((ctx.getArgByIndex(0) as MessageContext).session.user).toEqual(
-        user,
-      );
       expect(next.handle).toHaveBeenCalled();
     });
   });

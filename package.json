@@ -42,7 +42,7 @@
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview",
-    "sessions:drop": "sqlite3 ./dev.sqlite 'DROP TABLE \"telegraf-sessions\"'"
+    "sessions:drop": "sqlite3 ./dev.db 'DROP TABLE \"telegraf-sessions\"'"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.436.0",

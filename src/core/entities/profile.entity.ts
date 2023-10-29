@@ -14,9 +14,6 @@ import { User } from './user.entity';
 @Entity('profiles')
 class Profile extends IEntity {
   @Column()
-  location: string;
-
-  @Column()
   name: string;
 
   @Column()

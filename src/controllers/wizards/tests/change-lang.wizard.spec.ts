@@ -38,7 +38,7 @@ describe('ChangeLangWizard', () => {
       const result = wizard.onEnter(ctx);
 
       expect(result).toEqual([
-        'messages.select_lang',
+        'messages.lang.select',
         { reply_markup: getSelectLangMarkup() },
       ]);
       expect(ctx.wizard.next).toHaveBeenCalled();
@@ -59,7 +59,7 @@ describe('ChangeLangWizard', () => {
       const result = wizard.onEnter(ctx);
 
       expect(result).toEqual([
-        'messages.update_lang',
+        'messages.lang.update',
         { reply_markup: getSelectLangMarkup() },
       ]);
       expect(ctx.wizard.next).toHaveBeenCalled();
@@ -131,7 +131,7 @@ describe('ChangeLangWizard', () => {
 
       const result = await wizard.onLang(ctx, msg);
 
-      expect(result).toEqual('messages.invalid_lang');
+      expect(result).toEqual('messages.lang.invalid');
       expect(ctx.session.lang).toBeUndefined();
       expect(ctx.scene.leave).not.toHaveBeenCalled();
     });

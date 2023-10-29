@@ -4,6 +4,7 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
+import { TelegrafExecutionContext } from 'nestjs-telegraf';
 import { MessageContext } from 'src/types';
 import { UserUseCases } from 'src/use-cases/user';
 
@@ -12,7 +13,9 @@ export class ContextInterceptor implements NestInterceptor {
   constructor(private readonly userUseCases: UserUseCases) {}
 
   async intercept(ctx: ExecutionContext, next: CallHandler) {
-    const tgCtx = ctx.getArgByIndex(0) as MessageContext;
+    const tgExecutionContext = TelegrafExecutionContext.create(ctx);
+    const tgCtx = tgExecutionContext.getContext<MessageContext>();
+
     if (!tgCtx.session.user) {
       const user = await this.userUseCases.findById(tgCtx.from.id);
 

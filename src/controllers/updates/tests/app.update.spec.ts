@@ -73,7 +73,7 @@ describe('AppUpdate', () => {
       const resp = await update.onStart(ctx);
 
       expect(ctx.session.user).toEqual(ctx.session.user);
-      expect(resp).toEqual('messages.start');
+      expect(resp).toEqual('commands.start');
     });
   });
 
@@ -129,7 +129,7 @@ describe('AppUpdate', () => {
 
       const resp = await update.onHelp(ctx);
 
-      expect(resp).toEqual('messages.help');
+      expect(resp).toEqual('commands.help');
     });
   });
 });

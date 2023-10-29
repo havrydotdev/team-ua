@@ -3,8 +3,6 @@ import { partial } from '../utils';
 class CreateProfileDto {
   userId: number;
 
-  location: string;
-
   name: string;
 
   age: number;
