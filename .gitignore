@@ -50,5 +50,5 @@ lerna-debug.log*
 .vitepress/cache
 .vitepress/dist
 
-# sqlite
+# dev database 
 dev.db
