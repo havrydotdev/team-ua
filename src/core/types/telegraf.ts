@@ -7,6 +7,17 @@ import {
   ReplyKeyboardRemove,
 } from 'telegraf/typings/core/types/typegram';
 
+type I18nArgs =
+  | (
+      | string
+      | {
+          [k: string]: any;
+        }
+    )[]
+  | {
+      [k: string]: any;
+    };
+
 type Extra = Omit<
   {
     chat_id: string | number;
@@ -24,8 +35,9 @@ type Extra = Omit<
       | ReplyKeyboardMarkup
       | ReplyKeyboardRemove
       | ForceReply;
+    i18nArgs?: I18nArgs;
   },
   'chat_id' | 'text'
 >;
 
-export type { Extra };
+export type { Extra, I18nArgs };

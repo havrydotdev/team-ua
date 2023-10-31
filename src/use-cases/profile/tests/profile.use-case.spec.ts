@@ -94,29 +94,26 @@ describe('ProfileUseCases', () => {
   });
 
   it('should call findByUser and findRecommended on the profile service', async () => {
-    const skip = 0;
-    const profile = createMock<Profile>({
-      user: {
-        id: 1,
-      },
-    });
     const recommended = createMock<Profile>({
       user: {
         id: 2,
+        profile: createMock<Profile>(),
+      },
+    });
+    const profile = createMock<Profile>({
+      user: {
+        id: 1,
+        profile: createMock<Profile>(),
       },
     });
 
-    const findByUserSpy = jest
-      .spyOn(service, 'findByUser')
-      .mockResolvedValue(profile);
     const findRecommendedSpy = jest
       .spyOn(service, 'findRecommended')
       .mockResolvedValue(recommended);
 
-    const result = await useCases.findRecommended(profile.user.id, skip);
+    const result = await useCases.findRecommended(profile);
 
     expect(result).toEqual(recommended);
-    expect(findByUserSpy).toHaveBeenCalledWith(profile.user.id);
-    expect(findRecommendedSpy).toHaveBeenCalledWith(profile, skip);
+    expect(findRecommendedSpy).toHaveBeenCalledWith(profile);
   });
 });

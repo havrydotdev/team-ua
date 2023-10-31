@@ -2,25 +2,32 @@ import {
   CallHandler,
   ExecutionContext,
   Injectable,
+  Logger,
   NestInterceptor,
 } from '@nestjs/common';
+import { TelegrafExecutionContext } from 'nestjs-telegraf';
 import { map } from 'rxjs';
-import { MsgKey } from 'src/types';
+import { MessageContext, MsgKey } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { Extra } from '../types';
 
 @Injectable()
 export class I18nInterceptor implements NestInterceptor {
+  private readonly logger: Logger = new Logger(I18nInterceptor.name);
+
   constructor(private readonly replyUseCases: ReplyUseCases) {}
 
   intercept(ctx: ExecutionContext, next: CallHandler) {
-    const telegrafCtx = ctx.getArgByIndex(0);
+    const tgExecutionContext = TelegrafExecutionContext.create(ctx);
+    const tgCtx = tgExecutionContext.getContext<MessageContext>();
+
+    this.logger.log(`Update from ${tgCtx.from.username}: ${tgCtx.updateType}`);
 
     return next.handle().pipe(
       map(async (data) => {
         switch (typeof data) {
           case 'string':
-            await this.replyUseCases.replyI18n(telegrafCtx, data as MsgKey);
+            await this.replyUseCases.replyI18n(tgCtx, data as MsgKey);
             break;
 
           case 'undefined':
@@ -30,7 +37,7 @@ export class I18nInterceptor implements NestInterceptor {
             switch (typeof data[0]) {
               case 'string':
                 await this.replyUseCases.replyI18n(
-                  telegrafCtx,
+                  tgCtx,
                   data[0] as MsgKey,
                   data[1] as Extra,
                 );
@@ -39,7 +46,7 @@ export class I18nInterceptor implements NestInterceptor {
               default:
                 for (let i = 0; i < data.length; i++) {
                   await this.replyUseCases.replyI18n(
-                    telegrafCtx,
+                    tgCtx,
                     data[i][0] as MsgKey,
                     data[i][1] as Extra,
                   );

@@ -1,17 +1,25 @@
-import { Logger } from '@nestjs/common';
-import { Action, Command, Ctx, Help, On, Start, Update } from 'nestjs-telegraf';
-import { CHANGE_LANG_WIZARD_ID } from 'src/core/constants';
+import { Command, Ctx, Hears, Help, On, Start, Update } from 'nestjs-telegraf';
+import {
+  CHANGE_LANG_WIZARD_ID,
+  COOP_CALLBACK,
+  HELP_CALLBACK,
+  LANG_CALLBACK,
+  LEAVE_PROFILES_CALLBACK,
+  LOOK_CALLBACK,
+  NEXT_PROFILE_CALLBACK,
+  PROFILES_WIZARD_ID,
+  PROFILE_CALLBACK,
+} from 'src/core/constants';
 import { Game } from 'src/core/entities';
 import { getCaption } from 'src/core/utils';
-import { MessageContext, MsgKey } from 'src/types';
+import { MessageContext, MsgKey, MsgWithExtra } from 'src/types';
 import { GameUseCases } from 'src/use-cases/game';
 import { ReplyUseCases } from 'src/use-cases/reply';
+import { Markup } from 'telegraf';
 import { InlineQueryResult } from 'telegraf/typings/core/types/typegram';
 
 @Update()
 export class AppUpdate {
-  private readonly logger = new Logger(AppUpdate.name);
-
   constructor(
     private readonly replyUseCases: ReplyUseCases,
     private readonly gameUseCases: GameUseCases,
@@ -19,8 +27,6 @@ export class AppUpdate {
 
   @Start()
   async onStart(@Ctx() ctx: MessageContext): Promise<MsgKey> {
-    this.logger.log(`/start ${ctx.from.username}`);
-
     if (!ctx.session.user.profile) {
       await this.replyUseCases.replyI18n(ctx, 'commands.start');
 
@@ -32,19 +38,15 @@ export class AppUpdate {
     return 'commands.start';
   }
 
-  @Action('language')
   @Command('language')
+  @Hears(LANG_CALLBACK)
   async onLanguage(@Ctx() ctx: MessageContext): Promise<void> {
-    this.logger.log(`/language ${ctx.from.username}`);
-
     await ctx.scene.enter(CHANGE_LANG_WIZARD_ID);
   }
 
-  @Action('me')
   @Command('me')
+  @Hears(PROFILE_CALLBACK)
   async onMe(@Ctx() ctx: MessageContext) {
-    this.logger.log(`/me ${ctx.from.username}`);
-
     await ctx.replyWithPhoto(
       { url: ctx.session.user.profile.file.url },
       {
@@ -53,11 +55,42 @@ export class AppUpdate {
     );
   }
 
-  @Help()
-  @Action('help')
-  async onHelp(@Ctx() ctx: MessageContext): Promise<MsgKey> {
-    this.logger.log(`/help ${ctx.from.username}`);
+  @Command('coop')
+  @Hears(COOP_CALLBACK)
+  async onCoop(): Promise<MsgWithExtra> {
+    return [
+      'commands.coop',
+      {
+        parse_mode: 'HTML',
+      },
+    ];
+  }
 
+  @Command('profiles')
+  @Hears(LOOK_CALLBACK)
+  async onProfiles(@Ctx() ctx: MessageContext): Promise<void> {
+    await this.replyUseCases.replyI18n(ctx, 'messages.searching_teammates', {
+      reply_markup: Markup.removeKeyboard().reply_markup,
+    });
+
+    await this.replyUseCases.replyI18n(ctx, 'commands.profiles', {
+      reply_markup: Markup.keyboard([
+        [
+          Markup.button.callback(NEXT_PROFILE_CALLBACK, NEXT_PROFILE_CALLBACK),
+          Markup.button.callback(
+            LEAVE_PROFILES_CALLBACK,
+            LEAVE_PROFILES_CALLBACK,
+          ),
+        ],
+      ]).resize(true).reply_markup,
+    });
+
+    await ctx.scene.enter(PROFILES_WIZARD_ID);
+  }
+
+  @Help()
+  @Hears(HELP_CALLBACK)
+  async onHelp(): Promise<MsgKey> {
     return 'commands.help';
   }
 
@@ -81,13 +114,5 @@ export class AppUpdate {
         }),
       ),
     );
-  }
-
-  @Action('coop')
-  @Command('coop')
-  async onCoop(@Ctx() ctx: MessageContext): Promise<MsgKey> {
-    this.logger.log(`/coop ${ctx.from.username}`);
-
-    return 'commands.coop';
   }
 }

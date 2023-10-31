@@ -28,11 +28,11 @@ class TypeOrmUserService implements IUserService {
       where: {
         id: userId,
       },
-      // relations: {
-      //   profile: {
-      //     games: true,
-      //   },
-      // },
+      relations: {
+        profile: {
+          games: true,
+        },
+      },
     });
   }
 }

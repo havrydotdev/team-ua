@@ -9,7 +9,7 @@ abstract class IProfileService {
 
   abstract findByUser(userId: number): Promise<Profile>;
 
-  abstract findRecommended(user: Profile, skip: number): Promise<Profile>;
+  abstract findRecommended(user: Profile): Promise<Profile>;
 }
 
 export { IProfileService };

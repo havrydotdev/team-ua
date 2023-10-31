@@ -95,6 +95,9 @@ export class RegisterWizard {
       'messages.game.send',
       {
         reply_markup: getGamesMarkup(),
+        i18nArgs: {
+          username: ctx.me,
+        },
       },
     ];
   }

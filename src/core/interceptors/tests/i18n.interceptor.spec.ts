@@ -1,9 +1,10 @@
 import { createMock } from '@golevelup/ts-jest';
 import { CallHandler, ExecutionContext } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { TelegrafExecutionContext } from 'nestjs-telegraf';
 import { of } from 'rxjs';
 import { Extra } from 'src/core/types';
-import { MsgKey, MsgWithExtra } from 'src/types';
+import { MessageContext, MsgKey, MsgWithExtra } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { Markup } from 'telegraf';
 import { I18nInterceptor } from '../i18n.interceptor';
@@ -33,7 +34,18 @@ describe('I18nInterceptor', () => {
       const handler = createMock<CallHandler>({
         handle: () => of('messages.test'),
       });
+      const tgCtx = createMock<MessageContext>({
+        from: { id: 12345, username: 'test' },
+        session: {
+          user: undefined,
+        },
+      });
 
+      jest.spyOn(TelegrafExecutionContext, 'create').mockReturnValue(
+        createMock<TelegrafExecutionContext>({
+          getContext: jest.fn().mockReturnValue(tgCtx),
+        }),
+      );
       const replySpy = jest
         .spyOn(replyUseCases, 'replyI18n')
         .mockImplementationOnce(async () => {});
@@ -43,7 +55,7 @@ describe('I18nInterceptor', () => {
       response.subscribe({
         next: () => {
           expect(replyUseCases.replyI18n).toHaveBeenCalledWith(
-            {},
+            tgCtx,
             'messages.test',
           );
         },
@@ -55,15 +67,25 @@ describe('I18nInterceptor', () => {
 
     it('should call replyI18n on the reply use cases with the message key and extra for an array', async () => {
       const controllerResp: [MsgKey, Extra] = [
-        'messages.help',
+        'commands.help',
         { reply_markup: Markup.removeKeyboard().reply_markup },
       ];
-
+      const tgCtx = createMock<MessageContext>({
+        from: { id: 12345, username: 'test' },
+        session: {
+          user: undefined,
+        },
+      });
       const context = createMock<ExecutionContext>();
       const handler = createMock<CallHandler>({
         handle: () => of(controllerResp),
       });
 
+      jest.spyOn(TelegrafExecutionContext, 'create').mockReturnValue(
+        createMock<TelegrafExecutionContext>({
+          getContext: jest.fn().mockReturnValue(tgCtx),
+        }),
+      );
       const replySpy = jest
         .spyOn(replyUseCases, 'replyI18n')
         .mockImplementation();
@@ -86,11 +108,11 @@ describe('I18nInterceptor', () => {
     it('should call replyI18n on the reply use cases with the message key and extra for a nested array', async () => {
       const controllerResp: MsgWithExtra[] = [
         [
-          'messages.help',
+          'commands.help',
           { reply_markup: Markup.removeKeyboard().reply_markup },
         ],
         [
-          'messages.help',
+          'commands.help',
           { reply_markup: Markup.removeKeyboard().reply_markup },
         ],
       ];
@@ -98,7 +120,18 @@ describe('I18nInterceptor', () => {
       const handler = createMock<CallHandler>({
         handle: () => of(controllerResp),
       });
+      const tgCtx = createMock<MessageContext>({
+        from: { id: 12345, username: 'test' },
+        session: {
+          user: undefined,
+        },
+      });
 
+      jest.spyOn(TelegrafExecutionContext, 'create').mockReturnValue(
+        createMock<TelegrafExecutionContext>({
+          getContext: jest.fn().mockReturnValue(tgCtx),
+        }),
+      );
       const replySpy = jest
         .spyOn(replyUseCases, 'replyI18n')
         .mockImplementation();
@@ -119,7 +152,18 @@ describe('I18nInterceptor', () => {
       const next = createMock<CallHandler>({
         handle: jest.fn().mockReturnValue(of(undefined)),
       });
+      const tgCtx = createMock<MessageContext>({
+        from: { id: 12345, username: 'test' },
+        session: {
+          user: undefined,
+        },
+      });
 
+      jest.spyOn(TelegrafExecutionContext, 'create').mockReturnValue(
+        createMock<TelegrafExecutionContext>({
+          getContext: jest.fn().mockReturnValue(tgCtx),
+        }),
+      );
       const replySpy = jest
         .spyOn(replyUseCases, 'replyI18n')
         .mockImplementation();

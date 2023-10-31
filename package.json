@@ -42,7 +42,8 @@
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview",
-    "sessions:drop": "sqlite3 ./dev.db 'DROP TABLE \"telegraf-sessions\"'"
+    "sessions:drop": "sqlite3 ./dev.db 'DROP TABLE \"telegraf-sessions\"'",
+    "typeorm": "typeorm-ts-node-commonjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.436.0",
@@ -53,12 +54,15 @@
     "@nestjs/typeorm": "^10.0.0",
     "@telegraf/session": "^2.0.0-beta.6",
     "better-sqlite3": "^8.7.0",
+    "dotenv": "^16.3.1",
     "kysely": "^0.23.5",
     "nestjs-i18n": "^10.3.6",
     "nestjs-telegraf": "^2.7.0",
+    "pg": "^8.11.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "telegraf": "^4.14.0",
+    "telegraf-ratelimit": "^2.0.0",
     "typeorm": "^0.3.17"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { PathImpl2 } from '@nestjs/config';
-import { User } from 'src/core/entities';
+import { Profile, User } from 'src/core/entities';
 import { Language } from 'src/core/enums';
 import { Extra } from 'src/core/types';
 import { I18nTranslations } from 'src/generated/i18n.generated';
@@ -25,7 +25,17 @@ type WizardState = {
   };
 };
 
-type WizardMessageContext = Context & WizardContext & WizardState;
+type ProfilesWizardState = {
+  wizard: {
+    state: {
+      current?: Profile;
+    };
+  };
+};
+
+type WizardMessageContext = Context & WizardContext;
+
+type ProfilesMessageContext = Context & ProfilesContext;
 
 type WizardContext = TelegrafWizardCtx & {
   session: {
@@ -33,6 +43,13 @@ type WizardContext = TelegrafWizardCtx & {
     lang: Language;
   };
 } & WizardState;
+
+type ProfilesContext = TelegrafWizardCtx & {
+  session: {
+    user?: User;
+    lang: Language;
+  };
+} & ProfilesWizardState;
 
 type CustomSessionContext = {
   session: {
@@ -56,6 +73,8 @@ export {
   MsgKey,
   MsgWithExtra,
   PhotoMessage,
+  ProfilesContext,
+  ProfilesMessageContext,
   WizardContext,
   WizardMessageContext,
 };

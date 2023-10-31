@@ -9,7 +9,7 @@ import { BotException } from '../errors';
 export class GlobalFilter implements ExceptionFilter {
   constructor(private readonly replyUseCases: ReplyUseCases) {}
 
-  async catch(exception: unknown, host: ArgumentsHost) {
+  async catch(exception: Error, host: ArgumentsHost) {
     const telegrafHost = TelegrafArgumentsHost.create(host);
     const ctx = telegrafHost.getContext<Context>();
 
@@ -18,6 +18,8 @@ export class GlobalFilter implements ExceptionFilter {
     if (exception instanceof BotException) {
       message = exception.message as MsgKey;
     }
+
+    console.error(exception.message);
 
     await this.replyUseCases.replyI18n(ctx, message);
   }

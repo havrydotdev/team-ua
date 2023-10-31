@@ -9,7 +9,9 @@ import { Profile } from './profile.entity';
 
 @Entity('users')
 class User extends BaseEntity {
-  @PrimaryColumn()
+  @PrimaryColumn({
+    type: 'bigint',
+  })
   id: number;
 
   @JoinColumn()

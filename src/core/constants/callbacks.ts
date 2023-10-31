@@ -1,0 +1,26 @@
+const PROFILE_CALLBACK = '1. 👤';
+
+const LANG_CALLBACK = '2. 🇺🇦';
+
+const LOOK_CALLBACK = '3. ⚡️';
+
+const COOP_CALLBACK = '4. 💸';
+
+const HELP_CALLBACK = '5. ❓';
+
+const NEXT_PROFILE_CALLBACK = '➡️';
+
+const TEXT_CALLBACK = '✉️';
+
+const LEAVE_PROFILES_CALLBACK = '❌';
+
+export {
+  COOP_CALLBACK,
+  HELP_CALLBACK,
+  LANG_CALLBACK,
+  LEAVE_PROFILES_CALLBACK,
+  LOOK_CALLBACK,
+  NEXT_PROFILE_CALLBACK,
+  PROFILE_CALLBACK,
+  TEXT_CALLBACK,
+};

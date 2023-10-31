@@ -5,6 +5,7 @@ import { AppUpdate } from './controllers/updates';
 import {
   ChangeLangWizard,
   NextActionWizard,
+  ProfilesWizard,
   RegisterWizard,
 } from './controllers/wizards';
 import { GlobalFilter } from './core/filters';
@@ -49,6 +50,7 @@ import { UserUseCasesModule } from './use-cases/user';
     RegisterWizard,
     ChangeLangWizard,
     NextActionWizard,
+    ProfilesWizard,
     {
       provide: APP_INTERCEPTOR,
       useClass: I18nInterceptor,

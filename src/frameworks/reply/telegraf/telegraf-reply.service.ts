@@ -21,7 +21,7 @@ class TelegrafReplyService extends IReplyService {
   ): Promise<void> {
     await ctx.telegram.sendMessage(
       ctx.from.id,
-      this.translate(msgCode, ctx.session.lang),
+      this.translate(msgCode, ctx.session.lang, (extra ?? {}).i18nArgs),
       extra,
     );
   }

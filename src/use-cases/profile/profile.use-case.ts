@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { IProfileService } from 'src/core/abstracts';
 import { CreateProfileDto } from 'src/core/dtos';
+import { Profile } from 'src/core/entities';
 import { ProfileFactoryService } from './profile-factory.service';
 
 @Injectable()
@@ -30,9 +31,7 @@ export class ProfileUseCases {
     return this.profileService.deleteProfile(profileId);
   }
 
-  async findRecommended(userId: number, skip: number) {
-    const profile = await this.profileService.findByUser(userId);
-
-    return this.profileService.findRecommended(profile, skip);
+  async findRecommended(profile: Profile) {
+    return this.profileService.findRecommended(profile);
   }
 }

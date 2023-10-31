@@ -135,6 +135,7 @@ describe('RegisterWizard', () => {
           next: jest.fn(),
           state: {},
         },
+        me: 'test',
       });
       const msg = { text: 'Kharkiv' };
       const resp = await wizard.onAbout(ctx, msg);
@@ -145,6 +146,9 @@ describe('RegisterWizard', () => {
         'messages.game.send',
         {
           reply_markup: getGamesMarkup(),
+          i18nArgs: {
+            username: ctx.me,
+          },
         },
       ]);
     });

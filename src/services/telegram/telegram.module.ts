@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { SQLite } from '@telegraf/session/sqlite';
+import { Postgres } from '@telegraf/session/pg';
 import { TelegrafModule, TelegrafModuleOptions } from 'nestjs-telegraf';
 import { session } from 'telegraf';
 
@@ -8,8 +8,12 @@ import { session } from 'telegraf';
   imports: [
     TelegrafModule.forRootAsync({
       useFactory: (configService: ConfigService): TelegrafModuleOptions => {
-        const store = SQLite({
-          filename: './dev.db',
+        const store = Postgres({
+          user: configService.get<string>('DB_USERNAME'),
+          port: parseInt(configService.get<string>('DB_PORT')),
+          host: configService.get<string>('DB_HOST'),
+          password: configService.get<string>('DB_PASSWORD'),
+          database: configService.get<string>('DB_NAME'),
         });
 
         return {

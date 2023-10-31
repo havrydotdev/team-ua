@@ -25,10 +25,11 @@
     "invalid": "Please, enter valid game",
     "ok": "Game added",
     "already_added": "You already choosed this game",
-    "send": "Send games you play (use @ua_teammates_bot to search available games)"
+    "send": "Send games you play (use @{username} to search available games)"
   },
   "register": {
     "completed": "Registration completed"
   },
-  "next_action": "What's next?"
+  "next_action": "Choose the next action: \n1. Show my profile\n2. Change interface language\n3. View profiles\n4. Information on cooperation",
+  "searching_teammates": "Looking for teammates..."
 }

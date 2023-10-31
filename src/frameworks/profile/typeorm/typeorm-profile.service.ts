@@ -46,14 +46,21 @@ export class TypeOrmProfileService implements IProfileService {
     await this.profileRepo.delete(profileId);
   }
 
-  // TODO
-  async findRecommended(user: Profile, skip: number): Promise<Profile> {
-    const result = await this.profileRepo.find({
-      skip,
-      take: 1,
-      order: {},
-    });
+  async findRecommended(profile: Profile): Promise<Profile> {
+    const result = await this.profileRepo
+      .createQueryBuilder('profile')
+      .where('profile.id != :id', { id: profile.id })
+      .orderBy('RANDOM()')
+      .addOrderBy('profile.age - :age', 'ASC', 'NULLS LAST')
+      .setParameter('age', profile.age)
+      .addOrderBy('profile.created_at', 'DESC')
+      .leftJoinAndSelect('profile.games', 'game')
+      .leftJoinAndSelect('profile.file', 'file')
+      .leftJoinAndSelect('profile.user', 'user')
+      .andWhere('user.id IS NOT NULL')
+      .limit(1)
+      .getOne();
 
-    return result[0];
+    return result;
   }
 }

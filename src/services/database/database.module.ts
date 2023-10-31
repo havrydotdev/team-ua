@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DataSourceOptions } from 'typeorm';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
-      useFactory(config: ConfigService) {
+      useFactory(config: ConfigService): DataSourceOptions {
         return {
           type: config.get<string>('DB_TYPE') as 'postgres' | 'better-sqlite3',
           database: config.get<string>('DB_NAME'),
