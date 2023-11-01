@@ -1,5 +1,11 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
+import {
+  LEAVE_PROFILES_CALLBACK,
+  NEXT_PROFILE_CALLBACK,
+  NEXT_WIZARD_ID,
+  PROFILES_WIZARD_ID,
+} from 'src/core/constants';
 import { File, Profile, User } from 'src/core/entities';
 import { getCaption, getProfileMarkup } from 'src/core/utils';
 import { ProfilesMessageContext } from 'src/types';
@@ -39,7 +45,7 @@ describe('ProfilesWizard', () => {
   });
 
   describe('onEnter', () => {
-    it('should leave the scene and enter the PROFILES_WIZARD_ID scene when the NEXT_PROFILE_CALLBACK is received', async () => {
+    it('should set the current profile state and return message with url', async () => {
       (deunionize as jest.Mock).mockReturnValue({
         username: 'test',
       });
@@ -92,6 +98,42 @@ describe('ProfilesWizard', () => {
           reply_markup: getProfileMarkup(`https://t.me/test`),
         },
       );
+    });
+  });
+
+  describe('onAction', () => {
+    it('should leave the scene if message text equals LEAVE_PROFILES_CALLBACK', async () => {
+      const ctx = createMock<ProfilesMessageContext>({
+        scene: {
+          leave: jest.fn(),
+          enter: jest.fn(),
+        },
+      });
+      const msg = {
+        text: LEAVE_PROFILES_CALLBACK,
+      };
+
+      await wizard.onAction(ctx, msg);
+
+      expect(ctx.scene.leave).toHaveBeenCalled();
+      expect(ctx.scene.enter).toHaveBeenCalledWith(NEXT_WIZARD_ID);
+    });
+
+    it('should re-enter the scene if message text equals NEXT_PROFILE_CALLBACK', async () => {
+      const ctx = createMock<ProfilesMessageContext>({
+        scene: {
+          leave: jest.fn(),
+          enter: jest.fn(),
+        },
+      });
+      const msg = {
+        text: NEXT_PROFILE_CALLBACK,
+      };
+
+      await wizard.onAction(ctx, msg);
+
+      expect(ctx.scene.leave).toHaveBeenCalled();
+      expect(ctx.scene.enter).toHaveBeenCalledWith(PROFILES_WIZARD_ID);
     });
   });
 });
