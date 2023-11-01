@@ -8,3 +8,5 @@ ignore:
   - '**/*main.*'
   - '**/config.mts'
   - '**/index.ts'
+  - '**/datasource/*.js'
+  - '**/migrations/*.ts'

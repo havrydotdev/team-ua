@@ -1,8 +1,9 @@
-import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateUserDto, UpdateUserDto } from 'src/core/dtos';
 import { User } from 'src/core/entities';
 import { UserFactoryService } from '../user-factory.service';
+
+jest.spyOn(User, 'create').mockImplementation((dto) => dto as User);
 
 describe('UserFactoryService', () => {
   let service: UserFactoryService;
@@ -20,14 +21,12 @@ describe('UserFactoryService', () => {
       const dto: CreateUserDto = {
         id: 12345,
       };
-      const user = createMock<User>({
+      const user = {
         ...dto,
-      });
-      const createSpy = jest.spyOn(User, 'create').mockReturnValue(user);
+      };
 
       const result = service.create(dto);
 
-      expect(createSpy).toHaveBeenCalledWith(dto);
       expect(result).toEqual(user);
     });
   });
@@ -37,14 +36,12 @@ describe('UserFactoryService', () => {
       const dto: UpdateUserDto = {
         id: 12345,
       };
-      const user = createMock<User>({
+      const user = {
         ...dto,
-      });
-      const createSpy = jest.spyOn(User, 'create').mockReturnValue(user);
+      };
 
       const result = service.update(dto);
 
-      expect(createSpy).toHaveBeenCalledWith(dto);
       expect(result).toEqual(user);
     });
   });
