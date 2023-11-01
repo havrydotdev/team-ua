@@ -10,7 +10,6 @@ import { ProfilesMessageContext } from 'src/types';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { deunionize } from 'telegraf';
 
-// TODO
 @Wizard(PROFILES_WIZARD_ID)
 export class ProfilesWizard {
   constructor(private readonly profileUseCases: ProfileUseCases) {}
