@@ -1,14 +1,15 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { RegisterWizard } from 'src/controllers/wizards/register.wizard';
-import { Game } from 'src/core/entities';
+import { NEXT_WIZARD_ID } from 'src/core/constants';
+import { Game, Profile, User } from 'src/core/entities';
 import { BotException } from 'src/core/errors';
 import {
   getGamesMarkup,
   getNameMarkup,
   getRemoveKeyboardMarkup,
 } from 'src/core/utils';
-import { WizardMessageContext } from 'src/types/telegraf';
+import { PhotoMessage, WizardMessageContext } from 'src/types/telegraf';
 import { FileUseCases } from 'src/use-cases/file';
 import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
@@ -16,9 +17,28 @@ import { ReplyUseCases } from 'src/use-cases/reply';
 import { UserUseCases } from 'src/use-cases/user';
 import { Markup } from 'telegraf';
 
+jest.mock('src/core/utils', () => {
+  const originalModule = jest.requireActual('src/core/utils');
+
+  //Mock the default export and named export 'foo'
+  return {
+    __esModule: true,
+    ...originalModule,
+    fileFromMsg: jest.fn(() => {
+      return {
+        content: Buffer.from(''),
+        name: 'test',
+      };
+    }),
+  };
+});
+
 describe('RegisterWizard', () => {
   let wizard: RegisterWizard;
   let gameUseCases: GameUseCases;
+  let fileUseCases: FileUseCases;
+  let profileUseCases: ProfileUseCases;
+  let replyUseCases: ReplyUseCases;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -49,6 +69,9 @@ describe('RegisterWizard', () => {
 
     wizard = module.get<RegisterWizard>(RegisterWizard);
     gameUseCases = module.get<GameUseCases>(GameUseCases);
+    fileUseCases = module.get<FileUseCases>(FileUseCases);
+    profileUseCases = module.get<ProfileUseCases>(ProfileUseCases);
+    replyUseCases = module.get<ReplyUseCases>(ReplyUseCases);
   });
 
   describe('onEnter', () => {
@@ -240,6 +263,62 @@ describe('RegisterWizard', () => {
           reply_markup: getRemoveKeyboardMarkup(),
         },
       ]);
+    });
+  });
+
+  describe('onPhoto', () => {
+    it('should call enterPicture on the reply use cases and go to the next step', async () => {
+      const ctx = createMock<WizardMessageContext>({
+        wizard: {
+          state: {
+            name: 'test',
+            age: 17,
+            about: 'test',
+            games: [1],
+          },
+          next: jest.fn(),
+        },
+        from: {
+          id: 12345,
+        },
+        session: {
+          user: createMock<User>(),
+        },
+        scene: {
+          enter: jest.fn(),
+        },
+      });
+      const profileDto = {
+        name: ctx.wizard.state.name,
+        age: ctx.wizard.state.age,
+        about: ctx.wizard.state.about,
+        games: ctx.wizard.state.games,
+        userId: ctx.from.id,
+        fileId: 1,
+      };
+      const createdProfile = createMock<Profile>({
+        id: 1,
+        name: 'test',
+        age: 17,
+      });
+
+      const uploadSpy = jest
+        .spyOn(fileUseCases, 'upload')
+        .mockResolvedValueOnce(1);
+      const createSpy = jest
+        .spyOn(profileUseCases, 'create')
+        .mockResolvedValueOnce(createdProfile);
+      const resp = await wizard.onPhoto(ctx, createMock<PhotoMessage>());
+
+      expect(uploadSpy).toHaveBeenCalledWith(Buffer.from(''), 'test');
+      expect(createSpy).toHaveBeenCalledWith(profileDto);
+      expect(ctx.session.user.profile).toEqual(createdProfile);
+      expect(replyUseCases.replyI18n).toHaveBeenCalledWith(
+        ctx,
+        'messages.register.completed',
+      );
+      expect(resp).toEqual(undefined);
+      expect(ctx.scene.enter).toHaveBeenCalledWith(NEXT_WIZARD_ID);
     });
   });
 });
