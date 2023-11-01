@@ -1,14 +1,14 @@
 import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
-import { NEXT_WIZARD_ID, REGISTER_WIZARD_ID } from 'src/core/constants';
+import {
+  GAMES_MARKUP,
+  NEXT_WIZARD_ID,
+  REGISTER_WIZARD_ID,
+  REMOVE_KEYBOARD_MARKUP,
+} from 'src/core/constants';
 import { CreateProfileDto } from 'src/core/dtos';
 import { BotException } from 'src/core/errors';
 import { Extra } from 'src/core/types';
-import {
-  fileFromMsg,
-  getGamesMarkup,
-  getNameMarkup,
-  getRemoveKeyboardMarkup,
-} from 'src/core/utils';
+import { fileFromMsg, getNameMarkup } from 'src/core/utils';
 import {
   MsgKey,
   MsgWithExtra,
@@ -55,7 +55,7 @@ export class RegisterWizard {
     return [
       'messages.age.send',
       {
-        reply_markup: getRemoveKeyboardMarkup(),
+        reply_markup: REMOVE_KEYBOARD_MARKUP,
       },
     ];
   }
@@ -94,7 +94,7 @@ export class RegisterWizard {
     return [
       'messages.game.send',
       {
-        reply_markup: getGamesMarkup(),
+        reply_markup: GAMES_MARKUP,
         i18nArgs: {
           username: ctx.me,
         },
@@ -114,7 +114,7 @@ export class RegisterWizard {
       return [
         'messages.picture.send',
         {
-          reply_markup: getRemoveKeyboardMarkup(),
+          reply_markup: REMOVE_KEYBOARD_MARKUP,
         },
       ];
     }

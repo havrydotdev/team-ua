@@ -1,8 +1,7 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { REGISTER_WIZARD_ID } from 'src/core/constants';
+import { REGISTER_WIZARD_ID, SELECT_LANG_MARKUP } from 'src/core/constants';
 import { Language } from 'src/core/enums';
-import { getSelectLangMarkup } from 'src/core/utils';
 import { WizardContext } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { ChangeLangWizard } from '../change-lang.wizard';
@@ -39,7 +38,7 @@ describe('ChangeLangWizard', () => {
 
       expect(result).toEqual([
         'messages.lang.select',
-        { reply_markup: getSelectLangMarkup() },
+        { reply_markup: SELECT_LANG_MARKUP },
       ]);
       expect(ctx.wizard.next).toHaveBeenCalled();
     });
@@ -60,7 +59,7 @@ describe('ChangeLangWizard', () => {
 
       expect(result).toEqual([
         'messages.lang.update',
-        { reply_markup: getSelectLangMarkup() },
+        { reply_markup: SELECT_LANG_MARKUP },
       ]);
       expect(ctx.wizard.next).toHaveBeenCalled();
     });

@@ -30,6 +30,6 @@
   "register": {
     "completed": "Registration completed"
   },
-  "next_action": "Choose the next action: \n1. Show my profile\n2. Change interface language\n3. View profiles\n4. Information on cooperation",
+  "next_action": "Choose the next action: \n1. Show my profile\n2. Change interface language\n3. View profiles\n4. Information on cooperation\n5. Help",
   "searching_teammates": "Looking for teammates..."
 }

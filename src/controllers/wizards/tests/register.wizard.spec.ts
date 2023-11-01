@@ -1,14 +1,14 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { RegisterWizard } from 'src/controllers/wizards/register.wizard';
-import { NEXT_WIZARD_ID } from 'src/core/constants';
+import {
+  GAMES_MARKUP,
+  NEXT_WIZARD_ID,
+  REMOVE_KEYBOARD_MARKUP,
+} from 'src/core/constants';
 import { Game, Profile, User } from 'src/core/entities';
 import { BotException } from 'src/core/errors';
-import {
-  getGamesMarkup,
-  getNameMarkup,
-  getRemoveKeyboardMarkup,
-} from 'src/core/utils';
+import { getNameMarkup } from 'src/core/utils';
 import { PhotoMessage, WizardMessageContext } from 'src/types/telegraf';
 import { FileUseCases } from 'src/use-cases/file';
 import { GameUseCases } from 'src/use-cases/game';
@@ -168,7 +168,7 @@ describe('RegisterWizard', () => {
       expect(resp).toEqual([
         'messages.game.send',
         {
-          reply_markup: getGamesMarkup(),
+          reply_markup: GAMES_MARKUP,
           i18nArgs: {
             username: ctx.me,
           },
@@ -260,7 +260,7 @@ describe('RegisterWizard', () => {
       expect(resp).toEqual([
         'messages.picture.send',
         {
-          reply_markup: getRemoveKeyboardMarkup(),
+          reply_markup: REMOVE_KEYBOARD_MARKUP,
         },
       ]);
     });

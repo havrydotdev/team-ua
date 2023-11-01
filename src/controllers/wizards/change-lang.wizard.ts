@@ -3,13 +3,13 @@ import {
   CHANGE_LANG_WIZARD_ID,
   NEXT_WIZARD_ID,
   REGISTER_WIZARD_ID,
+  REMOVE_KEYBOARD_MARKUP,
+  SELECT_LANG_MARKUP,
 } from 'src/core/constants';
 import { Language } from 'src/core/enums';
 import { Extra } from 'src/core/types';
-import { getSelectLangMarkup } from 'src/core/utils';
 import { MsgKey, MsgWithExtra, WizardContext } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
-import { Markup } from 'telegraf';
 
 @Wizard(CHANGE_LANG_WIZARD_ID)
 export class ChangeLangWizard {
@@ -23,7 +23,7 @@ export class ChangeLangWizard {
       ctx.session.user.profile
         ? 'messages.lang.update'
         : 'messages.lang.select',
-      { reply_markup: getSelectLangMarkup() },
+      { reply_markup: SELECT_LANG_MARKUP },
     ];
   }
 
@@ -57,7 +57,7 @@ export class ChangeLangWizard {
     }
 
     await this.replyUseCases.replyI18n(ctx, 'messages.lang.changed', {
-      reply_markup: Markup.removeKeyboard().reply_markup,
+      reply_markup: REMOVE_KEYBOARD_MARKUP,
     });
     await ctx.scene.enter(NEXT_WIZARD_ID);
 
