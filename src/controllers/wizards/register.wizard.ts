@@ -137,7 +137,6 @@ export class RegisterWizard {
     return 'messages.game.ok';
   }
 
-  // TODO: add tests for this handler
   @On('photo')
   @WizardStep(6)
   async onPhoto(
