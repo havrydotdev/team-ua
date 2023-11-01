@@ -43,4 +43,41 @@ describe('GameUseCases', () => {
       expect(result).toEqual(games);
     });
   });
+
+  describe('findStartsWith', () => {
+    it('should call gameService.findStartsWith and return its result', async () => {
+      const games = [
+        createMock<Game>({ id: 1, title: 'Game 1' }),
+        createMock<Game>({ id: 2, title: 'Game 2' }),
+      ];
+      const title = 'Game';
+
+      const findStartsWithSpy = jest
+        .spyOn(gameService, 'findStartsWith')
+        .mockImplementationOnce(async () => games);
+
+      const result = await gameUseCases.findStartsWith(title);
+
+      expect(findStartsWithSpy).toBeCalledTimes(1);
+      expect(findStartsWithSpy).toBeCalledWith(title);
+      expect(result).toEqual(games);
+    });
+  });
+
+  describe('findByTitle', () => {
+    it('should call gameService.findByTitle and return its result', async () => {
+      const game = createMock<Game>({ id: 1, title: 'Game 1' });
+      const title = 'Game 1';
+
+      const findByTitleSpy = jest
+        .spyOn(gameService, 'findByTitle')
+        .mockImplementationOnce(async () => game);
+
+      const result = await gameUseCases.findByTitle(title);
+
+      expect(findByTitleSpy).toBeCalledTimes(1);
+      expect(findByTitleSpy).toBeCalledWith(title);
+      expect(result).toEqual(game);
+    });
+  });
 });
