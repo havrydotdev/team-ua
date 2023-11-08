@@ -1,3 +1,4 @@
+/* eslint-disable perfectionist/sort-classes */
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
@@ -13,6 +14,8 @@ import {
 import { CreateReportDto } from 'src/core/dtos';
 import { Profile } from 'src/core/entities';
 import {
+  getAdCaption,
+  getAdMarkup,
   getCaption,
   getProfileCacheKey,
   getProfileMarkup,
@@ -21,7 +24,6 @@ import { HandlerResponse, ProfilesWizardContext } from 'src/types';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { ReportUseCases } from 'src/use-cases/reports';
-import { deunionize } from 'telegraf';
 
 // TODO: implement ads functionality
 @Wizard(PROFILES_WIZARD_ID)
@@ -32,6 +34,52 @@ export class ProfilesWizard {
     private readonly reportUseCases: ReportUseCases,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
   ) {}
+
+  @WizardStep(1)
+  async onEnter(@Ctx() ctx: ProfilesWizardContext): Promise<HandlerResponse> {
+    if (!ctx.session.seenProfiles) {
+      ctx.session.seenProfiles = [];
+    }
+
+    if (!ctx.session.seenLength) {
+      ctx.session.seenLength = 0;
+    }
+
+    const cached = await this.cache.get<Profile>(
+      getProfileCacheKey(ctx.from.id),
+    );
+    const current = await this.profileUseCases.findRecommended(
+      cached,
+      ctx.session.seenProfiles,
+      ctx.session.seenLength,
+    );
+
+    ctx.wizard.state.current = current;
+    if (!current) {
+      await ctx.scene.enter(CLEAR_LAST_WIZARD_ID);
+
+      return;
+    }
+
+    ctx.session.seenProfiles.push(current.id);
+    ctx.session.seenLength++;
+    ctx.wizard.next();
+
+    await ctx.replyWithPhoto(current.fileId, {
+      caption:
+        current instanceof Profile
+          ? getCaption(current)
+          : getAdCaption(current),
+
+      parse_mode: 'HTML',
+      reply_markup:
+        current instanceof Profile
+          ? getProfileMarkup(
+              `https://t.me/${await ctx.telegram.getChat(current.user.id)}`,
+            )
+          : getAdMarkup(current.url),
+    });
+  }
 
   @WizardStep(2)
   @Hears([NEXT_PROFILE_CALLBACK, LEAVE_PROFILES_CALLBACK, REPORT_CALLBACK])
@@ -64,57 +112,16 @@ export class ProfilesWizard {
     }
   }
 
-  @WizardStep(1)
-  async onEnter(@Ctx() ctx: ProfilesWizardContext): Promise<HandlerResponse> {
-    if (!ctx.session.seenProfiles) {
-      ctx.session.seenProfiles = [];
-    }
-
-    if (!ctx.session.seenLength) {
-      ctx.session.seenLength = 0;
-    }
-
-    const cached = await this.cache.get<Profile>(
-      getProfileCacheKey(ctx.from.id),
-    );
-    const profile = await this.profileUseCases.findRecommended(
-      cached,
-      ctx.session.seenProfiles,
-      ctx.session.seenLength,
-    );
-
-    ctx.wizard.state.current = profile;
-
-    if (!profile) {
-      await ctx.scene.enter(CLEAR_LAST_WIZARD_ID);
-
-      return;
-    }
-
-    ctx.session.seenProfiles.push(profile.id);
-    ctx.session.seenLength++;
-    ctx.wizard.next();
-
-    const chat = await ctx.telegram.getChat(profile.user.id);
-
-    await ctx.replyWithPhoto(profile.fileId, {
-      caption: getCaption(profile),
-      reply_markup: getProfileMarkup(
-        `https://t.me/${deunionize(chat).username}`,
-      ),
-    });
-  }
-
   @WizardStep(3)
   @On('text')
-  async onText(
+  async onReport(
     @Ctx() ctx: ProfilesWizardContext,
     @Message() msg: { text: string },
   ): Promise<HandlerResponse> {
     const reportDto: CreateReportDto = {
       description: msg.text,
       reporterId: ctx.from.id,
-      userId: ctx.wizard.state.current.user.id,
+      userId: (ctx.wizard.state.current as Profile).user.id,
     };
 
     const report = await this.reportUseCases.createReport(reportDto);

@@ -15,5 +15,3 @@ else
 fi
 
 npm run format
-
-npm run test

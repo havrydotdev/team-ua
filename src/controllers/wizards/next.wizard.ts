@@ -1,3 +1,4 @@
+/* eslint-disable perfectionist/sort-classes */
 import { Ctx, Wizard, WizardStep } from 'nestjs-telegraf';
 import { Keyboards, NEXT_WIZARD_ID } from 'src/core/constants';
 import { HandlerResponse, MessageContext } from 'src/types';

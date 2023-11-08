@@ -1,4 +1,4 @@
-import { Game, Profile } from '../entities';
+import { Ad, Game, Profile } from '../entities';
 
 const getCaption = (profile: Profile) => {
   return (
@@ -21,4 +21,8 @@ const getGamesCaption = (games: Game[]) => {
 const getGameHashTag = (game: Game) =>
   `#${game.title.replaceAll(/\s+|-|:/g, '_')}`;
 
-export { getCaption, getReportCaption };
+const getAdCaption = (ad: Ad) => {
+  return `<a href='${ad.url}'>${ad.description}</a>`;
+};
+
+export { getAdCaption, getCaption, getReportCaption };

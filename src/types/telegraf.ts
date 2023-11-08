@@ -1,6 +1,6 @@
 import { PathImpl2 } from '@nestjs/config';
 import { createClient } from 'redis';
-import { Profile } from 'src/core/entities';
+import { Ad, Profile } from 'src/core/entities';
 import { I18nTranslations } from 'src/generated/i18n.generated';
 import { Context } from 'telegraf';
 import {
@@ -80,7 +80,7 @@ type RegisterWizardState = {
 type ProfilesWizardState = {
   wizard: {
     state: {
-      current?: Profile;
+      current?: Ad | Profile;
     };
   };
 };

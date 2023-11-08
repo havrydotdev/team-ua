@@ -1,3 +1,4 @@
+/* eslint-disable perfectionist/sort-classes */
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
@@ -30,42 +31,6 @@ export class RegisterWizard {
     private readonly profileUseCases: ProfileUseCases,
   ) {}
 
-  @On('text')
-  @WizardStep(4)
-  async onAbout(
-    @Ctx() ctx: RegisterWizardContext,
-    @Message(AboutPipe) msg: { text: string },
-  ): Promise<HandlerResponse> {
-    const about = msg.text;
-
-    ctx.wizard.state['about'] = about;
-
-    ctx.wizard.next();
-
-    return [
-      'messages.game.send',
-      {
-        i18nArgs: {
-          username: ctx.me,
-        },
-        reply_markup: Keyboards.games,
-      },
-    ];
-  }
-
-  @On('text')
-  @WizardStep(3)
-  async onAge(
-    @Ctx() ctx: RegisterWizardContext,
-    @Message(AgePipe) msg: { text: number },
-  ): Promise<HandlerResponse> {
-    ctx.wizard.state['age'] = msg.text;
-
-    ctx.wizard.next();
-
-    return 'messages.about.send';
-  }
-
   @WizardStep(1)
   async onEnter(@Ctx() ctx: RegisterWizardContext): Promise<HandlerResponse> {
     const profile = await this.cache.get(getProfileCacheKey(ctx.from.id));
@@ -88,6 +53,60 @@ export class RegisterWizard {
     ]);
 
     return resp;
+  }
+
+  @On('text')
+  @WizardStep(2)
+  async onName(
+    @Ctx() ctx: RegisterWizardContext,
+    @Message() msg: { text: string },
+  ): Promise<HandlerResponse> {
+    ctx.wizard.state.name = msg.text;
+
+    ctx.wizard.next();
+
+    return [
+      'messages.age.send',
+      {
+        reply_markup: Keyboards.remove,
+      },
+    ];
+  }
+
+  @On('text')
+  @WizardStep(3)
+  async onAge(
+    @Ctx() ctx: RegisterWizardContext,
+    @Message(AgePipe) msg: { text: number },
+  ): Promise<HandlerResponse> {
+    ctx.wizard.state['age'] = msg.text;
+
+    ctx.wizard.next();
+
+    return 'messages.about.send';
+  }
+
+  @On('text')
+  @WizardStep(4)
+  async onAbout(
+    @Ctx() ctx: RegisterWizardContext,
+    @Message(AboutPipe) msg: { text: string },
+  ): Promise<HandlerResponse> {
+    const about = msg.text;
+
+    ctx.wizard.state['about'] = about;
+
+    ctx.wizard.next();
+
+    return [
+      'messages.game.send',
+      {
+        i18nArgs: {
+          username: ctx.me,
+        },
+        reply_markup: Keyboards.games,
+      },
+    ];
   }
 
   @On('text')
@@ -118,24 +137,6 @@ export class RegisterWizard {
     ctx.wizard.state.games.push(msg.gameId);
 
     return 'messages.game.ok';
-  }
-
-  @On('text')
-  @WizardStep(2)
-  async onName(
-    @Ctx() ctx: RegisterWizardContext,
-    @Message() msg: { text: string },
-  ): Promise<HandlerResponse> {
-    ctx.wizard.state.name = msg.text;
-
-    ctx.wizard.next();
-
-    return [
-      'messages.age.send',
-      {
-        reply_markup: Keyboards.remove,
-      },
-    ];
   }
 
   @On('photo')
