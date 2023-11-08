@@ -3,7 +3,12 @@ import {
   InlineKeyboardMarkup,
   ReplyKeyboardMarkup,
 } from 'telegraf/typings/core/types/typegram';
-import { TEXT_CALLBACK } from '../constants';
+
+import {
+  AD_CALLBACK,
+  TEXT_CALLBACK,
+  UPDATE_PROFILE_CALLBACK,
+} from '../constants';
 
 const getNameMarkup = (name: string): ReplyKeyboardMarkup => {
   const reply_markup = Markup.keyboard([
@@ -27,4 +32,38 @@ const getProfileMarkup = (url: string): InlineKeyboardMarkup => {
   return reply_markup;
 };
 
-export { getNameMarkup, getProfileMarkup };
+const getAdMarkup = (url?: string): InlineKeyboardMarkup => {
+  const markup = url ? [[Markup.button.url(AD_CALLBACK, url)]] : [];
+
+  const reply_markup = Markup.inlineKeyboard(markup).reply_markup;
+
+  return reply_markup;
+};
+
+const getReportMarkup = (
+  userId: number,
+  reporterId: number,
+): InlineKeyboardMarkup => {
+  const markup = Markup.inlineKeyboard([
+    Markup.button.callback('Delete Profile', `sen-${userId}`),
+    Markup.button.callback('Reporter Info', `reporter-info-${reporterId}`),
+  ]).reply_markup;
+
+  return markup;
+};
+
+const getMeMarkup = (text: string): InlineKeyboardMarkup => {
+  const markup = Markup.inlineKeyboard([
+    Markup.button.callback(text, UPDATE_PROFILE_CALLBACK),
+  ]).reply_markup;
+
+  return markup;
+};
+
+export {
+  getAdMarkup,
+  getMeMarkup,
+  getNameMarkup,
+  getProfileMarkup,
+  getReportMarkup,
+};

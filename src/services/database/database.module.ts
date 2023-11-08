@@ -6,20 +6,20 @@ import { DataSourceOptions } from 'typeorm';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
       useFactory(config: ConfigService): DataSourceOptions {
         return {
-          type: config.get<string>('DB_TYPE') as 'postgres' | 'better-sqlite3',
           database: config.get<string>('DB_NAME'),
-          username: config.get<string>('DB_USERNAME'),
-          logging: Boolean(config.get<string>('DB_LOGGING')),
-          port: parseInt(config.get<string>('DB_PORT')),
-          host: config.get<string>('DB_HOST'),
-          password: config.get<string>('DB_PASSWORD'),
-          synchronize: config.get<string>('DB_SYNCHRONIZE') === 'true',
           entities: [__dirname + '../../../core/entities/*{.js,.ts}'],
+          host: config.get<string>('DB_HOST'),
+          logging: Boolean(config.get<string>('DB_LOGGING')),
+          password: config.get<string>('DB_PASSWORD'),
+          port: parseInt(config.get<string>('DB_PORT')),
+          synchronize: config.get<string>('DB_SYNCHRONIZE') === 'true',
+          type: config.get<string>('DB_TYPE') as 'better-sqlite3' | 'postgres',
+          username: config.get<string>('DB_USERNAME'),
         };
       },
-      inject: [ConfigService],
     }),
   ],
 })

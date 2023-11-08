@@ -7,9 +7,8 @@ import {
 } from '@nestjs/common';
 import { TelegrafExecutionContext } from 'nestjs-telegraf';
 import { map } from 'rxjs';
-import { MessageContext, MsgKey } from 'src/types';
+import { Extra, MessageContext, MsgKey } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
-import { Extra } from '../types';
 
 @Injectable()
 export class I18nInterceptor implements NestInterceptor {
@@ -17,7 +16,7 @@ export class I18nInterceptor implements NestInterceptor {
 
   constructor(private readonly replyUseCases: ReplyUseCases) {}
 
-  intercept(ctx: ExecutionContext, next: CallHandler) {
+  async intercept(ctx: ExecutionContext, next: CallHandler) {
     const tgExecutionContext = TelegrafExecutionContext.create(ctx);
     const tgCtx = tgExecutionContext.getContext<MessageContext>();
 

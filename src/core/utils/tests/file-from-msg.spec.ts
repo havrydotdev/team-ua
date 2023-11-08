@@ -1,6 +1,7 @@
 import { createMock } from '@golevelup/ts-jest';
 import { MessageContext, PhotoMessage } from 'src/types';
 import { PhotoSize } from 'telegraf/typings/core/types/typegram';
+
 import { fetchImage } from '../fetch-image';
 import { fileFromMsg } from '../file-from-msg';
 

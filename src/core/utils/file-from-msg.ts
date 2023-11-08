@@ -1,4 +1,5 @@
 import { MessageContext, PhotoMessage } from 'src/types';
+
 import { fetchImage } from './fetch-image';
 
 type File = {

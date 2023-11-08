@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateUserDto, UpdateUserDto } from 'src/core/dtos';
 import { User } from 'src/core/entities';
+
 import { UserFactoryService } from '../user-factory.service';
 
 jest.spyOn(User, 'create').mockImplementation((dto) => dto as User);

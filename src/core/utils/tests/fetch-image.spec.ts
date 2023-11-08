@@ -1,5 +1,6 @@
 import { createMock } from '@golevelup/ts-jest';
 import fetch from 'node-fetch';
+
 import { fetchImage } from '../fetch-image';
 
 jest.mock('node-fetch', () => {

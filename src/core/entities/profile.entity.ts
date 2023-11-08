@@ -6,32 +6,34 @@ import {
   ManyToMany,
   OneToOne,
 } from 'typeorm';
+
 import { IEntity } from './base.entity';
-import { File } from './file.entity';
 import { Game } from './game.entity';
 import { User } from './user.entity';
 
 @Entity('profiles')
 class Profile extends IEntity {
   @Column()
-  name: string;
+  about: string;
 
   @Column()
   age: number;
 
-  @Column()
-  about: string;
-
-  @OneToOne(() => User, (user) => user.profile)
-  user: User;
+  @Column({
+    name: 'file_id',
+  })
+  fileId: string;
 
   @JoinTable()
   @ManyToMany(() => Game, (game) => game.profiles)
   games: Game[];
 
+  @Column()
+  name: string;
+
   @JoinColumn()
-  @OneToOne(() => File)
-  file: File;
+  @OneToOne(() => User, (user) => user.profile)
+  user: User;
 }
 
 export { Profile };

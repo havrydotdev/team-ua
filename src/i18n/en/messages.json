@@ -12,7 +12,6 @@
     "send": "Enter your name"
   },
   "age": {
-    "invalid": "Please, enter valid age",
     "send": "Enter your age"
   },
   "picture": {
@@ -31,5 +30,22 @@
     "completed": "Registration completed"
   },
   "next_action": "Choose the next action: \n1. Show my profile\n2. Change interface language\n3. View profiles\n4. Information on cooperation\n5. Help",
-  "searching_teammates": "Looking for teammates..."
+  "searching_teammates": "Looking for teammates...",
+  "report": {
+    "ad": "You can't report ad",
+    "send": "Send short report description",
+    "ok": "Report sent. Thank you!",
+    "channel": {
+      "ok": "Reports channel updated"
+    }
+  },
+  "profile": {
+    "last": {
+      "clear": "Do you want to clear the list and start over?",
+      "cleared": "Viewed profiles list wiped",
+      "no_more": "It seems that you have already viewed all profiles."
+    },
+    "deleted": "Hi! I'm sorry, but your profile has been deleted by admin. You can create a new one. Have a nice day!",
+    "update": "Update profile"
+  }
 }

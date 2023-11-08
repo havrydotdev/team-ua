@@ -12,6 +12,7 @@ import { ProfilesMessageContext } from 'src/types';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { deunionize } from 'telegraf';
 import { ChatFromGetChat } from 'telegraf/typings/core/types/typegram';
+
 import { ProfilesWizard } from '../profiles.wizard';
 
 jest.mock('telegraf', () => {
@@ -52,12 +53,8 @@ describe('ProfilesWizard', () => {
 
       const ctx = createMock<ProfilesMessageContext>({
         scene: {
-          leave: jest.fn(),
           enter: jest.fn(),
-        },
-        wizard: {
-          state: {},
-          next: jest.fn(),
+          leave: jest.fn(),
         },
         session: {
           user: createMock<User>({
@@ -72,14 +69,18 @@ describe('ProfilesWizard', () => {
             .fn()
             .mockResolvedValueOnce(createMock<ChatFromGetChat>()),
         },
+        wizard: {
+          next: jest.fn(),
+          state: {},
+        },
       });
       const recommended = createMock<Profile>({
-        id: 1,
-        name: 'test',
         file: createMock<File>({
           url: 'https://test.com',
         }),
         games: [],
+        id: 1,
+        name: 'test',
       });
 
       const findSpy = jest
@@ -105,8 +106,8 @@ describe('ProfilesWizard', () => {
     it('should leave the scene if message text equals LEAVE_PROFILES_CALLBACK', async () => {
       const ctx = createMock<ProfilesMessageContext>({
         scene: {
-          leave: jest.fn(),
           enter: jest.fn(),
+          leave: jest.fn(),
         },
       });
       const msg = {
@@ -122,8 +123,8 @@ describe('ProfilesWizard', () => {
     it('should re-enter the scene if message text equals NEXT_PROFILE_CALLBACK', async () => {
       const ctx = createMock<ProfilesMessageContext>({
         scene: {
-          leave: jest.fn(),
           enter: jest.fn(),
+          leave: jest.fn(),
         },
       });
       const msg = {

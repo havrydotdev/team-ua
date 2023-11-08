@@ -18,6 +18,12 @@ export type I18nTranslations = {
         "unknown": string;
         "only_private": string;
         "limit_exceeded": string;
+        "age": {
+            "invalid": string;
+        };
+        "about": {
+            "invalid": string;
+        };
     };
     "messages": {
         "lang": {
@@ -33,8 +39,8 @@ export type I18nTranslations = {
             "send": string;
         };
         "age": {
-            "invalid": string;
             "send": string;
+            "invalid": string;
         };
         "picture": {
             "send": string;
@@ -53,6 +59,23 @@ export type I18nTranslations = {
         };
         "next_action": string;
         "searching_teammates": string;
+        "report": {
+            "ad": string;
+            "send": string;
+            "ok": string;
+            "channel": {
+                "ok": string;
+            };
+        };
+        "profile": {
+            "last": {
+                "clear": string;
+                "cleared": string;
+                "no_more": string;
+            };
+            "deleted": string;
+            "update": string;
+        };
     };
 };
 export type I18nPath = Path<I18nTranslations>;

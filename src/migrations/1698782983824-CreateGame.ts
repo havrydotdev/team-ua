@@ -12,15 +12,15 @@ const readSqlFile = (filepath: string): string[] => {
 };
 
 export class CreateGame1698782983824 implements MigrationInterface {
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    queryRunner.query(`DROP TABLE "games"`);
+  }
+
   public async up(queryRunner: QueryRunner): Promise<void> {
     const queries = readSqlFile('../../migrations.sql');
 
     for (let i = 0; i < queries.length; i++) {
       await queryRunner.query(queries[i]);
     }
-  }
-
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`DROP TABLE "games"`);
   }
 }

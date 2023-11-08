@@ -8,6 +8,7 @@ import { mocked } from 'jest-mock';
 import { File } from 'src/core/entities';
 import { BotException } from 'src/core/errors';
 import { Repository } from 'typeorm';
+
 import { AwsFileService } from '../aws-file.service';
 
 jest.mock('uuid', () => ({

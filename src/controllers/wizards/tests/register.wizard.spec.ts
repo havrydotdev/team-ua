@@ -77,11 +77,11 @@ describe('RegisterWizard', () => {
   describe('onEnter', () => {
     it('should call enterName on the reply use cases and go to the next step', async () => {
       const ctx = createMock<WizardMessageContext>({
-        wizard: {
-          next: jest.fn(),
-        },
         from: {
           first_name: 'John',
+        },
+        wizard: {
+          next: jest.fn(),
         },
       });
 
@@ -102,8 +102,8 @@ describe('RegisterWizard', () => {
     it('should set the name state and go to the next step', async () => {
       const ctx = createMock<WizardMessageContext>({
         wizard: {
-          state: {},
           next: jest.fn(),
+          state: {},
         },
       });
       const msg = { text: 'name' };
@@ -123,8 +123,8 @@ describe('RegisterWizard', () => {
     it('should call enterAge on the reply use cases and go to the next step', async () => {
       const ctx = createMock<WizardMessageContext>({
         wizard: {
-          state: {},
           next: jest.fn(),
+          state: {},
         },
       });
 
@@ -138,8 +138,8 @@ describe('RegisterWizard', () => {
     it('should return error message if age is not a number', async () => {
       const ctx = createMock<WizardMessageContext>({
         wizard: {
-          state: {},
           next: jest.fn(),
+          state: {},
         },
       });
 
@@ -154,11 +154,11 @@ describe('RegisterWizard', () => {
   describe('onAbout', () => {
     it('should set the about state and go to the next step', async () => {
       const ctx = createMock<WizardMessageContext>({
+        me: 'test',
         wizard: {
           next: jest.fn(),
           state: {},
         },
-        me: 'test',
       });
       const msg = { text: 'Kharkiv' };
       const resp = await wizard.onAbout(ctx, msg);
@@ -168,10 +168,10 @@ describe('RegisterWizard', () => {
       expect(resp).toEqual([
         'messages.game.send',
         {
-          reply_markup: GAMES_MARKUP,
           i18nArgs: {
             username: ctx.me,
           },
+          reply_markup: GAMES_MARKUP,
         },
       ]);
     });
@@ -181,8 +181,8 @@ describe('RegisterWizard', () => {
     it('should set the games state', async () => {
       const ctx = createMock<WizardMessageContext>({
         wizard: {
-          state: {},
           next: jest.fn(),
+          state: {},
         },
       });
 
@@ -203,8 +203,8 @@ describe('RegisterWizard', () => {
     it('should throw an error if the game is not in the list', async () => {
       const ctx = createMock<WizardMessageContext>({
         wizard: {
-          state: {},
           next: jest.fn(),
+          state: {},
         },
       });
       const msg = { text: 'game_that_does_not_exist' };
@@ -224,10 +224,10 @@ describe('RegisterWizard', () => {
     it('should send error message if game is already in state', async () => {
       const ctx = createMock<WizardMessageContext>({
         wizard: {
+          next: jest.fn(),
           state: {
             games: [1],
           },
-          next: jest.fn(),
         },
       });
       const msg = { text: 'game1' };
@@ -247,8 +247,8 @@ describe('RegisterWizard', () => {
     it('should go to the next step if the message is ✅', async () => {
       const ctx = createMock<WizardMessageContext>({
         wizard: {
-          state: {},
           next: jest.fn(),
+          state: {},
         },
       });
       const msg = { text: '✅' };
@@ -269,37 +269,37 @@ describe('RegisterWizard', () => {
   describe('onPhoto', () => {
     it('should call enterPicture on the reply use cases and go to the next step', async () => {
       const ctx = createMock<WizardMessageContext>({
-        wizard: {
-          state: {
-            name: 'test',
-            age: 17,
-            about: 'test',
-            games: [1],
-          },
-          next: jest.fn(),
-        },
         from: {
           id: 12345,
-        },
-        session: {
-          user: createMock<User>(),
         },
         scene: {
           enter: jest.fn(),
         },
+        session: {
+          user: createMock<User>(),
+        },
+        wizard: {
+          next: jest.fn(),
+          state: {
+            about: 'test',
+            age: 17,
+            games: [1],
+            name: 'test',
+          },
+        },
       });
       const profileDto = {
-        name: ctx.wizard.state.name,
-        age: ctx.wizard.state.age,
         about: ctx.wizard.state.about,
-        games: ctx.wizard.state.games,
-        userId: ctx.from.id,
+        age: ctx.wizard.state.age,
         fileId: 1,
+        games: ctx.wizard.state.games,
+        name: ctx.wizard.state.name,
+        userId: ctx.from.id,
       };
       const createdProfile = createMock<Profile>({
+        age: 17,
         id: 1,
         name: 'test',
-        age: 17,
       });
 
       const uploadSpy = jest

@@ -1,6 +1,7 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { IFileService } from 'src/core/abstracts';
+
 import { FileUseCases } from '../file.use-case.service';
 
 describe('FileUseCases', () => {

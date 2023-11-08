@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { IProfileService } from 'src/core/abstracts';
 import { CreateProfileDto } from 'src/core/dtos';
 import { Profile } from 'src/core/entities';
+
 import { ProfileFactoryService } from './profile-factory.service';
 
 @Injectable()
@@ -11,27 +12,30 @@ export class ProfileUseCases {
     private readonly profileFactory: ProfileFactoryService,
   ) {}
 
-  async findByUser(userId: number) {
-    return this.profileService.findByUser(userId);
-  }
-
   async create(dto: CreateProfileDto) {
     const profile = this.profileFactory.create(dto);
 
     return this.profileService.createProfile(profile);
   }
 
-  async updateProfile(profileId: number, dto: CreateProfileDto) {
+  async deleteByUser(userId: number) {
+    return this.profileService.deleteByUser(userId);
+  }
+
+  async findRecommended(
+    profile: Profile,
+    seenProfiles: number[],
+    seenLength: number,
+  ) {
+    if (seenLength === 1) {
+    }
+
+    return this.profileService.findRecommended(profile, seenProfiles ?? []);
+  }
+
+  async update(profileId: number, dto: CreateProfileDto) {
     const profile = this.profileFactory.update(dto);
 
     return this.profileService.updateProfile(profileId, profile);
-  }
-
-  async deleteProfile(profileId: number) {
-    return this.profileService.deleteProfile(profileId);
-  }
-
-  async findRecommended(profile: Profile) {
-    return this.profileService.findRecommended(profile);
   }
 }

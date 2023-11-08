@@ -1,11 +1,14 @@
 import {
   BaseEntity,
+  Column,
   Entity,
-  JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
 } from 'typeorm';
+
 import { Profile } from './profile.entity';
+import { Report } from './report.entity';
 
 @Entity('users')
 class User extends BaseEntity {
@@ -14,12 +17,23 @@ class User extends BaseEntity {
   })
   id: number;
 
-  @JoinColumn()
   @OneToOne(() => Profile, (profile) => profile.user, {
-    nullable: true,
     cascade: true,
+    nullable: true,
   })
   profile: Profile;
+
+  @OneToMany(() => Report, (report) => report.reporter)
+  reported: Report[];
+
+  @OneToMany(() => Report, (report) => report.user)
+  reports: Report[];
+
+  @Column({
+    default: 'user',
+    enum: ['user', 'admin'],
+  })
+  role: 'admin' | 'user';
 }
 
 export { User };

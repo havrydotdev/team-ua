@@ -6,17 +6,18 @@ import { Language } from 'src/core/enums';
 import { Extra } from 'src/core/types';
 import { I18nTranslations } from 'src/generated/i18n.generated';
 import { MessageContext } from 'src/types';
+
 import { TelegrafReplyService } from '../telegraf-reply.service';
 
 describe('TelegrafReplyService', () => {
   let service: TelegrafReplyService;
   let i18n: I18nService<I18nTranslations>;
   const ctx = createMock<MessageContext>({
-    session: {
-      lang: Language.UA,
-    },
     from: {
       id: 12345,
+    },
+    session: {
+      lang: Language.UA,
     },
     telegram: {
       sendMessage: jest.fn(),

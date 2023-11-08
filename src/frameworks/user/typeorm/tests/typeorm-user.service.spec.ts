@@ -1,8 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
+import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/core/entities';
 import { MockDatabaseModule } from 'src/services/mock-database/mock-database.module';
 import { Repository } from 'typeorm';
+
 import { TypeOrmUserService } from '../typeorm-user.service';
 
 describe('TypeOrmUserService', () => {

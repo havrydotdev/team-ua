@@ -9,11 +9,11 @@ export class GameUseCases {
     return this.gameService.findAll();
   }
 
-  async findStartsWith(title: string) {
-    return this.gameService.findStartsWith(title);
-  }
-
   async findByTitle(title: string) {
     return this.gameService.findByTitle(title);
+  }
+
+  async findStartsWith(title: string) {
+    return this.gameService.findStartsWith(title);
   }
 }

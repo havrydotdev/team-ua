@@ -1,17 +1,17 @@
 import { partial } from '../utils';
 
 class CreateProfileDto {
-  userId: number;
-
-  name: string;
+  about: string;
 
   age: number;
 
-  about: string;
+  fileId: string;
 
   games: number[];
 
-  fileId: number;
+  name: string;
+
+  userId: number;
 }
 
 class UpdateProfileDto extends partial<Partial<CreateProfileDto>>() {}

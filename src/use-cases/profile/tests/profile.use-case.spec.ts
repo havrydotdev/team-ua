@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { IProfileService } from 'src/core/abstracts';
 import { CreateProfileDto } from 'src/core/dtos';
 import { Profile } from 'src/core/entities';
+
 import { ProfileFactoryService } from '../profile-factory.service';
 import { ProfileUseCases } from '../profile.use-case';
 
@@ -74,7 +75,7 @@ describe('ProfileUseCases', () => {
       .spyOn(service, 'updateProfile')
       .mockResolvedValue(profile);
 
-    const result = await useCases.updateProfile(profileId, dto);
+    const result = await useCases.update(profileId, dto);
 
     expect(result).toEqual(profile);
     expect(updateSpy).toHaveBeenCalledWith(dto);
@@ -85,10 +86,10 @@ describe('ProfileUseCases', () => {
     const profileId = 1;
 
     const deleteProfileSpy = jest
-      .spyOn(service, 'deleteProfile')
+      .spyOn(service, 'delete')
       .mockResolvedValue(undefined);
 
-    await useCases.deleteProfile(profileId);
+    await useCases.delete(profileId);
 
     expect(deleteProfileSpy).toHaveBeenCalledWith(profileId);
   });

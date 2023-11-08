@@ -2,6 +2,7 @@ import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MAIN_MENU_MARKUP } from 'src/core/constants';
 import { MessageContext } from 'src/types';
+
 import { NextActionWizard } from '../next.wizard';
 
 describe('NextActionWizard', () => {

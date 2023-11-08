@@ -7,6 +7,7 @@ import { Extra } from 'src/core/types';
 import { MessageContext, MsgKey, MsgWithExtra } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { Markup } from 'telegraf';
+
 import { I18nInterceptor } from '../i18n.interceptor';
 
 describe('I18nInterceptor', () => {
@@ -53,14 +54,14 @@ describe('I18nInterceptor', () => {
       const response = interceptor.intercept(context, handler);
 
       response.subscribe({
+        complete: () => {
+          expect(replySpy).toHaveBeenCalledTimes(1);
+        },
         next: () => {
           expect(replyUseCases.replyI18n).toHaveBeenCalledWith(
             tgCtx,
             'messages.test',
           );
-        },
-        complete: () => {
-          expect(replySpy).toHaveBeenCalledTimes(1);
         },
       });
     });
@@ -93,14 +94,14 @@ describe('I18nInterceptor', () => {
       const response = interceptor.intercept(context, handler);
 
       response.subscribe({
+        complete: () => {
+          expect(replySpy).toHaveBeenCalledTimes(1);
+        },
         next: () => {
           expect(replyUseCases.replyI18n).toHaveBeenCalledWith(
             {},
             ...controllerResp,
           );
-        },
-        complete: () => {
-          expect(replySpy).toHaveBeenCalledTimes(1);
         },
       });
     });

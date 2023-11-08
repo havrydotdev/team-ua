@@ -1,5 +1,7 @@
 import { createMock } from '@golevelup/ts-jest';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Cache } from 'cache-manager';
 import {
   CHANGE_LANG_WIZARD_ID,
   LEAVE_PROFILES_CALLBACK,
@@ -10,10 +12,13 @@ import { Game, User } from 'src/core/entities';
 import { getCaption } from 'src/core/utils';
 import { MessageContext } from 'src/types/telegraf';
 import { GameUseCases } from 'src/use-cases/game';
+import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
+import { ReportUseCases } from 'src/use-cases/reports';
 import { UserUseCases } from 'src/use-cases/user/user.use-case';
 import { Markup } from 'telegraf';
 import { InlineQueryResult } from 'telegraf/typings/core/types/typegram';
+
 import { AppUpdate } from '../app.update';
 
 describe('AppUpdate', () => {
@@ -37,6 +42,18 @@ describe('AppUpdate', () => {
           provide: GameUseCases,
           useValue: createMock<GameUseCases>(),
         },
+        {
+          provide: ReportUseCases,
+          useValue: createMock<ReportUseCases>(),
+        },
+        {
+          provide: ProfileUseCases,
+          useValue: createMock<ProfileUseCases>(),
+        },
+        {
+          provide: CACHE_MANAGER,
+          useValue: createMock<Cache>(),
+        },
       ],
     }).compile();
 
@@ -55,9 +72,6 @@ describe('AppUpdate', () => {
         },
         from: {
           id: userId,
-        },
-        session: {
-          user: {},
         },
         scene: {
           enter: jest.fn(),
@@ -81,7 +95,6 @@ describe('AppUpdate', () => {
 
       const resp = await update.onStart(ctx);
 
-      expect(ctx.session.user).toEqual(ctx.session.user);
       expect(resp).toEqual('commands.start');
     });
   });
@@ -109,7 +122,6 @@ describe('AppUpdate', () => {
               file: createMock<User['profile']['file']>({
                 url: 'url',
               }),
-              name: 'name',
               games: [
                 createMock<Game>({
                   title: 'CS:GO',
@@ -118,6 +130,7 @@ describe('AppUpdate', () => {
                   title: 'CS 2',
                 }),
               ],
+              name: 'name',
             }),
           }),
         },
@@ -191,28 +204,28 @@ describe('AppUpdate', () => {
     it('should reply with the inline query results', async () => {
       const games = [
         createMock<Game>({
-          id: 1,
-          title: 'Test1',
           description: "Test1's description",
+          id: 1,
           image: "Test1's image",
+          title: 'Test1',
         }),
         createMock<Game>({
-          id: 2,
-          title: 'Test2',
           description: "Test2's description",
+          id: 2,
           image: "Test2's image",
+          title: 'Test2',
         }),
         createMock<Game>({
-          id: 3,
-          title: 'Test3',
           description: "Test3's description",
+          id: 3,
           image: "Test3's image",
+          title: 'Test3',
         }),
         createMock<Game>({
-          id: 4,
-          title: 'Test4',
           description: "Test4's description",
+          id: 4,
           image: "Test4's image",
+          title: 'Test4',
         }),
       ];
       const ctx = createMock<MessageContext>({
@@ -228,14 +241,14 @@ describe('AppUpdate', () => {
       expect(ctx.answerInlineQuery).toHaveBeenCalledWith(
         games.map(
           (game): InlineQueryResult => ({
-            type: 'article',
-            id: game.id.toString(),
-            title: game.title,
             description: game.description,
-            thumbnail_url: game.image,
+            id: game.id.toString(),
             input_message_content: {
               message_text: game.title,
             },
+            thumbnail_url: game.image,
+            title: game.title,
+            type: 'article',
           }),
         ),
       );

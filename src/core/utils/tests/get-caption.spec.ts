@@ -1,5 +1,6 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Game, Profile } from 'src/core/entities';
+
 import { getCaption } from '../get-caption';
 
 describe('getCaption', () => {
@@ -9,10 +10,10 @@ describe('getCaption', () => {
       createMock<Game>({ title: 'Game 2' }),
     ];
     const profile: Profile = createMock<Profile>({
-      name: 'Test',
-      age: 20,
       about: 'About Test',
+      age: 20,
       games,
+      name: 'Test',
     });
 
     const result = getCaption(profile);

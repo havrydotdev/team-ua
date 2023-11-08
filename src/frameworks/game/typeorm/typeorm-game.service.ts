@@ -18,12 +18,11 @@ export class TypeOrmGameService implements IGameService {
     });
   }
 
-  async findWithLimit(limit: number): Promise<Game[]> {
-    return this.gameRepo.find({
-      order: {
-        created_at: 'DESC',
+  async findByTitle(title: string): Promise<Game | null> {
+    return this.gameRepo.findOne({
+      where: {
+        title,
       },
-      take: limit,
     });
   }
 
@@ -41,11 +40,12 @@ export class TypeOrmGameService implements IGameService {
       .getMany();
   }
 
-  async findByTitle(title: string): Promise<Game | null> {
-    return this.gameRepo.findOne({
-      where: {
-        title,
+  async findWithLimit(limit: number): Promise<Game[]> {
+    return this.gameRepo.find({
+      order: {
+        created_at: 'DESC',
       },
+      take: limit,
     });
   }
 }

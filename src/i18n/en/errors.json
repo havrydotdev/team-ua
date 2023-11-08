@@ -1,5 +1,8 @@
 {
   "unknown": "Unknown error occurred. Try again later.",
   "only_private": "Sorry, I can't work in groups. Use me in private chat",
-  "limit_exceeded": "Sorry, you have exceeded the limit of requests. Try again later."
+  "limit_exceeded": "Sorry, you have exceeded the limit of requests. Try again later.",
+  "age": {
+    "invalid": "Please, enter valid age"
+  }
 }

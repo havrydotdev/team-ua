@@ -1,14 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { PathImpl2 } from '@nestjs/config';
 import { I18nService } from 'nestjs-i18n';
+import { InjectBot } from 'nestjs-telegraf';
 import { IReplyService } from 'src/core/abstracts';
-import { Extra } from 'src/core/types';
 import { I18nTranslations } from 'src/generated/i18n.generated';
-import { MessageContext } from 'src/types/telegraf';
+import {
+  Extra,
+  Language,
+  MessageContext,
+  PhotoExtra,
+} from 'src/types/telegraf';
+import { Telegraf } from 'telegraf';
 
 @Injectable()
 class TelegrafReplyService extends IReplyService {
-  constructor(protected readonly i18n: I18nService<I18nTranslations>) {
+  constructor(
+    protected readonly i18n: I18nService<I18nTranslations>,
+    @InjectBot() private bot: Telegraf<MessageContext>,
+  ) {
     super(i18n);
   }
 
@@ -17,11 +26,23 @@ class TelegrafReplyService extends IReplyService {
     msgCode: PathImpl2<I18nTranslations>,
     extra?: Extra,
   ): Promise<void> {
-    await ctx.telegram.sendMessage(
-      ctx.from.id,
-      this.translate(msgCode, ctx.session.lang, (extra ?? {}).i18nArgs),
+    await this.sendMsgToChat(
+      ctx.chat.id,
+      this.translate(
+        msgCode,
+        ctx.session.lang ?? Language.UA,
+        (extra ?? {}).i18nArgs,
+      ),
       extra,
     );
+  }
+
+  async sendMsgToChat(chatId: number, msg: string, args?: Extra) {
+    await this.bot.telegram.sendMessage(chatId, msg, args);
+  }
+
+  async sendPhotoToChat(chatId: number, photo: string, args?: PhotoExtra) {
+    await this.bot.telegram.sendPhoto(chatId, photo, args);
   }
 }
 

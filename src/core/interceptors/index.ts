@@ -1,2 +1,2 @@
-export * from './context.interceptor';
+export * from './cache.interceptor';
 export * from './i18n.interceptor';

@@ -6,8 +6,11 @@ const NEXT_WIZARD_ID = 'next_wizard';
 
 const PROFILES_WIZARD_ID = 'profiles_scene';
 
+const CLEAR_LAST_WIZARD_ID = 'clear_last_profiles_wizard';
+
 export {
   CHANGE_LANG_WIZARD_ID,
+  CLEAR_LAST_WIZARD_ID,
   NEXT_WIZARD_ID,
   PROFILES_WIZARD_ID,
   REGISTER_WIZARD_ID,

@@ -1,13 +1,14 @@
 import { Column, Entity } from 'typeorm';
+
 import { IEntity } from './base.entity';
 
 @Entity('images')
 class File extends IEntity {
   @Column()
-  url: string;
+  key: string;
 
   @Column()
-  key: string;
+  url: string;
 }
 
 export { File };

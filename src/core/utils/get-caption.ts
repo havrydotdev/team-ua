@@ -7,6 +7,13 @@ const getCaption = (profile: Profile) => {
   );
 };
 
+const getReportCaption = (profile: Profile) => {
+  return (
+    `New report:\n\n${profile.name}, ${profile.age}:\n\n${profile.about}\n\n` +
+    getGamesCaption(profile.games)
+  );
+};
+
 const getGamesCaption = (games: Game[]) => {
   return games.map((game) => getGameHashTag(game)).join(' ');
 };
@@ -14,4 +21,4 @@ const getGamesCaption = (games: Game[]) => {
 const getGameHashTag = (game: Game) =>
   `#${game.title.replaceAll(/\s+|-|:/g, '_')}`;
 
-export { getCaption };
+export { getCaption, getReportCaption };

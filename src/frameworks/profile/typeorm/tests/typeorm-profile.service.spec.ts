@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Profile } from 'src/core/entities';
 import { InsertResult, Repository } from 'typeorm';
+
 import { TypeOrmProfileService } from '../typeorm-profile.service';
 
 describe('TypeOrmProfileService', () => {
@@ -76,7 +77,7 @@ describe('TypeOrmProfileService', () => {
 
     const deleteSpy = jest.spyOn(repo, 'delete').mockResolvedValue(undefined);
 
-    await service.deleteProfile(profileId);
+    await service.delete(profileId);
 
     expect(deleteSpy).toHaveBeenCalledWith(profileId);
   });

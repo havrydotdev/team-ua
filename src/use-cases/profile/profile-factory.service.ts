@@ -7,12 +7,10 @@ export class ProfileFactoryService {
   create(dto: CreateProfileDto): Profile {
     return Profile.create({
       ...dto,
+      fileId: dto.fileId,
+      games: dto.games.map((gameId) => Game.create({ id: gameId })),
       user: {
         id: dto.userId,
-      },
-      games: dto.games.map((gameId) => Game.create({ id: gameId })),
-      file: {
-        id: dto.fileId,
       },
     });
   }
@@ -20,12 +18,10 @@ export class ProfileFactoryService {
   update(dto: UpdateProfileDto): Profile {
     return Profile.create({
       ...dto,
+      fileId: dto.fileId,
+      games: dto.games.map((gameId) => ({ id: gameId })),
       user: {
         id: dto.userId,
-      },
-      games: dto.games.map((gameId) => ({ id: gameId })),
-      file: {
-        id: dto.fileId,
       },
     });
   }

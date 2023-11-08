@@ -3,6 +3,7 @@ import { TelegrafArgumentsHost } from 'nestjs-telegraf';
 import { MsgKey } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { Context } from 'telegraf';
+
 import { BotException } from '../errors';
 
 @Catch()
@@ -17,9 +18,9 @@ export class GlobalFilter implements ExceptionFilter {
 
     if (exception instanceof BotException) {
       message = exception.message as MsgKey;
+    } else {
+      console.error(exception);
     }
-
-    console.error(exception.message);
 
     await this.replyUseCases.replyI18n(ctx, message);
   }

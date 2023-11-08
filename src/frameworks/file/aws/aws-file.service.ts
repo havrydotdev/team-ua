@@ -22,9 +22,9 @@ export class AwsFileService implements IFileService {
     const uploadResult = (await new Upload({
       client: this.s3Client,
       params: {
-        Bucket: this.configService.get('AWS_PUBLIC_BUCKET_NAME'),
         Body: blob,
-        Key: `${uuid()}-${filename}`,
+        Bucket: this.configService.get('AWS_PUBLIC_BUCKET_NAME'),
+        Key: `f-${uuid()}-${filename}.jpg`,
       },
     }).done()) as CompleteMultipartUploadCommandOutput;
 

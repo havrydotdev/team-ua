@@ -6,11 +6,11 @@ import {
 } from 'typeorm';
 
 abstract class IEntity extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
-
   @CreateDateColumn()
   created_at: Date;
+
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @UpdateDateColumn()
   updated_at: Date;

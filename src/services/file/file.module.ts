@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AwsFileModule } from 'src/frameworks/file/aws';
 
 @Module({
-  imports: [AwsFileModule],
   exports: [AwsFileModule],
+  imports: [AwsFileModule],
 })
 export class FileModule {}

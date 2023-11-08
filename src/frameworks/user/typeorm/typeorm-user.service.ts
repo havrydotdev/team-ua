@@ -14,24 +14,25 @@ class TypeOrmUserService implements IUserService {
     return this.userRepo.save(user);
   }
 
+  async findById(userId: number): Promise<null | User> {
+    return this.userRepo.findOne({
+      relations: {
+        profile: {
+          games: true,
+          user: true,
+        },
+      },
+      where: {
+        id: userId,
+      },
+    });
+  }
+
   async update(userId: number, user: User): Promise<User> {
     await this.userRepo.update(userId, user);
 
     return this.userRepo.findOneBy({
       id: user.id,
-    });
-  }
-
-  async findById(userId: number): Promise<User | null> {
-    return this.userRepo.findOne({
-      where: {
-        id: userId,
-      },
-      relations: {
-        profile: {
-          games: true,
-        },
-      },
     });
   }
 }

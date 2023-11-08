@@ -6,21 +6,21 @@ import { join } from 'path';
 @Module({
   imports: [
     NestI18n.forRootAsync({
+      inject: [ConfigService],
       useFactory: (configService: ConfigService): I18nOptions => ({
+        disableMiddleware: true,
         fallbackLanguage:
           configService.get<string>('FALLBACK_LANGUAGE') ?? 'en',
         loaderOptions: {
           path: join(__dirname, '../../i18n/'),
           watch: true,
         },
+        logging: false,
         typesOutputPath: join(
           __dirname,
           '../../../src/generated/i18n.generated.ts',
         ),
-        disableMiddleware: true,
-        logging: false,
       }),
-      inject: [ConfigService],
     }),
   ],
 })

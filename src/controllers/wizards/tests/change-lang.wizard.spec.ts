@@ -4,6 +4,7 @@ import { REGISTER_WIZARD_ID, SELECT_LANG_MARKUP } from 'src/core/constants';
 import { Language } from 'src/core/enums';
 import { WizardContext } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
+
 import { ChangeLangWizard } from '../change-lang.wizard';
 
 describe('ChangeLangWizard', () => {
@@ -26,11 +27,11 @@ describe('ChangeLangWizard', () => {
   describe('onEnter', () => {
     it('should return the select language message with the select language markup if profile is undefined', async () => {
       const ctx = createMock<WizardContext>({
-        wizard: {
-          next: jest.fn(),
-        },
         session: {
           user: {},
+        },
+        wizard: {
+          next: jest.fn(),
         },
       });
 
@@ -45,13 +46,13 @@ describe('ChangeLangWizard', () => {
 
     it('should return the update language message with the select language markup', async () => {
       const ctx = createMock<WizardContext>({
-        wizard: {
-          next: jest.fn(),
-        },
         session: {
           user: {
             profile: {},
           },
+        },
+        wizard: {
+          next: jest.fn(),
         },
       });
 
@@ -82,12 +83,12 @@ describe('ChangeLangWizard', () => {
         },
       ].forEach(async (testCase) => {
         const ctx = createMock<WizardContext>({
+          scene: {
+            enter: jest.fn(),
+            leave: jest.fn(),
+          },
           session: {
             user: {},
-          },
-          scene: {
-            leave: jest.fn(),
-            enter: jest.fn(),
           },
         });
 
@@ -101,14 +102,14 @@ describe('ChangeLangWizard', () => {
 
     it('should not enter register scene if profile is defined', async () => {
       const ctx = createMock<WizardContext>({
+        scene: {
+          enter: jest.fn(),
+          leave: jest.fn(),
+        },
         session: {
           user: {
             profile: {},
           },
-        },
-        scene: {
-          leave: jest.fn(),
-          enter: jest.fn(),
         },
       });
       const msg = { text: '🇺🇦' };
@@ -121,10 +122,10 @@ describe('ChangeLangWizard', () => {
 
     it('should return the invalid lang message for an invalid language', async () => {
       const ctx = createMock<WizardContext>({
-        session: {},
         scene: {
           leave: jest.fn(),
         },
+        session: {},
       });
       const msg = { text: 'invalid' };
 
