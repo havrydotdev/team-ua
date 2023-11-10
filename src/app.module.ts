@@ -12,7 +12,8 @@ import {
   ProfilesWizard,
   RegisterWizard,
 } from './controllers/wizards';
-import { ClearLastProfilesWizard } from './controllers/wizards/clear-last.wizard';
+import { ClearLastProfilesWizard } from './controllers/wizards';
+import { SendMessageWizard } from './controllers/wizards';
 import { GlobalFilter } from './core/filters';
 import { RoleGuard } from './core/guards';
 import { CacheInterceptor, I18nInterceptor } from './core/interceptors';
@@ -78,6 +79,7 @@ import { UserUseCasesModule } from './use-cases/user';
     NextActionWizard,
     ProfilesWizard,
     ClearLastProfilesWizard,
+    SendMessageWizard,
     {
       provide: APP_INTERCEPTOR,
       useClass: I18nInterceptor,

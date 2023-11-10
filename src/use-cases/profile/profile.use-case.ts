@@ -24,6 +24,10 @@ export class ProfileUseCases {
     return this.profileService.deleteByUser(userId);
   }
 
+  async findAll(): Promise<Profile[]> {
+    return this.profileService.findAll();
+  }
+
   async findRecommended(
     profile: Profile,
     seenProfiles: number[],

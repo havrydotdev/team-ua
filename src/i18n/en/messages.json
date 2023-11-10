@@ -47,5 +47,9 @@
     },
     "deleted": "Hi! I'm sorry, but your profile has been deleted by admin. You can create a new one. Have a nice day!",
     "update": "Update profile"
+  },
+  "send_message": {
+    "enter": "Enter message text",
+    "sent": "Message sent to all users"
   }
 }

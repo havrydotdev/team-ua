@@ -7,6 +7,8 @@ abstract class IProfileService {
 
   abstract deleteByUser(userId: number): Promise<void>;
 
+  abstract findAll(): Promise<Profile[]>;
+
   abstract findById(profileId: number): Promise<Profile | undefined>;
 
   abstract findByUser(userId: number): Promise<Profile>;

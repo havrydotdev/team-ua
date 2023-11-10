@@ -21,6 +21,7 @@ import {
   PROFILE_CALLBACK,
   PROFILES_WIZARD_ID,
   REGISTER_WIZARD_ID,
+  SEND_MESSAGE_WIZARD_ID,
   UPDATE_PROFILE_CALLBACK,
 } from 'src/core/constants';
 import { Roles } from 'src/core/decorators';
@@ -32,7 +33,10 @@ import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { ReportUseCases } from 'src/use-cases/reports';
 import { deunionize, Markup } from 'telegraf';
-import { InlineQueryResult } from 'telegraf/typings/core/types/typegram';
+import {
+  InlineQueryResult,
+  Message,
+} from 'telegraf/typings/core/types/typegram';
 
 @Update()
 export class AppUpdate {
@@ -136,6 +140,12 @@ export class AppUpdate {
   // TODO
   @Action(/reporter-info-*/)
   async onReporterInfo(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {}
+
+  @Roles(['admin'])
+  @Command('send_message')
+  async onSendMessage(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
+    await ctx.scene.enter(SEND_MESSAGE_WIZARD_ID);
+  }
 
   @Action(/sen-*/)
   async onSentence(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
