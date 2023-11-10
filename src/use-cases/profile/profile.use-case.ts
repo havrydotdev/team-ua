@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { IProfileService } from 'src/core/abstracts';
 import { CreateProfileDto } from 'src/core/dtos';
-import { Ad, Profile } from 'src/core/entities';
+import { Profile } from 'src/core/entities';
 
 import { AdUseCases } from '../ad';
 import { ProfileFactoryService } from './profile-factory.service';
@@ -27,12 +27,7 @@ export class ProfileUseCases {
   async findRecommended(
     profile: Profile,
     seenProfiles: number[],
-    seenLength: number,
-  ): Promise<Ad | Profile> {
-    if (seenLength === 1) {
-      return this.adUseCases.findOne(seenProfiles);
-    }
-
+  ): Promise<Profile> {
     return this.profileService.findRecommended(profile, seenProfiles ?? []);
   }
 

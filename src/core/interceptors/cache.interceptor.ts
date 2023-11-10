@@ -4,7 +4,6 @@ import {
   ExecutionContext,
   Inject,
   Injectable,
-  Logger,
   NestInterceptor,
 } from '@nestjs/common';
 import { Cache } from 'cache-manager';
@@ -18,8 +17,6 @@ import { getProfileCacheKey } from '../utils';
 // TODO: store language in database
 @Injectable()
 export class CacheInterceptor implements NestInterceptor {
-  private readonly logger: Logger = new Logger(CacheInterceptor.name);
-
   constructor(
     private readonly userUseCases: UserUseCases,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
@@ -40,6 +37,10 @@ export class CacheInterceptor implements NestInterceptor {
           id: tgCtx.from.id,
         });
 
+        return next.handle();
+      }
+
+      if (!user.profile) {
         return next.handle();
       }
 

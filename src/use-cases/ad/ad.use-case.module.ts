@@ -5,6 +5,7 @@ import { AdFactoryService } from './ad.factory.service';
 import { AdUseCases } from './ad.use-case';
 
 @Module({
+  exports: [AdUseCases],
   imports: [AdModule],
   providers: [AdFactoryService, AdUseCases],
 })

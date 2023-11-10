@@ -12,7 +12,7 @@ import {
   REPORT_CALLBACK,
 } from 'src/core/constants';
 import { CreateReportDto } from 'src/core/dtos';
-import { Profile } from 'src/core/entities';
+import { Ad, Profile } from 'src/core/entities';
 import {
   getAdCaption,
   getAdMarkup,
@@ -21,18 +21,19 @@ import {
   getProfileMarkup,
 } from 'src/core/utils';
 import { HandlerResponse, ProfilesWizardContext } from 'src/types';
+import { AdUseCases } from 'src/use-cases/ad';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { ReportUseCases } from 'src/use-cases/reports';
 
-// TODO: implement ads functionality
 @Wizard(PROFILES_WIZARD_ID)
 export class ProfilesWizard {
   constructor(
+    @Inject(CACHE_MANAGER) private readonly cache: Cache,
     private readonly profileUseCases: ProfileUseCases,
     private readonly replyUseCases: ReplyUseCases,
     private readonly reportUseCases: ReportUseCases,
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
+    private readonly adUseCases: AdUseCases,
   ) {}
 
   @WizardStep(1)
@@ -48,10 +49,10 @@ export class ProfilesWizard {
     const cached = await this.cache.get<Profile>(
       getProfileCacheKey(ctx.from.id),
     );
+
     const current = await this.profileUseCases.findRecommended(
       cached,
       ctx.session.seenProfiles,
-      ctx.session.seenLength,
     );
 
     ctx.wizard.state.current = current;
@@ -65,19 +66,14 @@ export class ProfilesWizard {
     ctx.session.seenLength++;
     ctx.wizard.next();
 
-    await ctx.replyWithPhoto(current.fileId, {
-      caption:
-        current instanceof Profile
-          ? getCaption(current)
-          : getAdCaption(current),
+    const reply_markup = getProfileMarkup(
+      `https://t.me/${await ctx.telegram.getChat(current.user.id)}`,
+    );
 
-      parse_mode: 'HTML',
-      reply_markup:
-        current instanceof Profile
-          ? getProfileMarkup(
-              `https://t.me/${await ctx.telegram.getChat(current.user.id)}`,
-            )
-          : getAdMarkup(current.url),
+    const caption = getCaption(current);
+    await ctx.replyWithPhoto(current.fileId, {
+      caption,
+      reply_markup,
     });
   }
 

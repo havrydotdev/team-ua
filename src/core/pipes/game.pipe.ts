@@ -9,6 +9,10 @@ export class GamePipe implements PipeTransform {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async transform(value: any, metadata: ArgumentMetadata) {
+    if (value.text === '✅') {
+      return value;
+    }
+
     const game = await this.gameUseCases.findByTitle(value.text);
     if (!game) {
       throw new BotException('messages.game.invalid');

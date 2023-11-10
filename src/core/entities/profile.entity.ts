@@ -21,6 +21,7 @@ class Profile extends IEntity {
 
   @Column({
     name: 'file_id',
+    nullable: true,
   })
   fileId: string;
 
