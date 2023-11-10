@@ -12,10 +12,8 @@ import {
   REPORT_CALLBACK,
 } from 'src/core/constants';
 import { CreateReportDto } from 'src/core/dtos';
-import { Ad, Profile } from 'src/core/entities';
+import { Profile } from 'src/core/entities';
 import {
-  getAdCaption,
-  getAdMarkup,
   getCaption,
   getProfileCacheKey,
   getProfileMarkup,
