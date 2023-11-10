@@ -33,11 +33,9 @@ import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { ReportUseCases } from 'src/use-cases/reports';
 import { deunionize, Markup } from 'telegraf';
-import {
-  InlineQueryResult,
-  Message,
-} from 'telegraf/typings/core/types/typegram';
+import { InlineQueryResult } from 'telegraf/typings/core/types/typegram';
 
+// TODO: add release notes command
 @Update()
 export class AppUpdate {
   constructor(
@@ -138,8 +136,8 @@ export class AppUpdate {
   }
 
   // TODO
-  @Action(/reporter-info-*/)
-  async onReporterInfo(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {}
+  // @Action(/reporter-info-*/)
+  // async onReporterInfo(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {}
 
   @Roles(['admin'])
   @Command('send_message')
