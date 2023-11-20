@@ -38,17 +38,18 @@
     "test:watch": "jest --watch --runInBand --detectOpenHandles --forceExit",
     "test:cov": "jest --coverage --runInBand --detectOpenHandles --forceExit",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "compodoc:build": "compodoc -p tsconfig.doc.json -n 'Ua teammates documentation' -s -r 3000",
+    "compodoc:dev": "compodoc -p tsconfig.doc.json -n 'Ua teammates documentation' -s -r 3000",
+    "compodoc:prod": "compodoc -p tsconfig.doc.json -n 'Ua teammates documentation'",
     "pg:up": "docker run --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=password -d postgres",
     "redis:up": "docker run -d -p 6379:6379 --name redis --network redisnet redis",
     "redisnet:up": "docker network create -d bridge redisnet",
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview",
-    "sessions:drop": "sqlite3 ./dev.db 'DROP TABLE \"telegraf-sessions\"'",
     "typeorm": "typeorm-ts-node-commonjs",
-    "migration:run": "npm run typeorm migration:run -- -d src/datasource",
-    "services:up": "npm run redis:up && npm run pg:up"
+    "migrations:run": "npm run typeorm migration:run -- -d src/datasource",
+    "services:up": "npm run redisnet:up && npm run redis:up && npm run pg:up",
+    "services": "npm run redis:up && npm run pg:up"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.436.0",
