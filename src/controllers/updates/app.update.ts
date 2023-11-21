@@ -114,6 +114,7 @@ export class AppUpdate {
     });
   }
 
+  // TODO: dont send that many messages
   @Command('profiles')
   @Hears(LOOK_CALLBACK)
   async onProfiles(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {

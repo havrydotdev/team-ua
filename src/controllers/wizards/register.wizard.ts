@@ -15,7 +15,6 @@ import { AboutPipe, AgePipe, GamePipe } from 'src/core/pipes';
 import { getNameMarkup, getProfileCacheKey } from 'src/core/utils';
 import {
   HandlerResponse,
-  MsgKey,
   MsgWithExtra,
   PhotoMessage,
   RegisterWizardContext,
@@ -117,7 +116,7 @@ export class RegisterWizard {
   ): Promise<HandlerResponse> {
     if (msg.text === '✅') {
       if (ctx.wizard.state.games.length === 0) {
-        return 'errors.unknown';
+        throw new BotException('errors.unknown');
       }
 
       ctx.wizard.next();
@@ -145,7 +144,7 @@ export class RegisterWizard {
     @Ctx()
     ctx: RegisterWizardContext,
     @Message() msg: PhotoMessage,
-  ): Promise<MsgKey | MsgWithExtra> {
+  ): Promise<HandlerResponse> {
     const profile = await this.cache.get<Profile>(
       getProfileCacheKey(ctx.from.id),
     );
