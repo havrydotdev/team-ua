@@ -1,12 +1,11 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Cache } from 'cache-manager';
 import { RegisterWizard } from 'src/controllers/wizards/register.wizard';
 import { Keyboards, NEXT_WIZARD_ID } from 'src/core/constants';
 import { CreateProfileDto } from 'src/core/dtos';
 import { Profile } from 'src/core/entities';
 import { BotException } from 'src/core/errors';
-import { getNameMarkup, getProfileCacheKey } from 'src/core/utils';
+import { getNameMarkup } from 'src/core/utils';
 import { PhotoMessage, RegisterWizardContext } from 'src/types/telegraf';
 import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
@@ -34,7 +33,6 @@ describe('RegisterWizard', () => {
   let wizard: RegisterWizard;
   let profileUseCases: ProfileUseCases;
   let replyUseCases: ReplyUseCases;
-  let cache: Cache;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -56,17 +54,12 @@ describe('RegisterWizard', () => {
           provide: ProfileUseCases,
           useValue: createMock<ProfileUseCases>(),
         },
-        {
-          provide: 'CACHE_MANAGER',
-          useValue: createMock<Cache>(),
-        },
       ],
     }).compile();
 
     wizard = module.get<RegisterWizard>(RegisterWizard);
     profileUseCases = module.get<ProfileUseCases>(ProfileUseCases);
     replyUseCases = module.get<ReplyUseCases>(ReplyUseCases);
-    cache = module.get<Cache>('CACHE_MANAGER');
   });
 
   describe('onEnter', () => {
@@ -83,9 +76,7 @@ describe('RegisterWizard', () => {
         },
       });
 
-      jest.spyOn(cache, 'get').mockResolvedValueOnce(undefined);
-
-      const resp = await wizard.onEnter(ctx);
+      const resp = await wizard.onEnter(ctx, undefined);
 
       console.log({ resp });
 
@@ -256,9 +247,6 @@ describe('RegisterWizard', () => {
         name: 'test',
       });
 
-      const cacheSpy = jest
-        .spyOn(cache, 'get')
-        .mockResolvedValueOnce(undefined);
       const createSpy = jest
         .spyOn(profileUseCases, 'create')
         .mockResolvedValueOnce(createdProfile);
@@ -271,9 +259,9 @@ describe('RegisterWizard', () => {
             }),
           ],
         }),
+        undefined,
       );
 
-      expect(cacheSpy).toHaveBeenCalledWith(getProfileCacheKey(ctx.from.id));
       expect(createSpy).toHaveBeenCalledWith(profileDto);
       expect(replyUseCases.replyI18n).toHaveBeenCalledWith(
         ctx,
@@ -315,9 +303,6 @@ describe('RegisterWizard', () => {
         name: 'test',
       });
 
-      const cacheSpy = jest
-        .spyOn(cache, 'get')
-        .mockResolvedValueOnce({ id: 1 });
       const updateSpy = jest
         .spyOn(profileUseCases, 'update')
         .mockResolvedValueOnce(updatedProfile);
@@ -330,9 +315,11 @@ describe('RegisterWizard', () => {
             }),
           ],
         }),
+        createMock<Profile>({
+          id: 1,
+        }),
       );
 
-      expect(cacheSpy).toHaveBeenCalledWith(getProfileCacheKey(ctx.from.id));
       expect(updateSpy).toHaveBeenCalledWith(1, profileDto);
       expect(ctx.scene.enter).toHaveBeenCalledWith(NEXT_WIZARD_ID);
       expect(resp).toEqual(undefined);

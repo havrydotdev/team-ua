@@ -1,7 +1,4 @@
 /* eslint-disable perfectionist/sort-classes */
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
 import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
 import {
   CHANGE_LANG_WIZARD_ID,
@@ -9,21 +6,20 @@ import {
   NEXT_WIZARD_ID,
   REGISTER_WIZARD_ID,
 } from 'src/core/constants';
-import { getProfileCacheKey } from 'src/core/utils';
+import { UserProfile } from 'src/core/decorators';
+import { Profile } from 'src/core/entities';
 import { HandlerResponse, Language, WizardContext } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
 
 @Wizard(CHANGE_LANG_WIZARD_ID)
 export class ChangeLangWizard {
-  constructor(
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
-    private readonly replyUseCases: ReplyUseCases,
-  ) {}
+  constructor(private readonly replyUseCases: ReplyUseCases) {}
 
   @WizardStep(1)
-  async onEnter(@Ctx() ctx: WizardContext): Promise<HandlerResponse> {
-    const profile = await this.cache.get(getProfileCacheKey(ctx.from.id));
-
+  async onEnter(
+    @Ctx() ctx: WizardContext,
+    @UserProfile() profile: Profile,
+  ): Promise<HandlerResponse> {
     ctx.wizard.next();
 
     return [
@@ -37,9 +33,8 @@ export class ChangeLangWizard {
   async onLang(
     @Ctx() ctx: WizardContext,
     @Message() msg: { text: string },
+    @UserProfile() profile: Profile,
   ): Promise<HandlerResponse> {
-    const profile = await this.cache.get(getProfileCacheKey(ctx.from.id));
-
     switch (msg.text) {
       case '🇺🇦':
         ctx.session.lang = Language.UA;

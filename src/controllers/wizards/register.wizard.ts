@@ -1,18 +1,16 @@
 /* eslint-disable perfectionist/sort-classes */
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
 import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
 import {
   Keyboards,
   NEXT_WIZARD_ID,
   REGISTER_WIZARD_ID,
 } from 'src/core/constants';
+import { UserProfile } from 'src/core/decorators';
 import { CreateProfileDto } from 'src/core/dtos';
 import { Profile } from 'src/core/entities';
 import { BotException } from 'src/core/errors';
 import { AboutPipe, AgePipe, GamePipe } from 'src/core/pipes';
-import { getNameMarkup, getProfileCacheKey } from 'src/core/utils';
+import { getNameMarkup } from 'src/core/utils';
 import {
   HandlerResponse,
   MsgWithExtra,
@@ -25,15 +23,15 @@ import { ReplyUseCases } from 'src/use-cases/reply';
 @Wizard(REGISTER_WIZARD_ID)
 export class RegisterWizard {
   constructor(
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
     private readonly replyUseCases: ReplyUseCases,
     private readonly profileUseCases: ProfileUseCases,
   ) {}
 
   @WizardStep(1)
-  async onEnter(@Ctx() ctx: RegisterWizardContext): Promise<HandlerResponse> {
-    const profile = await this.cache.get(getProfileCacheKey(ctx.from.id));
-
+  async onEnter(
+    @Ctx() ctx: RegisterWizardContext,
+    @UserProfile() profile: Profile,
+  ): Promise<HandlerResponse> {
     ctx.wizard.next();
 
     ctx.wizard.state.games = [];
@@ -144,11 +142,8 @@ export class RegisterWizard {
     @Ctx()
     ctx: RegisterWizardContext,
     @Message() msg: PhotoMessage,
+    @UserProfile() profile: Profile,
   ): Promise<HandlerResponse> {
-    const profile = await this.cache.get<Profile>(
-      getProfileCacheKey(ctx.from.id),
-    );
-
     const fileId = msg.photo.pop().file_id;
 
     const profileDto: CreateProfileDto = {

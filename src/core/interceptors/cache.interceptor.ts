@@ -15,6 +15,7 @@ import { Profile } from '../entities';
 import { getProfileCacheKey } from '../utils';
 
 // TODO: store language in database
+// TODO: add guards support
 @Injectable()
 export class CacheInterceptor implements NestInterceptor {
   constructor(
@@ -24,10 +25,11 @@ export class CacheInterceptor implements NestInterceptor {
 
   async intercept(ctx: ExecutionContext, next: CallHandler) {
     const tgExecutionContext = TelegrafExecutionContext.create(ctx);
+    const req = ctx.switchToHttp().getRequest();
     const tgCtx = tgExecutionContext.getContext<MessageContext>();
     const profileKey = getProfileCacheKey(tgCtx.from.id);
 
-    const profile = await this.cache.get<Profile>(profileKey);
+    let profile = await this.cache.get<Profile>(profileKey);
     if (!profile) {
       console.log('profile is null');
       const user = await this.userUseCases.findById(tgCtx.from.id);
@@ -45,7 +47,9 @@ export class CacheInterceptor implements NestInterceptor {
       }
 
       await this.cache.set(profileKey, user.profile);
+      profile = user.profile;
     }
+    req.profile = profile;
 
     return next.handle();
   }

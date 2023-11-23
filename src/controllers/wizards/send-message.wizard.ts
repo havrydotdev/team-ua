@@ -1,29 +1,22 @@
 /* eslint-disable perfectionist/sort-classes */
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
 import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
 import { SEND_MESSAGE_WIZARD_ID } from 'src/core/constants';
+import { UserProfile } from 'src/core/decorators';
 import { Profile } from 'src/core/entities';
-import { getProfileCacheKey } from 'src/core/utils';
 import { HandlerResponse, WizardContext } from 'src/types';
 import { ProfileUseCases } from 'src/use-cases/profile';
 
 // TODO: add multi-language messages
 @Wizard(SEND_MESSAGE_WIZARD_ID)
 export class SendMessageWizard {
-  constructor(
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
-    private readonly profileUseCases: ProfileUseCases,
-  ) {}
+  constructor(private readonly profileUseCases: ProfileUseCases) {}
 
   @WizardStep(1)
-  async onEnter(@Ctx() ctx: WizardContext): Promise<HandlerResponse> {
-    const profile = await this.cache.get<Profile>(
-      getProfileCacheKey(ctx.from.id),
-    );
+  async onEnter(
+    @Ctx() ctx: WizardContext,
+    @UserProfile() profile: Profile,
+  ): Promise<HandlerResponse> {
     if (!profile || profile.user.role !== 'admin') {
-      return;
     }
 
     ctx.wizard.next();

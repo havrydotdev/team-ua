@@ -1,6 +1,3 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
 import {
   Action,
   Command,
@@ -24,9 +21,9 @@ import {
   SEND_MESSAGE_WIZARD_ID,
   UPDATE_PROFILE_CALLBACK,
 } from 'src/core/constants';
-import { Roles } from 'src/core/decorators';
+import { Roles, UserProfile } from 'src/core/decorators';
 import { Game, Profile } from 'src/core/entities';
-import { getCaption, getMeMarkup, getProfileCacheKey } from 'src/core/utils';
+import { getCaption, getMeMarkup } from 'src/core/utils';
 import { HandlerResponse, Language, MessageContext } from 'src/types';
 import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
@@ -43,7 +40,6 @@ export class AppUpdate {
     private readonly gameUseCases: GameUseCases,
     private readonly reportUseCases: ReportUseCases,
     private readonly profileUseCases: ProfileUseCases,
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
   ) {}
 
   @Command('coop')
@@ -93,18 +89,18 @@ export class AppUpdate {
 
   @Command('me')
   @Hears(PROFILE_CALLBACK)
-  async onMe(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
-    const cached = await this.cache.get<Profile>(
-      getProfileCacheKey(ctx.from.id),
-    );
-    if (!cached) {
+  async onMe(
+    @Ctx() ctx: MessageContext,
+    @UserProfile() profile: Profile,
+  ): Promise<HandlerResponse> {
+    if (!profile) {
       await ctx.scene.enter(CHANGE_LANG_WIZARD_ID);
 
       return;
     }
 
-    await ctx.replyWithPhoto(cached.fileId, {
-      caption: getCaption(cached),
+    await ctx.replyWithPhoto(profile.fileId, {
+      caption: getCaption(profile),
       reply_markup: getMeMarkup(
         this.replyUseCases.translate(
           'messages.profile.update',
@@ -117,11 +113,11 @@ export class AppUpdate {
   // TODO: dont send that many messages
   @Command('profiles')
   @Hears(LOOK_CALLBACK)
-  async onProfiles(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
-    const cached = await this.cache.get<Profile>(
-      getProfileCacheKey(ctx.from.id),
-    );
-    if (!cached) {
+  async onProfiles(
+    @Ctx() ctx: MessageContext,
+    @UserProfile() profile: Profile,
+  ): Promise<HandlerResponse> {
+    if (!profile) {
       await ctx.scene.enter(REGISTER_WIZARD_ID);
     }
 
@@ -174,11 +170,11 @@ export class AppUpdate {
   }
 
   @Start()
-  async onStart(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
-    const cached = await this.cache.get<Profile>(
-      getProfileCacheKey(ctx.from.id),
-    );
-    if (!cached) {
+  async onStart(
+    @Ctx() ctx: MessageContext,
+    @UserProfile() profile: Profile,
+  ): Promise<HandlerResponse> {
+    if (!profile) {
       await ctx.scene.enter(CHANGE_LANG_WIZARD_ID);
     }
 

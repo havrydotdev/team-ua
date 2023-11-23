@@ -1,7 +1,4 @@
 /* eslint-disable perfectionist/sort-classes */
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
 import { Ctx, Hears, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
 import {
   CLEAR_LAST_WIZARD_ID,
@@ -11,15 +8,11 @@ import {
   PROFILES_WIZARD_ID,
   REPORT_CALLBACK,
 } from 'src/core/constants';
+import { UserProfile } from 'src/core/decorators';
 import { CreateReportDto } from 'src/core/dtos';
 import { Profile } from 'src/core/entities';
-import {
-  getCaption,
-  getProfileCacheKey,
-  getProfileMarkup,
-} from 'src/core/utils';
+import { getCaption, getProfileMarkup } from 'src/core/utils';
 import { HandlerResponse, ProfilesWizardContext } from 'src/types';
-import { AdUseCases } from 'src/use-cases/ad';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { ReportUseCases } from 'src/use-cases/reports';
@@ -27,15 +20,16 @@ import { ReportUseCases } from 'src/use-cases/reports';
 @Wizard(PROFILES_WIZARD_ID)
 export class ProfilesWizard {
   constructor(
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
     private readonly profileUseCases: ProfileUseCases,
     private readonly replyUseCases: ReplyUseCases,
     private readonly reportUseCases: ReportUseCases,
-    private readonly adUseCases: AdUseCases,
   ) {}
 
   @WizardStep(1)
-  async onEnter(@Ctx() ctx: ProfilesWizardContext): Promise<HandlerResponse> {
+  async onEnter(
+    @Ctx() ctx: ProfilesWizardContext,
+    @UserProfile() profile: Profile,
+  ): Promise<HandlerResponse> {
     if (!ctx.session.seenProfiles) {
       ctx.session.seenProfiles = [];
     }
@@ -44,12 +38,8 @@ export class ProfilesWizard {
       ctx.session.seenLength = 0;
     }
 
-    const cached = await this.cache.get<Profile>(
-      getProfileCacheKey(ctx.from.id),
-    );
-
     const current = await this.profileUseCases.findRecommended(
-      cached,
+      profile,
       ctx.session.seenProfiles,
     );
 
