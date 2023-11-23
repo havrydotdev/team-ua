@@ -3,7 +3,6 @@ import { IProfileService } from 'src/core/abstracts';
 import { CreateProfileDto } from 'src/core/dtos';
 import { Profile } from 'src/core/entities';
 
-import { AdUseCases } from '../ad';
 import { ProfileFactoryService } from './profile-factory.service';
 
 @Injectable()
@@ -11,7 +10,6 @@ export class ProfileUseCases {
   constructor(
     private readonly profileService: IProfileService,
     private readonly profileFactory: ProfileFactoryService,
-    private readonly adUseCases: AdUseCases,
   ) {}
 
   async create(dto: CreateProfileDto) {

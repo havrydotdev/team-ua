@@ -3,8 +3,7 @@ import { CallHandler, ExecutionContext } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TelegrafExecutionContext } from 'nestjs-telegraf';
 import { of } from 'rxjs';
-import { Extra } from 'src/core/types';
-import { MessageContext, MsgKey, MsgWithExtra } from 'src/types';
+import { Extra, MessageContext, MsgKey, MsgWithExtra } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { Markup } from 'telegraf';
 
@@ -37,9 +36,6 @@ describe('I18nInterceptor', () => {
       });
       const tgCtx = createMock<MessageContext>({
         from: { id: 12345, username: 'test' },
-        session: {
-          user: undefined,
-        },
       });
 
       jest.spyOn(TelegrafExecutionContext, 'create').mockReturnValue(
@@ -51,7 +47,7 @@ describe('I18nInterceptor', () => {
         .spyOn(replyUseCases, 'replyI18n')
         .mockImplementationOnce(async () => {});
 
-      const response = interceptor.intercept(context, handler);
+      const response = await interceptor.intercept(context, handler);
 
       response.subscribe({
         complete: () => {
@@ -73,9 +69,6 @@ describe('I18nInterceptor', () => {
       ];
       const tgCtx = createMock<MessageContext>({
         from: { id: 12345, username: 'test' },
-        session: {
-          user: undefined,
-        },
       });
       const context = createMock<ExecutionContext>();
       const handler = createMock<CallHandler>({
@@ -91,7 +84,7 @@ describe('I18nInterceptor', () => {
         .spyOn(replyUseCases, 'replyI18n')
         .mockImplementation();
 
-      const response = interceptor.intercept(context, handler);
+      const response = await interceptor.intercept(context, handler);
 
       response.subscribe({
         complete: () => {
@@ -123,9 +116,6 @@ describe('I18nInterceptor', () => {
       });
       const tgCtx = createMock<MessageContext>({
         from: { id: 12345, username: 'test' },
-        session: {
-          user: undefined,
-        },
       });
 
       jest.spyOn(TelegrafExecutionContext, 'create').mockReturnValue(
@@ -137,7 +127,7 @@ describe('I18nInterceptor', () => {
         .spyOn(replyUseCases, 'replyI18n')
         .mockImplementation();
 
-      const response = interceptor.intercept(context, handler);
+      const response = await interceptor.intercept(context, handler);
 
       response.subscribe({
         next: () => {
@@ -155,9 +145,6 @@ describe('I18nInterceptor', () => {
       });
       const tgCtx = createMock<MessageContext>({
         from: { id: 12345, username: 'test' },
-        session: {
-          user: undefined,
-        },
       });
 
       jest.spyOn(TelegrafExecutionContext, 'create').mockReturnValue(
@@ -169,7 +156,7 @@ describe('I18nInterceptor', () => {
         .spyOn(replyUseCases, 'replyI18n')
         .mockImplementation();
 
-      const response = interceptor.intercept(ctx, next);
+      const response = await interceptor.intercept(ctx, next);
 
       response.subscribe({
         complete: () => {

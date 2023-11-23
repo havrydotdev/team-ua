@@ -1,6 +1,6 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { MAIN_MENU_MARKUP } from 'src/core/constants';
+import { Keyboards } from 'src/core/constants';
 import { MessageContext } from 'src/types';
 
 import { NextActionWizard } from '../next.wizard';
@@ -30,7 +30,7 @@ describe('NextActionWizard', () => {
       expect(result).toEqual([
         'messages.next_action',
         {
-          reply_markup: MAIN_MENU_MARKUP,
+          reply_markup: Keyboards.mainMenu,
         },
       ]);
     });

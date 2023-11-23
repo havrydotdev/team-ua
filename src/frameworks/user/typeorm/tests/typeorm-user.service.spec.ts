@@ -1,7 +1,7 @@
+import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from 'src/core/entities';
-import { MockDatabaseModule } from 'src/services/mock-database/mock-database.module';
 import { Repository } from 'typeorm';
 
 import { TypeOrmUserService } from '../typeorm-user.service';
@@ -11,9 +11,15 @@ describe('TypeOrmUserService', () => {
   let repo: Repository<User>;
 
   beforeEach(async () => {
+    const repoToken = getRepositoryToken(User);
     const module: TestingModule = await Test.createTestingModule({
-      imports: [MockDatabaseModule, TypeOrmModule.forFeature([User])],
-      providers: [TypeOrmUserService],
+      providers: [
+        TypeOrmUserService,
+        {
+          provide: repoToken,
+          useValue: createMock<Repository<User>>(),
+        },
+      ],
     }).compile();
 
     service = module.get<TypeOrmUserService>(TypeOrmUserService);
@@ -21,7 +27,7 @@ describe('TypeOrmUserService', () => {
   });
 
   it('should create a user', async () => {
-    const user = User.create();
+    const user = createMock<User>();
     jest.spyOn(repo, 'save').mockResolvedValue(user);
 
     const result = await service.create(user);
@@ -32,7 +38,10 @@ describe('TypeOrmUserService', () => {
 
   it('should update a user', async () => {
     const userId = 1;
-    const user = User.create();
+    const user = createMock<User>({
+      id: userId,
+    });
+
     jest
       .spyOn(repo, 'update')
       .mockImplementationOnce(() => Promise.resolve(undefined));

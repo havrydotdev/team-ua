@@ -24,13 +24,11 @@ import {
   TelegramModule,
   UserModule,
 } from './services';
-import { AdModule } from './services/ad/ad.module';
 import { GameModule } from './services/game/game.module';
 import { I18nModule } from './services/i18n/i18n.module';
 import { ProfileModule } from './services/profile/profile.module';
 import { ReportModule } from './services/report/report.module';
 import { SubscribersModule } from './subscribers/subscribers.module';
-import { AdUseCasesModule } from './use-cases/ad';
 import { GameUseCasesModule } from './use-cases/game';
 import { ProfileUseCasesModule } from './use-cases/profile';
 import { ReplyUseCasesModule } from './use-cases/reply';
@@ -65,8 +63,6 @@ import { UserUseCasesModule } from './use-cases/user';
     ProfileUseCasesModule,
     ReportModule,
     ReportUseCasesModule,
-    AdModule,
-    AdUseCasesModule,
     I18nModule,
   ],
   providers: [

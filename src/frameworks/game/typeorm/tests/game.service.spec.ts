@@ -1,7 +1,7 @@
+import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { Game } from 'src/core/entities';
-import { MockDatabaseModule } from 'src/services/mock-database/mock-database.module';
 import { Repository } from 'typeorm';
 
 import { TypeOrmGameService } from '../typeorm-game.service';
@@ -11,9 +11,15 @@ describe('TypeOrmGameService', () => {
   let repo: Repository<Game>;
 
   beforeEach(async () => {
+    const repoToken = getRepositoryToken(Game);
     const module: TestingModule = await Test.createTestingModule({
-      imports: [MockDatabaseModule, TypeOrmModule.forFeature([Game])],
-      providers: [TypeOrmGameService],
+      providers: [
+        TypeOrmGameService,
+        {
+          provide: repoToken,
+          useValue: createMock<Repository<Game>>(),
+        },
+      ],
     }).compile();
 
     service = module.get<TypeOrmGameService>(TypeOrmGameService);
@@ -22,10 +28,10 @@ describe('TypeOrmGameService', () => {
 
   it('should return an array of games', async () => {
     const games = [
-      Game.create({
+      createMock<Game>({
         title: 'Test Game 1',
       }),
-      Game.create({
+      createMock<Game>({
         title: 'Test Game 2',
       }),
     ];
