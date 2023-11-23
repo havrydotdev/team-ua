@@ -1,5 +1,12 @@
-import { createParamDecorator } from '@nestjs/common';
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { TelegrafExecutionContext } from 'nestjs-telegraf';
 
 export const UserProfile = createParamDecorator(
-  (data: unknown, req) => req.user,
+  (data: unknown, ctx: ExecutionContext) => {
+    const tgCtx = TelegrafExecutionContext.create(ctx);
+
+    const req = tgCtx.switchToHttp().getRequest();
+
+    return req.profile;
+  },
 );

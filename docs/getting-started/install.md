@@ -4,7 +4,7 @@ First service for searching teammates from Ukraine :ukraine:
 
 ## Installation
 
-Install my-project with npm
+Install TeamUA with git clone:
 
 ```bash
   $ git clone https://github.com/gavrylenkoIvan/team-ua

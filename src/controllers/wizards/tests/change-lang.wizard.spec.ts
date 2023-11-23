@@ -1,7 +1,6 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { REGISTER_WIZARD_ID, SELECT_LANG_MARKUP } from 'src/core/constants';
-import { Language } from 'src/core/enums';
+import { REGISTER_WIZARD_ID } from 'src/core/constants';
 import { WizardContext } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
 
@@ -27,9 +26,6 @@ describe('ChangeLangWizard', () => {
   describe('onEnter', () => {
     it('should return the select language message with the select language markup if profile is undefined', async () => {
       const ctx = createMock<WizardContext>({
-        session: {
-          user: {},
-        },
         wizard: {
           next: jest.fn(),
         },

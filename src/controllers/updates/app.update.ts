@@ -21,7 +21,7 @@ import {
   SEND_MESSAGE_WIZARD_ID,
   UPDATE_PROFILE_CALLBACK,
 } from 'src/core/constants';
-import { Roles, UserProfile } from 'src/core/decorators';
+import { Registered, Roles, UserProfile } from 'src/core/decorators';
 import { Game, Profile } from 'src/core/entities';
 import { getCaption, getMeMarkup } from 'src/core/utils';
 import { HandlerResponse, Language, MessageContext } from 'src/types';
@@ -88,17 +88,12 @@ export class AppUpdate {
   }
 
   @Command('me')
+  @Registered()
   @Hears(PROFILE_CALLBACK)
   async onMe(
     @Ctx() ctx: MessageContext,
     @UserProfile() profile: Profile,
   ): Promise<HandlerResponse> {
-    if (!profile) {
-      await ctx.scene.enter(CHANGE_LANG_WIZARD_ID);
-
-      return;
-    }
-
     await ctx.replyWithPhoto(profile.fileId, {
       caption: getCaption(profile),
       reply_markup: getMeMarkup(
@@ -112,15 +107,9 @@ export class AppUpdate {
 
   // TODO: dont send that many messages
   @Command('profiles')
+  @Registered()
   @Hears(LOOK_CALLBACK)
-  async onProfiles(
-    @Ctx() ctx: MessageContext,
-    @UserProfile() profile: Profile,
-  ): Promise<HandlerResponse> {
-    if (!profile) {
-      await ctx.scene.enter(REGISTER_WIZARD_ID);
-    }
-
+  async onProfiles(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
     await this.replyUseCases.replyI18n(ctx, 'messages.searching_teammates', {
       reply_markup: Markup.removeKeyboard().reply_markup,
     });
@@ -142,6 +131,7 @@ export class AppUpdate {
     await ctx.scene.enter(SEND_MESSAGE_WIZARD_ID);
   }
 
+  @Roles(['admin'])
   @Action(/sen-*/)
   async onSentence(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
     const userId = parseInt(
@@ -182,6 +172,7 @@ export class AppUpdate {
   }
 
   @Action(UPDATE_PROFILE_CALLBACK)
+  @Registered()
   async onUpdateProfile(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
     await ctx.scene.enter(REGISTER_WIZARD_ID);
   }
