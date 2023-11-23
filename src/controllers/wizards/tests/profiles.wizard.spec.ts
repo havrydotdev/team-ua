@@ -6,10 +6,12 @@ import {
   NEXT_WIZARD_ID,
   PROFILES_WIZARD_ID,
 } from 'src/core/constants';
-import { File, Profile, User } from 'src/core/entities';
+import { Profile } from 'src/core/entities';
 import { getCaption, getProfileMarkup } from 'src/core/utils';
-import { ProfilesMessageContext } from 'src/types';
+import { ProfilesWizardContext } from 'src/types';
 import { ProfileUseCases } from 'src/use-cases/profile';
+import { ReplyUseCases } from 'src/use-cases/reply';
+import { ReportUseCases } from 'src/use-cases/reports';
 import { deunionize } from 'telegraf';
 import { ChatFromGetChat } from 'telegraf/typings/core/types/typegram';
 
@@ -38,6 +40,14 @@ describe('ProfilesWizard', () => {
           provide: ProfileUseCases,
           useValue: createMock<ProfileUseCases>(),
         },
+        {
+          provide: ReplyUseCases,
+          useValue: createMock<ReplyUseCases>(),
+        },
+        {
+          provide: ReportUseCases,
+          useValue: createMock<ReportUseCases>(),
+        },
       ],
     }).compile();
 
@@ -51,19 +61,12 @@ describe('ProfilesWizard', () => {
         username: 'test',
       });
 
-      const ctx = createMock<ProfilesMessageContext>({
+      const ctx = createMock<ProfilesWizardContext>({
         scene: {
           enter: jest.fn(),
           leave: jest.fn(),
         },
-        session: {
-          user: createMock<User>({
-            profile: createMock<Profile>({
-              id: 2,
-              name: 'test2',
-            }),
-          }),
-        },
+        session: {},
         telegram: {
           getChat: jest
             .fn()
@@ -75,9 +78,7 @@ describe('ProfilesWizard', () => {
         },
       });
       const recommended = createMock<Profile>({
-        file: createMock<File>({
-          url: 'https://test.com',
-        }),
+        fileId: '12345',
         games: [],
         id: 1,
         name: 'test',
@@ -86,25 +87,20 @@ describe('ProfilesWizard', () => {
       const findSpy = jest
         .spyOn(profileUseCases, 'findRecommended')
         .mockResolvedValueOnce(recommended);
-      await wizard.onEnter(ctx);
+      await wizard.onEnter(ctx, createMock<Profile>({}));
 
-      expect(findSpy).toHaveBeenCalledWith(ctx.session.user.profile);
+      expect(findSpy).toHaveBeenCalledWith({}, ctx.session.seenProfiles);
       expect(ctx.wizard.next).toHaveBeenCalled();
-      expect(ctx.replyWithPhoto).toHaveBeenCalledWith(
-        {
-          url: recommended.file.url,
-        },
-        {
-          caption: getCaption(recommended),
-          reply_markup: getProfileMarkup(`https://t.me/test`),
-        },
-      );
+      expect(ctx.replyWithPhoto).toHaveBeenCalledWith(recommended.fileId, {
+        caption: getCaption(recommended),
+        reply_markup: getProfileMarkup(`https://t.me/test`),
+      });
     });
   });
 
   describe('onAction', () => {
     it('should leave the scene if message text equals LEAVE_PROFILES_CALLBACK', async () => {
-      const ctx = createMock<ProfilesMessageContext>({
+      const ctx = createMock<ProfilesWizardContext>({
         scene: {
           enter: jest.fn(),
           leave: jest.fn(),
@@ -121,7 +117,7 @@ describe('ProfilesWizard', () => {
     });
 
     it('should re-enter the scene if message text equals NEXT_PROFILE_CALLBACK', async () => {
-      const ctx = createMock<ProfilesMessageContext>({
+      const ctx = createMock<ProfilesWizardContext>({
         scene: {
           enter: jest.fn(),
           leave: jest.fn(),

@@ -16,6 +16,7 @@ import { HandlerResponse, ProfilesWizardContext } from 'src/types';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { ReportUseCases } from 'src/use-cases/reports';
+import { deunionize } from 'telegraf';
 
 @Wizard(PROFILES_WIZARD_ID)
 export class ProfilesWizard {
@@ -55,7 +56,9 @@ export class ProfilesWizard {
     ctx.wizard.next();
 
     const reply_markup = getProfileMarkup(
-      `https://t.me/${await ctx.telegram.getChat(current.user.id)}`,
+      `https://t.me/${
+        deunionize(await ctx.telegram.getChat(current.user.id)).username
+      }`,
     );
 
     const caption = getCaption(current);
