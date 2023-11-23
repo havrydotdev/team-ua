@@ -49,7 +49,6 @@ export class Keyboards {
     [
       Markup.button.callback('🇺🇦', 'lang_ua'),
       Markup.button.callback('🇬🇧', 'lang_en'),
-      Markup.button.callback('🇷🇺', 'lang_ru'),
     ],
   ])
     .resize(true)

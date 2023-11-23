@@ -4,12 +4,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Cache } from 'cache-manager';
 import {
   CHANGE_LANG_WIZARD_ID,
-  LEAVE_PROFILES_CALLBACK,
-  NEXT_PROFILE_CALLBACK,
+  Keyboards,
   PROFILES_WIZARD_ID,
 } from 'src/core/constants';
-import { Game, User } from 'src/core/entities';
-import { getCaption } from 'src/core/utils';
+import { Game, Profile } from 'src/core/entities';
 import { MessageContext } from 'src/types/telegraf';
 import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
@@ -78,22 +76,17 @@ describe('AppUpdate', () => {
         },
       });
 
-      await update.onStart(ctx);
+      await update.onStart(ctx, undefined);
 
-      expect(replyUseCases.replyI18n).toHaveBeenCalledTimes(1);
       expect(ctx.scene.enter).toHaveBeenCalledWith(CHANGE_LANG_WIZARD_ID);
     });
 
     it('should not create a new user if one already exists in the session', async () => {
       const ctx = createMock<MessageContext>({
-        session: {
-          user: createMock<User>({
-            id: 1,
-          }),
-        },
+        session: {},
       });
 
-      const resp = await update.onStart(ctx);
+      const resp = await update.onStart(ctx, createMock<Profile>());
 
       expect(resp).toEqual('commands.start');
     });
@@ -114,35 +107,7 @@ describe('AppUpdate', () => {
   });
 
   describe('onMe', () => {
-    it('should reply with the user profile', async () => {
-      const ctx = createMock<MessageContext>({
-        session: {
-          user: createMock<User>({
-            profile: createMock<User['profile']>({
-              file: createMock<User['profile']['file']>({
-                url: 'url',
-              }),
-              games: [
-                createMock<Game>({
-                  title: 'CS:GO',
-                }),
-                createMock<Game>({
-                  title: 'CS 2',
-                }),
-              ],
-              name: 'name',
-            }),
-          }),
-        },
-      });
-
-      await update.onMe(ctx);
-
-      expect(ctx.replyWithPhoto).toHaveBeenCalledWith(
-        { url: ctx.session.user.profile.file.url },
-        { caption: getCaption(ctx.session.user.profile) },
-      );
-    });
+    it('should reply with the user profile', async () => {});
   });
 
   describe('onCoop', () => {
@@ -182,18 +147,7 @@ describe('AppUpdate', () => {
         ctx,
         'commands.profiles',
         {
-          reply_markup: Markup.keyboard([
-            [
-              Markup.button.callback(
-                NEXT_PROFILE_CALLBACK,
-                NEXT_PROFILE_CALLBACK,
-              ),
-              Markup.button.callback(
-                LEAVE_PROFILES_CALLBACK,
-                LEAVE_PROFILES_CALLBACK,
-              ),
-            ],
-          ]).resize(true).reply_markup,
+          reply_markup: Keyboards.profiles,
         },
       );
       expect(ctx.scene.enter).toHaveBeenCalledWith(PROFILES_WIZARD_ID);

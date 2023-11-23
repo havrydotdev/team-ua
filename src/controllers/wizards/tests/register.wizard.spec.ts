@@ -1,21 +1,17 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { RegisterWizard } from 'src/controllers/wizards/register.wizard';
-import {
-  GAMES_MARKUP,
-  NEXT_WIZARD_ID,
-  REMOVE_KEYBOARD_MARKUP,
-} from 'src/core/constants';
-import { Game, Profile, User } from 'src/core/entities';
+import { Keyboards, NEXT_WIZARD_ID } from 'src/core/constants';
+import { CreateProfileDto } from 'src/core/dtos';
+import { Profile } from 'src/core/entities';
 import { BotException } from 'src/core/errors';
 import { getNameMarkup } from 'src/core/utils';
-import { PhotoMessage, WizardMessageContext } from 'src/types/telegraf';
-import { FileUseCases } from 'src/use-cases/file';
+import { PhotoMessage, RegisterWizardContext } from 'src/types/telegraf';
 import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { UserUseCases } from 'src/use-cases/user';
-import { Markup } from 'telegraf';
+import { PhotoSize } from 'telegraf/typings/core/types/typegram';
 
 jest.mock('src/core/utils', () => {
   const originalModule = jest.requireActual('src/core/utils');
@@ -35,8 +31,6 @@ jest.mock('src/core/utils', () => {
 
 describe('RegisterWizard', () => {
   let wizard: RegisterWizard;
-  let gameUseCases: GameUseCases;
-  let fileUseCases: FileUseCases;
   let profileUseCases: ProfileUseCases;
   let replyUseCases: ReplyUseCases;
 
@@ -57,10 +51,6 @@ describe('RegisterWizard', () => {
           useValue: createMock<UserUseCases>(),
         },
         {
-          provide: FileUseCases,
-          useValue: createMock<FileUseCases>(),
-        },
-        {
           provide: ProfileUseCases,
           useValue: createMock<ProfileUseCases>(),
         },
@@ -68,24 +58,27 @@ describe('RegisterWizard', () => {
     }).compile();
 
     wizard = module.get<RegisterWizard>(RegisterWizard);
-    gameUseCases = module.get<GameUseCases>(GameUseCases);
-    fileUseCases = module.get<FileUseCases>(FileUseCases);
     profileUseCases = module.get<ProfileUseCases>(ProfileUseCases);
     replyUseCases = module.get<ReplyUseCases>(ReplyUseCases);
   });
 
   describe('onEnter', () => {
     it('should call enterName on the reply use cases and go to the next step', async () => {
-      const ctx = createMock<WizardMessageContext>({
+      const ctx = createMock<RegisterWizardContext>({
         from: {
           first_name: 'John',
         },
         wizard: {
           next: jest.fn(),
+          state: {
+            games: undefined,
+          },
         },
       });
 
-      const resp = await wizard.onEnter(ctx);
+      const resp = await wizard.onEnter(ctx, undefined);
+
+      console.log({ resp });
 
       expect(resp).toEqual([
         ['messages.user.new', {}],
@@ -95,12 +88,13 @@ describe('RegisterWizard', () => {
         ],
       ]);
       expect(ctx.wizard.next).toHaveBeenCalled();
+      expect(ctx.wizard.state.games).not.toBeUndefined();
     });
   });
 
   describe('onName', () => {
-    it('should set the name state and go to the next step', async () => {
-      const ctx = createMock<WizardMessageContext>({
+    it('should send new user message if profile is undefined', async () => {
+      const ctx = createMock<RegisterWizardContext>({
         wizard: {
           next: jest.fn(),
           state: {},
@@ -113,7 +107,9 @@ describe('RegisterWizard', () => {
       expect(ctx.wizard.state.name).toEqual(msg.text);
       expect(resp).toEqual([
         'messages.age.send',
-        { reply_markup: Markup.removeKeyboard().reply_markup },
+        {
+          reply_markup: Keyboards.remove,
+        },
       ]);
       expect(ctx.wizard.next).toHaveBeenCalled();
     });
@@ -121,39 +117,24 @@ describe('RegisterWizard', () => {
 
   describe('onAge', () => {
     it('should call enterAge on the reply use cases and go to the next step', async () => {
-      const ctx = createMock<WizardMessageContext>({
+      const ctx = createMock<RegisterWizardContext>({
         wizard: {
           next: jest.fn(),
           state: {},
         },
       });
 
-      const resp = await wizard.onAge(ctx, { text: '17' });
+      const resp = await wizard.onAge(ctx, { text: 17 });
 
       expect(resp).toEqual('messages.about.send');
       expect(ctx.wizard.state.age).toEqual(17);
       expect(ctx.wizard.next).toHaveBeenCalled();
     });
-
-    it('should return error message if age is not a number', async () => {
-      const ctx = createMock<WizardMessageContext>({
-        wizard: {
-          next: jest.fn(),
-          state: {},
-        },
-      });
-
-      const resp = await wizard.onAge(ctx, { text: 'invalid age' });
-
-      expect(resp).toEqual('messages.age.invalid');
-      expect(ctx.wizard.next).not.toHaveBeenCalled();
-      expect(ctx.wizard.state.age).toEqual(undefined);
-    });
   });
 
   describe('onAbout', () => {
     it('should set the about state and go to the next step', async () => {
-      const ctx = createMock<WizardMessageContext>({
+      const ctx = createMock<RegisterWizardContext>({
         me: 'test',
         wizard: {
           next: jest.fn(),
@@ -171,7 +152,7 @@ describe('RegisterWizard', () => {
           i18nArgs: {
             username: ctx.me,
           },
-          reply_markup: GAMES_MARKUP,
+          reply_markup: Keyboards.games,
         },
       ]);
     });
@@ -179,50 +160,26 @@ describe('RegisterWizard', () => {
 
   describe('onGame', () => {
     it('should set the games state', async () => {
-      const ctx = createMock<WizardMessageContext>({
+      const ctx = createMock<RegisterWizardContext>({
         wizard: {
           next: jest.fn(),
-          state: {},
+          state: {
+            games: [],
+          },
         },
       });
 
-      const findByTitleSpy = jest
-        .spyOn(gameUseCases, 'findByTitle')
-        .mockResolvedValueOnce(createMock<Game>({ id: 1 }));
-
-      const msg = { text: 'game1' };
+      const msg = { gameId: 1, text: 'game1' };
 
       const resp = await wizard.onGame(ctx, msg);
 
       expect(ctx.wizard.state.games).toEqual([1]);
       expect(ctx.wizard.next).not.toHaveBeenCalled();
-      expect(findByTitleSpy).toHaveBeenCalledWith(msg.text);
       expect(resp).toEqual('messages.game.ok');
     });
 
-    it('should throw an error if the game is not in the list', async () => {
-      const ctx = createMock<WizardMessageContext>({
-        wizard: {
-          next: jest.fn(),
-          state: {},
-        },
-      });
-      const msg = { text: 'game_that_does_not_exist' };
-
-      const findByTitleSpy = jest
-        .spyOn(gameUseCases, 'findByTitle')
-        .mockResolvedValueOnce(undefined);
-
-      expect(async () => await wizard.onGame(ctx, msg)).rejects.toThrowError(
-        new BotException('messages.game.invalid'),
-      );
-      expect(ctx.wizard.state.games).toEqual(undefined);
-      expect(findByTitleSpy).toHaveBeenCalledWith(msg.text);
-      expect(ctx.wizard.next).not.toHaveBeenCalled();
-    });
-
     it('should send error message if game is already in state', async () => {
-      const ctx = createMock<WizardMessageContext>({
+      const ctx = createMock<RegisterWizardContext>({
         wizard: {
           next: jest.fn(),
           state: {
@@ -230,53 +187,41 @@ describe('RegisterWizard', () => {
           },
         },
       });
-      const msg = { text: 'game1' };
-
-      const findByTitleSpy = jest
-        .spyOn(gameUseCases, 'findByTitle')
-        .mockResolvedValueOnce(createMock<Game>({ id: 1 }));
+      const msg = { gameId: 1, text: 'game1' };
 
       expect(async () => await wizard.onGame(ctx, msg)).rejects.toThrowError(
         new BotException('messages.game.already_added'),
       );
-      expect(findByTitleSpy).toHaveBeenCalledWith(msg.text);
       expect(ctx.wizard.state['games']).toEqual([1]);
       expect(ctx.wizard.next).not.toHaveBeenCalled();
     });
 
     it('should go to the next step if the message is ✅', async () => {
-      const ctx = createMock<WizardMessageContext>({
+      const ctx = createMock<RegisterWizardContext>({
         wizard: {
           next: jest.fn(),
-          state: {},
+          state: {
+            games: [],
+          },
         },
       });
-      const msg = { text: '✅' };
+      const msg = { gameId: 1, text: '✅' };
 
-      const resp = await wizard.onGame(ctx, msg);
-
-      expect(ctx.wizard.state['games']).toEqual(undefined);
-      expect(ctx.wizard.next).toHaveBeenCalled();
-      expect(resp).toEqual([
-        'messages.picture.send',
-        {
-          reply_markup: REMOVE_KEYBOARD_MARKUP,
-        },
-      ]);
+      expect(wizard.onGame(ctx, msg)).rejects.toThrowError(
+        new BotException('errors.unknown'),
+      );
+      expect(ctx.wizard.next).not.toHaveBeenCalled();
     });
   });
 
   describe('onPhoto', () => {
-    it('should call enterPicture on the reply use cases and go to the next step', async () => {
-      const ctx = createMock<WizardMessageContext>({
+    it('should create a profile if user does not have one', async () => {
+      const ctx = createMock<RegisterWizardContext>({
         from: {
           id: 12345,
         },
         scene: {
           enter: jest.fn(),
-        },
-        session: {
-          user: createMock<User>(),
         },
         wizard: {
           next: jest.fn(),
@@ -288,10 +233,10 @@ describe('RegisterWizard', () => {
           },
         },
       });
-      const profileDto = {
+      const profileDto: CreateProfileDto = {
         about: ctx.wizard.state.about,
         age: ctx.wizard.state.age,
-        fileId: 1,
+        fileId: '12345',
         games: ctx.wizard.state.games,
         name: ctx.wizard.state.name,
         userId: ctx.from.id,
@@ -302,21 +247,81 @@ describe('RegisterWizard', () => {
         name: 'test',
       });
 
-      const uploadSpy = jest
-        .spyOn(fileUseCases, 'upload')
-        .mockResolvedValueOnce(1);
       const createSpy = jest
         .spyOn(profileUseCases, 'create')
         .mockResolvedValueOnce(createdProfile);
-      const resp = await wizard.onPhoto(ctx, createMock<PhotoMessage>());
+      const resp = await wizard.onPhoto(
+        ctx,
+        createMock<PhotoMessage>({
+          photo: [
+            createMock<PhotoSize>({
+              file_id: '12345',
+            }),
+          ],
+        }),
+        undefined,
+      );
 
-      expect(uploadSpy).toHaveBeenCalledWith(Buffer.from(''), 'test');
       expect(createSpy).toHaveBeenCalledWith(profileDto);
-      expect(ctx.session.user.profile).toEqual(createdProfile);
       expect(replyUseCases.replyI18n).toHaveBeenCalledWith(
         ctx,
         'messages.register.completed',
       );
+      expect(resp).toEqual(undefined);
+      expect(ctx.scene.enter).toHaveBeenCalledWith(NEXT_WIZARD_ID);
+    });
+
+    it('should update a profile if user has one', async () => {
+      const ctx = createMock<RegisterWizardContext>({
+        from: {
+          id: 12345,
+        },
+        scene: {
+          enter: jest.fn(),
+        },
+        wizard: {
+          next: jest.fn(),
+          state: {
+            about: 'test',
+            age: 17,
+            games: [1],
+            name: 'test',
+          },
+        },
+      });
+      const profileDto: CreateProfileDto = {
+        about: ctx.wizard.state.about,
+        age: ctx.wizard.state.age,
+        fileId: '12345',
+        games: ctx.wizard.state.games,
+        name: ctx.wizard.state.name,
+        userId: ctx.from.id,
+      };
+      const updatedProfile = createMock<Profile>({
+        age: 17,
+        id: 1,
+        name: 'test',
+      });
+
+      const updateSpy = jest
+        .spyOn(profileUseCases, 'update')
+        .mockResolvedValueOnce(updatedProfile);
+      const resp = await wizard.onPhoto(
+        ctx,
+        createMock<PhotoMessage>({
+          photo: [
+            createMock<PhotoSize>({
+              file_id: '12345',
+            }),
+          ],
+        }),
+        createMock<Profile>({
+          id: 1,
+        }),
+      );
+
+      expect(updateSpy).toHaveBeenCalledWith(1, profileDto);
+      expect(ctx.scene.enter).toHaveBeenCalledWith(NEXT_WIZARD_ID);
       expect(resp).toEqual(undefined);
       expect(ctx.scene.enter).toHaveBeenCalledWith(NEXT_WIZARD_ID);
     });

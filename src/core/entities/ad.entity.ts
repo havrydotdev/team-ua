@@ -7,7 +7,10 @@ export class Ad extends IEntity {
   @Column()
   description: string;
 
-  @Column()
+  @Column({
+    name: 'file_id',
+    nullable: true,
+  })
   fileId: string;
 
   @Column()

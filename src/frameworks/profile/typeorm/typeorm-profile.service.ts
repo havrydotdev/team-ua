@@ -17,6 +17,7 @@ export class TypeOrmProfileService implements IProfileService {
     return this.profileRepo.findOne({
       relations: {
         games: true,
+        user: true,
       },
       where: {
         id: res.id,
@@ -45,6 +46,14 @@ export class TypeOrmProfileService implements IProfileService {
       .getOne();
 
     return result;
+  }
+
+  async findAll(): Promise<Profile[]> {
+    return this.profileRepo.find({
+      relations: {
+        user: true,
+      },
+    });
   }
 
   async findById(profileId: number): Promise<Profile | undefined> {

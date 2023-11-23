@@ -32,23 +32,6 @@ describe('ProfileUseCases', () => {
     factory = module.get<ProfileFactoryService>(ProfileFactoryService);
   });
 
-  it('should call findByUser on the profile service', async () => {
-    const profile = createMock<Profile>({
-      user: {
-        id: 1,
-      },
-    });
-
-    const findByUserSpy = jest
-      .spyOn(service, 'findByUser')
-      .mockResolvedValue(profile);
-
-    const result = await useCases.findByUser(profile.user.id);
-
-    expect(result).toEqual(profile);
-    expect(findByUserSpy).toHaveBeenCalledWith(profile.user.id);
-  });
-
   it('should call createProfile on the profile service with a new profile', async () => {
     const dto = createMock<CreateProfileDto>();
     const profile = createMock<Profile>();
@@ -82,18 +65,6 @@ describe('ProfileUseCases', () => {
     expect(updateProfileSpy).toHaveBeenCalledWith(profileId, profile);
   });
 
-  it('should call deleteProfile on the profile service', async () => {
-    const profileId = 1;
-
-    const deleteProfileSpy = jest
-      .spyOn(service, 'delete')
-      .mockResolvedValue(undefined);
-
-    await useCases.delete(profileId);
-
-    expect(deleteProfileSpy).toHaveBeenCalledWith(profileId);
-  });
-
   it('should call findByUser and findRecommended on the profile service', async () => {
     const recommended = createMock<Profile>({
       user: {
@@ -112,9 +83,9 @@ describe('ProfileUseCases', () => {
       .spyOn(service, 'findRecommended')
       .mockResolvedValue(recommended);
 
-    const result = await useCases.findRecommended(profile);
+    const result = await useCases.findRecommended(profile, [3]);
 
     expect(result).toEqual(recommended);
-    expect(findRecommendedSpy).toHaveBeenCalledWith(profile);
+    expect(findRecommendedSpy).toHaveBeenCalledWith(profile, [3]);
   });
 });

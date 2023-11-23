@@ -1,0 +1,3 @@
+const REGISTERED_METADATA_KEY = 'registered';
+
+export { REGISTERED_METADATA_KEY };

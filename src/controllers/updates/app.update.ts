@@ -1,6 +1,3 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
 import {
   Action,
   Command,
@@ -21,11 +18,12 @@ import {
   PROFILE_CALLBACK,
   PROFILES_WIZARD_ID,
   REGISTER_WIZARD_ID,
+  SEND_MESSAGE_WIZARD_ID,
   UPDATE_PROFILE_CALLBACK,
 } from 'src/core/constants';
-import { Roles } from 'src/core/decorators';
+import { Registered, Roles, UserProfile } from 'src/core/decorators';
 import { Game, Profile } from 'src/core/entities';
-import { getCaption, getMeMarkup, getProfileCacheKey } from 'src/core/utils';
+import { getCaption, getMeMarkup } from 'src/core/utils';
 import { HandlerResponse, Language, MessageContext } from 'src/types';
 import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
@@ -34,6 +32,7 @@ import { ReportUseCases } from 'src/use-cases/reports';
 import { deunionize, Markup } from 'telegraf';
 import { InlineQueryResult } from 'telegraf/typings/core/types/typegram';
 
+// TODO: add release notes command
 @Update()
 export class AppUpdate {
   constructor(
@@ -41,7 +40,6 @@ export class AppUpdate {
     private readonly gameUseCases: GameUseCases,
     private readonly reportUseCases: ReportUseCases,
     private readonly profileUseCases: ProfileUseCases,
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
   ) {}
 
   @Command('coop')
@@ -90,19 +88,14 @@ export class AppUpdate {
   }
 
   @Command('me')
+  @Registered()
   @Hears(PROFILE_CALLBACK)
-  async onMe(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
-    const cached = await this.cache.get<Profile>(
-      getProfileCacheKey(ctx.from.id),
-    );
-    if (!cached) {
-      await ctx.scene.enter(CHANGE_LANG_WIZARD_ID);
-
-      return;
-    }
-
-    await ctx.replyWithPhoto(cached.fileId, {
-      caption: getCaption(cached),
+  async onMe(
+    @Ctx() ctx: MessageContext,
+    @UserProfile() profile: Profile,
+  ): Promise<HandlerResponse> {
+    await ctx.replyWithPhoto(profile.fileId, {
+      caption: getCaption(profile),
       reply_markup: getMeMarkup(
         this.replyUseCases.translate(
           'messages.profile.update',
@@ -112,16 +105,11 @@ export class AppUpdate {
     });
   }
 
+  // TODO: dont send that many messages
   @Command('profiles')
+  @Registered()
   @Hears(LOOK_CALLBACK)
   async onProfiles(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
-    const cached = await this.cache.get<Profile>(
-      getProfileCacheKey(ctx.from.id),
-    );
-    if (!cached) {
-      await ctx.scene.enter(REGISTER_WIZARD_ID);
-    }
-
     await this.replyUseCases.replyI18n(ctx, 'messages.searching_teammates', {
       reply_markup: Markup.removeKeyboard().reply_markup,
     });
@@ -134,9 +122,16 @@ export class AppUpdate {
   }
 
   // TODO
-  @Action(/reporter-info-*/)
-  async onReporterInfo(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {}
+  // @Action(/reporter-info-*/)
+  // async onReporterInfo(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {}
 
+  @Roles(['admin'])
+  @Command('send_message')
+  async onSendMessage(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
+    await ctx.scene.enter(SEND_MESSAGE_WIZARD_ID);
+  }
+
+  @Roles(['admin'])
   @Action(/sen-*/)
   async onSentence(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
     const userId = parseInt(
@@ -165,11 +160,11 @@ export class AppUpdate {
   }
 
   @Start()
-  async onStart(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
-    const cached = await this.cache.get<Profile>(
-      getProfileCacheKey(ctx.from.id),
-    );
-    if (!cached) {
+  async onStart(
+    @Ctx() ctx: MessageContext,
+    @UserProfile() profile: Profile,
+  ): Promise<HandlerResponse> {
+    if (!profile) {
       await ctx.scene.enter(CHANGE_LANG_WIZARD_ID);
     }
 
@@ -177,6 +172,7 @@ export class AppUpdate {
   }
 
   @Action(UPDATE_PROFILE_CALLBACK)
+  @Registered()
   async onUpdateProfile(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
     await ctx.scene.enter(REGISTER_WIZARD_ID);
   }

@@ -35,6 +35,10 @@ describe('TypeOrmProfileService', () => {
 
     expect(result).toEqual(profile);
     expect(repo.findOne).toHaveBeenCalledWith({
+      relations: {
+        games: true,
+        user: true,
+      },
       where: {
         user: {
           id: userId,
@@ -75,7 +79,7 @@ describe('TypeOrmProfileService', () => {
   it('should delete a profile', async () => {
     const profileId = 1;
 
-    const deleteSpy = jest.spyOn(repo, 'delete').mockResolvedValue(undefined);
+    const deleteSpy = jest.spyOn(repo, 'remove').mockResolvedValue(undefined);
 
     await service.delete(profileId);
 

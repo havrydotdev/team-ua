@@ -1,20 +1,18 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+/* eslint-disable perfectionist/sort-classes */
 import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
 import {
   Keyboards,
   NEXT_WIZARD_ID,
   REGISTER_WIZARD_ID,
 } from 'src/core/constants';
+import { UserProfile } from 'src/core/decorators';
 import { CreateProfileDto } from 'src/core/dtos';
 import { Profile } from 'src/core/entities';
 import { BotException } from 'src/core/errors';
 import { AboutPipe, AgePipe, GamePipe } from 'src/core/pipes';
-import { getNameMarkup, getProfileCacheKey } from 'src/core/utils';
+import { getNameMarkup } from 'src/core/utils';
 import {
   HandlerResponse,
-  MsgKey,
   MsgWithExtra,
   PhotoMessage,
   RegisterWizardContext,
@@ -25,10 +23,65 @@ import { ReplyUseCases } from 'src/use-cases/reply';
 @Wizard(REGISTER_WIZARD_ID)
 export class RegisterWizard {
   constructor(
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
     private readonly replyUseCases: ReplyUseCases,
     private readonly profileUseCases: ProfileUseCases,
   ) {}
+
+  @WizardStep(1)
+  async onEnter(
+    @Ctx() ctx: RegisterWizardContext,
+    @UserProfile() profile: Profile,
+  ): Promise<HandlerResponse> {
+    ctx.wizard.next();
+
+    ctx.wizard.state.games = [];
+
+    const resp: MsgWithExtra[] = [];
+
+    if (!profile) {
+      resp.push(['messages.user.new', {}]);
+    }
+
+    resp.push([
+      'messages.name.send',
+      {
+        reply_markup: getNameMarkup(ctx.from.first_name),
+      },
+    ]);
+
+    return resp;
+  }
+
+  @On('text')
+  @WizardStep(2)
+  async onName(
+    @Ctx() ctx: RegisterWizardContext,
+    @Message() msg: { text: string },
+  ): Promise<HandlerResponse> {
+    ctx.wizard.state.name = msg.text;
+
+    ctx.wizard.next();
+
+    return [
+      'messages.age.send',
+      {
+        reply_markup: Keyboards.remove,
+      },
+    ];
+  }
+
+  @On('text')
+  @WizardStep(3)
+  async onAge(
+    @Ctx() ctx: RegisterWizardContext,
+    @Message(AgePipe) msg: { text: number },
+  ): Promise<HandlerResponse> {
+    ctx.wizard.state['age'] = msg.text;
+
+    ctx.wizard.next();
+
+    return 'messages.about.send';
+  }
 
   @On('text')
   @WizardStep(4)
@@ -54,43 +107,6 @@ export class RegisterWizard {
   }
 
   @On('text')
-  @WizardStep(3)
-  async onAge(
-    @Ctx() ctx: RegisterWizardContext,
-    @Message(AgePipe) msg: { text: number },
-  ): Promise<HandlerResponse> {
-    ctx.wizard.state['age'] = msg.text;
-
-    ctx.wizard.next();
-
-    return 'messages.about.send';
-  }
-
-  @WizardStep(1)
-  async onEnter(@Ctx() ctx: RegisterWizardContext): Promise<HandlerResponse> {
-    const profile = await this.cache.get(getProfileCacheKey(ctx.from.id));
-
-    ctx.wizard.next();
-
-    ctx.wizard.state.games = [];
-
-    const resp: MsgWithExtra[] = [];
-
-    if (!profile) {
-      resp.push(['messages.user.new', {}]);
-    }
-
-    resp.push([
-      'messages.name.send',
-      {
-        reply_markup: getNameMarkup(ctx.from.first_name),
-      },
-    ]);
-
-    return resp;
-  }
-
-  @On('text')
   @WizardStep(5)
   async onGame(
     @Ctx() ctx: RegisterWizardContext,
@@ -98,7 +114,7 @@ export class RegisterWizard {
   ): Promise<HandlerResponse> {
     if (msg.text === '✅') {
       if (ctx.wizard.state.games.length === 0) {
-        return 'errors.unknown';
+        throw new BotException('errors.unknown');
       }
 
       ctx.wizard.next();
@@ -120,35 +136,14 @@ export class RegisterWizard {
     return 'messages.game.ok';
   }
 
-  @On('text')
-  @WizardStep(2)
-  async onName(
-    @Ctx() ctx: RegisterWizardContext,
-    @Message() msg: { text: string },
-  ): Promise<HandlerResponse> {
-    ctx.wizard.state.name = msg.text;
-
-    ctx.wizard.next();
-
-    return [
-      'messages.age.send',
-      {
-        reply_markup: Keyboards.remove,
-      },
-    ];
-  }
-
   @On('photo')
   @WizardStep(6)
   async onPhoto(
     @Ctx()
     ctx: RegisterWizardContext,
     @Message() msg: PhotoMessage,
-  ): Promise<MsgKey | MsgWithExtra> {
-    const profile = await this.cache.get<Profile>(
-      getProfileCacheKey(ctx.from.id),
-    );
-
+    @UserProfile() profile: Profile,
+  ): Promise<HandlerResponse> {
     const fileId = msg.photo.pop().file_id;
 
     const profileDto: CreateProfileDto = {
