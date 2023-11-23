@@ -80,7 +80,7 @@
     "@compodoc/compodoc": "^1.1.21",
     "@golevelup/ts-jest": "^0.4.0",
     "@nestjs/cli": "^10.0.0",
-    "@nestjs/schematics": "^10.0.0",
+    "@nestjs/schematics": "^10.0.3",
     "@nestjs/testing": "^10.0.0",
     "@types/aws-sdk": "^2.7.0",
     "@types/jest": "^29.5.2",
