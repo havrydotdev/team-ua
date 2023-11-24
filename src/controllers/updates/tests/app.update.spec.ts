@@ -6,9 +6,12 @@ import {
   CHANGE_LANG_WIZARD_ID,
   Keyboards,
   PROFILES_WIZARD_ID,
+  REGISTER_WIZARD_ID,
+  SEND_MESSAGE_WIZARD_ID,
 } from 'src/core/constants';
 import { Game, Profile } from 'src/core/entities';
-import { MessageContext } from 'src/types/telegraf';
+import { getCaption, getMeMarkup } from 'src/core/utils';
+import { Language, MessageContext } from 'src/types/telegraf';
 import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
@@ -23,6 +26,8 @@ describe('AppUpdate', () => {
   let update: AppUpdate;
   let replyUseCases: ReplyUseCases;
   let gameUseCases: GameUseCases;
+  let reportUseCases: ReportUseCases;
+  let profileUseCases: ProfileUseCases;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -58,6 +63,8 @@ describe('AppUpdate', () => {
     update = module.get<AppUpdate>(AppUpdate);
     replyUseCases = module.get<ReplyUseCases>(ReplyUseCases);
     gameUseCases = module.get<GameUseCases>(GameUseCases);
+    reportUseCases = module.get<ReportUseCases>(ReportUseCases);
+    profileUseCases = module.get<ProfileUseCases>(ProfileUseCases);
   });
 
   describe('onStart', () => {
@@ -107,113 +114,213 @@ describe('AppUpdate', () => {
   });
 
   describe('onMe', () => {
-    it('should reply with the user profile', async () => {});
-  });
-
-  describe('onCoop', () => {
-    it('should reply with the coop message', async () => {
-      const resp = await update.onCoop();
-
-      expect(resp).toEqual([
-        'commands.coop',
-        {
-          parse_mode: 'HTML',
+    it('should reply with the user profile', async () => {
+      const ctx = createMock<MessageContext>({
+        replyWithPhoto: jest.fn(),
+        session: {
+          lang: Language.EN,
         },
-      ]);
+      });
+      const profile = createMock<Profile>({
+        fileId: '1234',
+        games: [
+          createMock<Game>({
+            title: 'Test',
+          }),
+          createMock<Game>({
+            title: 'Test2',
+          }),
+        ],
+      });
+
+      await update.onMe(ctx, profile);
+
+      expect(ctx.replyWithPhoto).toHaveBeenCalledWith(profile.fileId, {
+        caption: getCaption(profile),
+        reply_markup: getMeMarkup(
+          replyUseCases.translate('messages.profile.update', ctx.session.lang),
+        ),
+      });
     });
   });
 
-  describe('onProfiles', () => {
-    it('should reply with the profiles message', async () => {
+  describe('onSendMessage', () => {
+    it('should enter the send message wizard', async () => {
       const ctx = createMock<MessageContext>({
         scene: {
           enter: jest.fn(),
         },
       });
 
-      await update.onProfiles(ctx);
+      await update.onSendMessage(ctx);
 
-      expect(replyUseCases.replyI18n).toHaveBeenCalledTimes(2);
-      expect(replyUseCases.replyI18n).toHaveBeenNthCalledWith(
-        1,
-        ctx,
-        'messages.searching_teammates',
-        {
-          reply_markup: Markup.removeKeyboard().reply_markup,
-        },
-      );
-      expect(replyUseCases.replyI18n).toHaveBeenNthCalledWith(
-        2,
-        ctx,
-        'commands.profiles',
-        {
-          reply_markup: Keyboards.profiles,
-        },
-      );
-      expect(ctx.scene.enter).toHaveBeenCalledWith(PROFILES_WIZARD_ID);
+      expect(ctx.scene.enter).toHaveBeenCalledWith(SEND_MESSAGE_WIZARD_ID);
     });
   });
 
-  describe('onInlineQuery', () => {
-    it('should reply with the inline query results', async () => {
-      const games = [
-        createMock<Game>({
-          description: "Test1's description",
-          id: 1,
-          image: "Test1's image",
-          title: 'Test1',
-        }),
-        createMock<Game>({
-          description: "Test2's description",
-          id: 2,
-          image: "Test2's image",
-          title: 'Test2',
-        }),
-        createMock<Game>({
-          description: "Test3's description",
-          id: 3,
-          image: "Test3's image",
-          title: 'Test3',
-        }),
-        createMock<Game>({
-          description: "Test4's description",
-          id: 4,
-          image: "Test4's image",
-          title: 'Test4',
-        }),
-      ];
+  describe('onUpdateProfile', () => {
+    it('should reply with the update profile message', async () => {
       const ctx = createMock<MessageContext>({
-        inlineQuery: {
-          query: 'test',
+        scene: {
+          enter: jest.fn(),
         },
       });
 
-      jest.spyOn(gameUseCases, 'findStartsWith').mockResolvedValueOnce(games);
+      await update.onUpdateProfile(ctx);
 
-      await update.onInlineQuery(ctx);
-
-      expect(ctx.answerInlineQuery).toHaveBeenCalledWith(
-        games.map(
-          (game): InlineQueryResult => ({
-            description: game.description,
-            id: game.id.toString(),
-            input_message_content: {
-              message_text: game.title,
-            },
-            thumbnail_url: game.image,
-            title: game.title,
-            type: 'article',
-          }),
-        ),
-      );
+      expect(ctx.scene.enter).toHaveBeenCalledWith(REGISTER_WIZARD_ID);
     });
-  });
 
-  describe('onHelp', () => {
-    it('should reply with the help message', async () => {
-      const resp = await update.onHelp();
+    describe('onSetReportsBranch', () => {
+      it('should reply with the set reports branch message', async () => {
+        const ctx = createMock<MessageContext>({
+          scene: {
+            enter: jest.fn(),
+          },
+        });
 
-      expect(resp).toEqual('commands.help');
+        const createReportsChannelSpy = jest
+          .spyOn(reportUseCases, 'createReportChannel')
+          .mockResolvedValueOnce(undefined);
+
+        const response = await update.onSetReportsBranch(ctx);
+
+        expect(createReportsChannelSpy).toHaveBeenCalledWith({
+          id: ctx.chat.id,
+        });
+        expect(response).toEqual('messages.report.channel.ok');
+      });
+    });
+
+    describe('onCoop', () => {
+      it('should reply with the coop message', async () => {
+        const resp = await update.onCoop();
+
+        expect(resp).toEqual([
+          'commands.coop',
+          {
+            parse_mode: 'HTML',
+          },
+        ]);
+      });
+    });
+
+    describe('onSentence', () => {
+      it('should delete the user profile', async () => {
+        const userId = 123;
+        const ctx = createMock<MessageContext>({
+          callbackQuery: {
+            data: `sen-${userId}`,
+          },
+        });
+
+        const deleteByUserSpy = jest
+          .spyOn(profileUseCases, 'deleteByUser')
+          .mockResolvedValueOnce(undefined);
+
+        await update.onSentence(ctx);
+
+        expect(deleteByUserSpy).toHaveBeenCalledWith(userId);
+        expect(replyUseCases.sendMsgToChatI18n).toHaveBeenCalledWith(
+          userId,
+          Language.UA,
+          'messages.profile.deleted',
+        );
+      });
+    });
+
+    describe('onProfiles', () => {
+      it('should reply with the profiles message', async () => {
+        const ctx = createMock<MessageContext>({
+          scene: {
+            enter: jest.fn(),
+          },
+        });
+
+        await update.onProfiles(ctx);
+
+        expect(replyUseCases.replyI18n).toHaveBeenCalledTimes(2);
+        expect(replyUseCases.replyI18n).toHaveBeenNthCalledWith(
+          1,
+          ctx,
+          'messages.searching_teammates',
+          {
+            reply_markup: Markup.removeKeyboard().reply_markup,
+          },
+        );
+        expect(replyUseCases.replyI18n).toHaveBeenNthCalledWith(
+          2,
+          ctx,
+          'commands.profiles',
+          {
+            reply_markup: Keyboards.profiles,
+          },
+        );
+        expect(ctx.scene.enter).toHaveBeenCalledWith(PROFILES_WIZARD_ID);
+      });
+    });
+
+    describe('onInlineQuery', () => {
+      it('should reply with the inline query results', async () => {
+        const games = [
+          createMock<Game>({
+            description: "Test1's description",
+            id: 1,
+            image: "Test1's image",
+            title: 'Test1',
+          }),
+          createMock<Game>({
+            description: "Test2's description",
+            id: 2,
+            image: "Test2's image",
+            title: 'Test2',
+          }),
+          createMock<Game>({
+            description: "Test3's description",
+            id: 3,
+            image: "Test3's image",
+            title: 'Test3',
+          }),
+          createMock<Game>({
+            description: "Test4's description",
+            id: 4,
+            image: "Test4's image",
+            title: 'Test4',
+          }),
+        ];
+        const ctx = createMock<MessageContext>({
+          inlineQuery: {
+            query: 'test',
+          },
+        });
+
+        jest.spyOn(gameUseCases, 'findStartsWith').mockResolvedValueOnce(games);
+
+        await update.onInlineQuery(ctx);
+
+        expect(ctx.answerInlineQuery).toHaveBeenCalledWith(
+          games.map(
+            (game): InlineQueryResult => ({
+              description: game.description,
+              id: game.id.toString(),
+              input_message_content: {
+                message_text: game.title,
+              },
+              thumbnail_url: game.image,
+              title: game.title,
+              type: 'article',
+            }),
+          ),
+        );
+      });
+    });
+
+    describe('onHelp', () => {
+      it('should reply with the help message', async () => {
+        const resp = await update.onHelp();
+
+        expect(resp).toEqual('commands.help');
+      });
     });
   });
 });
