@@ -1,10 +1,12 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
+  CLEAR_LAST_WIZARD_ID,
   LEAVE_PROFILES_CALLBACK,
   NEXT_PROFILE_CALLBACK,
   NEXT_WIZARD_ID,
   PROFILES_WIZARD_ID,
+  REPORT_CALLBACK,
 } from 'src/core/constants';
 import { Profile } from 'src/core/entities';
 import { getCaption, getProfileMarkup } from 'src/core/utils';
@@ -96,6 +98,27 @@ describe('ProfilesWizard', () => {
         reply_markup: getProfileMarkup(`https://t.me/test`),
       });
     });
+
+    it('should set the current profile state and return message with url', async () => {
+      (deunionize as jest.Mock).mockReturnValue({
+        username: 'test',
+      });
+
+      const ctx = createMock<ProfilesWizardContext>({
+        scene: {
+          enter: jest.fn(),
+          leave: jest.fn(),
+        },
+      });
+
+      const findSpy = jest
+        .spyOn(profileUseCases, 'findRecommended')
+        .mockResolvedValueOnce(undefined);
+      await wizard.onEnter(ctx, createMock<Profile>({}));
+
+      expect(findSpy).toHaveBeenCalledWith({}, ctx.session.seenProfiles);
+      expect(ctx.scene.enter).toHaveBeenCalledWith(CLEAR_LAST_WIZARD_ID);
+    });
   });
 
   describe('onAction', () => {
@@ -131,6 +154,48 @@ describe('ProfilesWizard', () => {
 
       expect(ctx.scene.leave).toHaveBeenCalled();
       expect(ctx.scene.enter).toHaveBeenCalledWith(PROFILES_WIZARD_ID);
+    });
+
+    it('should go to the next step if message text equals REPORT_CALLBACK', async () => {
+      const ctx = createMock<ProfilesWizardContext>({
+        wizard: {
+          next: jest.fn(),
+        },
+      });
+      const msg = {
+        text: REPORT_CALLBACK,
+      };
+
+      const response = await wizard.onAction(ctx, msg);
+
+      expect(response).toEqual('messages.report.send');
+      expect(ctx.wizard.next).toHaveBeenCalled();
+    });
+  });
+
+  describe('onReport', () => {
+    it('should leave the scene and enter the next one', async () => {
+      const ctx = createMock<ProfilesWizardContext>({
+        scene: {
+          enter: jest.fn(),
+          leave: jest.fn(),
+        },
+        wizard: {
+          state: {
+            current: createMock<Profile>({
+              user: {
+                id: 1,
+              },
+            }),
+          },
+        },
+      });
+
+      await wizard.onReport(ctx, {
+        text: 'test',
+      });
+
+      expect(ctx.scene.leave).toHaveBeenCalled();
     });
   });
 });

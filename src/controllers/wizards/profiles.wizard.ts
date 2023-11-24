@@ -26,6 +26,7 @@ export class ProfilesWizard {
     private readonly reportUseCases: ReportUseCases,
   ) {}
 
+  // TODO: add ban button for admins
   @WizardStep(1)
   async onEnter(
     @Ctx() ctx: ProfilesWizardContext,
@@ -44,12 +45,12 @@ export class ProfilesWizard {
       ctx.session.seenProfiles,
     );
 
-    ctx.wizard.state.current = current;
     if (!current) {
       await ctx.scene.enter(CLEAR_LAST_WIZARD_ID);
 
       return;
     }
+    ctx.wizard.state.current = current;
 
     ctx.session.seenProfiles.push(current.id);
     ctx.session.seenLength++;
@@ -99,6 +100,8 @@ export class ProfilesWizard {
     }
   }
 
+  // TODO: don't leave the scene
+  // TODO: add pipe for message validation
   @WizardStep(3)
   @On('text')
   async onReport(
