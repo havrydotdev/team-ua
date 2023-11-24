@@ -1,8 +1,9 @@
 /* eslint-disable perfectionist/sort-classes */
 import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
 import { SEND_MESSAGE_WIZARD_ID } from 'src/core/constants';
-import { UserProfile } from 'src/core/decorators';
+import { Registered, UserProfile } from 'src/core/decorators';
 import { Profile } from 'src/core/entities';
+import { BotException } from 'src/core/errors';
 import { HandlerResponse, WizardContext } from 'src/types';
 import { ProfileUseCases } from 'src/use-cases/profile';
 
@@ -11,12 +12,15 @@ import { ProfileUseCases } from 'src/use-cases/profile';
 export class SendMessageWizard {
   constructor(private readonly profileUseCases: ProfileUseCases) {}
 
+  // TODO: add error description
   @WizardStep(1)
+  @Registered()
   async onEnter(
     @Ctx() ctx: WizardContext,
     @UserProfile() profile: Profile,
   ): Promise<HandlerResponse> {
-    if (!profile || profile.user.role !== 'admin') {
+    if (profile.user.role !== 'admin') {
+      throw new BotException('errors.unknown');
     }
 
     ctx.wizard.next();
