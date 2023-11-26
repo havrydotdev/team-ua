@@ -1,6 +1,8 @@
 import { createMock } from '@golevelup/ts-jest';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { PathImpl2 } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Cache } from 'cache-manager';
 import { I18nService } from 'nestjs-i18n';
 import { I18nTranslations } from 'src/generated/i18n.generated';
 import { Extra, Language, MessageContext } from 'src/types';
@@ -18,9 +20,6 @@ describe('TelegrafReplyService', () => {
     },
     from: {
       id: 12345,
-    },
-    session: {
-      lang: Language.UA,
     },
     telegram: {
       sendMessage: jest.fn(),
@@ -43,6 +42,10 @@ describe('TelegrafReplyService', () => {
               sendPhoto: jest.fn(),
             },
           }),
+        },
+        {
+          provide: CACHE_MANAGER,
+          useValue: createMock<Cache>(),
         },
       ],
     }).compile();
