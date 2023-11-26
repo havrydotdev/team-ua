@@ -4,7 +4,6 @@ import {
   CLEAR_LAST_WIZARD_ID,
   LEAVE_PROFILES_CALLBACK,
   NEXT_PROFILE_CALLBACK,
-  NEXT_WIZARD_ID,
   PROFILES_WIZARD_ID,
   REPORT_CALLBACK,
 } from 'src/core/constants';
@@ -77,17 +76,13 @@ export class ProfilesWizard {
   ): Promise<HandlerResponse> {
     switch (msg.text) {
       case NEXT_PROFILE_CALLBACK: {
-        ctx.scene.leave();
-
-        await ctx.scene.enter(PROFILES_WIZARD_ID);
+        ctx.scene.reenter();
 
         break;
       }
 
       case LEAVE_PROFILES_CALLBACK: {
-        ctx.scene.leave();
-
-        await ctx.scene.enter(NEXT_WIZARD_ID);
+        ctx.scene.reenter();
 
         break;
       }
@@ -100,7 +95,6 @@ export class ProfilesWizard {
     }
   }
 
-  // TODO: don't leave the scene
   // TODO: add pipe for message validation
   @WizardStep(3)
   @On('text')

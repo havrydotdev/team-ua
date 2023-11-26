@@ -29,7 +29,7 @@ import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { ReportUseCases } from 'src/use-cases/reports';
-import { deunionize, Markup } from 'telegraf';
+import { deunionize } from 'telegraf';
 import { InlineQueryResult } from 'telegraf/typings/core/types/typegram';
 
 // TODO: add release notes command
@@ -105,15 +105,10 @@ export class AppUpdate {
     });
   }
 
-  // TODO: dont send that many messages
   @Command('profiles')
   @Registered()
   @Hears(LOOK_CALLBACK)
   async onProfiles(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
-    await this.replyUseCases.replyI18n(ctx, 'messages.searching_teammates', {
-      reply_markup: Markup.removeKeyboard().reply_markup,
-    });
-
     await this.replyUseCases.replyI18n(ctx, 'commands.profiles', {
       reply_markup: Keyboards.profiles,
     });
