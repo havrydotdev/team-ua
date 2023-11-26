@@ -63,7 +63,7 @@
     "cache-manager": "^5.3.1",
     "cache-manager-redis-yet": "^4.1.2",
     "dotenv": "^16.3.1",
-    "kysely": "^0.23.5",
+    "kysely": "^0.26.3",
     "nestjs-i18n": "^10.3.7",
     "nestjs-telegraf": "^2.7.0",
     "node-fetch": "^2.7.0",
