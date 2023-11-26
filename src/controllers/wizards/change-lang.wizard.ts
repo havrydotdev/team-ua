@@ -10,10 +10,14 @@ import { UserProfile } from 'src/core/decorators';
 import { Profile } from 'src/core/entities';
 import { HandlerResponse, Language, WizardContext } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
+import { UserUseCases } from 'src/use-cases/user';
 
 @Wizard(CHANGE_LANG_WIZARD_ID)
 export class ChangeLangWizard {
-  constructor(private readonly replyUseCases: ReplyUseCases) {}
+  constructor(
+    private readonly replyUseCases: ReplyUseCases,
+    private readonly userUseCases: UserUseCases,
+  ) {}
 
   @WizardStep(1)
   async onEnter(
@@ -37,10 +41,18 @@ export class ChangeLangWizard {
   ): Promise<HandlerResponse> {
     switch (msg.text) {
       case '🇺🇦':
-        ctx.session.lang = Language.UA;
+        await this.userUseCases.update({
+          id: ctx.message.from.id,
+          lang: Language.UA,
+        });
+
         break;
       case '🇬🇧':
-        ctx.session.lang = Language.EN;
+        await this.userUseCases.update({
+          id: ctx.message.from.id,
+          lang: Language.EN,
+        });
+
         break;
       default:
         return 'messages.lang.invalid';

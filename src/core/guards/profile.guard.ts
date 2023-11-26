@@ -15,7 +15,6 @@ import { CHANGE_LANG_WIZARD_ID, REGISTERED_METADATA_KEY } from '../constants';
 import { Profile } from '../entities';
 import { getProfileCacheKey } from '../utils';
 
-// TODO: store language in database
 @Injectable()
 export class ProfileGuard implements CanActivate {
   constructor(

@@ -30,6 +30,12 @@ abstract class IReplyService {
     args?: Extra,
   ): Promise<void>;
 
+  abstract sendMsgToChatI18n(
+    chatId: number,
+    msgCode: PathImpl2<I18nTranslations>,
+    args?: Extra,
+  ): Promise<void>;
+
   abstract sendPhotoToChat(
     chatId: number,
     fileId: string,

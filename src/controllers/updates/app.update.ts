@@ -24,7 +24,7 @@ import {
 import { Registered, Roles, UserProfile } from 'src/core/decorators';
 import { Game, Profile } from 'src/core/entities';
 import { getCaption, getMeMarkup } from 'src/core/utils';
-import { HandlerResponse, Language, MessageContext } from 'src/types';
+import { HandlerResponse, MessageContext } from 'src/types';
 import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
@@ -99,7 +99,7 @@ export class AppUpdate {
       reply_markup: getMeMarkup(
         this.replyUseCases.translate(
           'messages.profile.update',
-          ctx.session.lang,
+          profile.user.lang,
         ),
       ),
     });
@@ -142,7 +142,6 @@ export class AppUpdate {
 
     await this.replyUseCases.sendMsgToChatI18n(
       userId,
-      Language.UA,
       'messages.profile.deleted',
     );
   }

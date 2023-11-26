@@ -21,17 +21,8 @@ export class ReplyUseCases {
     await this.replyService.sendPhotoToChat(chatId, msg, args);
   }
 
-  async sendMsgToChatI18n(
-    chatId: number,
-    lang: Language,
-    key: MsgKey,
-    args?: Extra,
-  ) {
-    await this.replyService.sendMsgToChat(
-      chatId,
-      this.translate(key, lang),
-      args,
-    );
+  async sendMsgToChatI18n(chatId: number, key: MsgKey, args?: Extra) {
+    await this.replyService.sendMsgToChatI18n(chatId, key, args);
   }
 
   async sendPhotoToChat(chatId: number, fileId: string, args?: PhotoExtra) {
