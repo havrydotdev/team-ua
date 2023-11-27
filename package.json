@@ -79,7 +79,7 @@
     "@commitlint/config-angular": "^17.8.0",
     "@compodoc/compodoc": "^1.1.21",
     "@golevelup/ts-jest": "^0.4.0",
-    "@nestjs/cli": "^10.0.0",
+    "@nestjs/cli": "^10.2.1",
     "@nestjs/schematics": "^10.0.3",
     "@nestjs/testing": "^10.0.0",
     "@types/aws-sdk": "^2.7.0",
