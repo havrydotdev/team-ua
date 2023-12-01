@@ -1,7 +1,6 @@
 import { createMock } from '@golevelup/ts-jest';
 import { ArgumentsHost } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { BotException } from 'src/core/errors';
 import { MessageContext } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
 
@@ -38,17 +37,6 @@ describe('GlobalFilter', () => {
       expect(replyUseCases.replyI18n).toHaveBeenCalledWith(
         ctxMock,
         'errors.unknown',
-      );
-    });
-
-    it('should call replyI18n with the exception message for a BotException', () => {
-      const exception = new BotException('errors.only_private');
-
-      filter.catch(exception, host);
-
-      expect(replyUseCases.replyI18n).toHaveBeenCalledWith(
-        ctxMock,
-        'errors.only_private',
       );
     });
   });

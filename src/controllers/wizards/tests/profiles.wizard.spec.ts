@@ -4,11 +4,9 @@ import {
   CLEAR_LAST_WIZARD_ID,
   LEAVE_PROFILES_CALLBACK,
   NEXT_PROFILE_CALLBACK,
-  NEXT_WIZARD_ID,
-  PROFILES_WIZARD_ID,
   REPORT_CALLBACK,
 } from 'src/core/constants';
-import { Profile } from 'src/core/entities';
+import { Profile, User } from 'src/core/entities';
 import { getCaption, getProfileMarkup } from 'src/core/utils';
 import { ProfilesWizardContext } from 'src/types';
 import { ProfileUseCases } from 'src/use-cases/profile';
@@ -85,13 +83,19 @@ describe('ProfilesWizard', () => {
         id: 1,
         name: 'test',
       });
+      const profile = createMock<Profile>();
 
       const findSpy = jest
         .spyOn(profileUseCases, 'findRecommended')
         .mockResolvedValueOnce(recommended);
-      await wizard.onEnter(ctx, createMock<Profile>({}));
+      await wizard.onEnter(
+        ctx,
+        createMock<User>({
+          profile,
+        }),
+      );
 
-      expect(findSpy).toHaveBeenCalledWith({}, ctx.session.seenProfiles);
+      expect(findSpy).toHaveBeenCalledWith(profile, ctx.session.seenProfiles);
       expect(ctx.wizard.next).toHaveBeenCalled();
       expect(ctx.replyWithPhoto).toHaveBeenCalledWith(recommended.fileId, {
         caption: getCaption(recommended),
@@ -110,13 +114,19 @@ describe('ProfilesWizard', () => {
           leave: jest.fn(),
         },
       });
+      const profile = createMock<Profile>();
 
       const findSpy = jest
         .spyOn(profileUseCases, 'findRecommended')
         .mockResolvedValueOnce(undefined);
-      await wizard.onEnter(ctx, createMock<Profile>({}));
+      await wizard.onEnter(
+        ctx,
+        createMock<User>({
+          profile,
+        }),
+      );
 
-      expect(findSpy).toHaveBeenCalledWith({}, ctx.session.seenProfiles);
+      expect(findSpy).toHaveBeenCalledWith(profile, ctx.session.seenProfiles);
       expect(ctx.scene.enter).toHaveBeenCalledWith(CLEAR_LAST_WIZARD_ID);
     });
   });
@@ -125,8 +135,7 @@ describe('ProfilesWizard', () => {
     it('should leave the scene if message text equals LEAVE_PROFILES_CALLBACK', async () => {
       const ctx = createMock<ProfilesWizardContext>({
         scene: {
-          enter: jest.fn(),
-          leave: jest.fn(),
+          reenter: jest.fn(),
         },
       });
       const msg = {
@@ -135,15 +144,13 @@ describe('ProfilesWizard', () => {
 
       await wizard.onAction(ctx, msg);
 
-      expect(ctx.scene.leave).toHaveBeenCalled();
-      expect(ctx.scene.enter).toHaveBeenCalledWith(NEXT_WIZARD_ID);
+      expect(ctx.scene.reenter).toHaveBeenCalled();
     });
 
     it('should re-enter the scene if message text equals NEXT_PROFILE_CALLBACK', async () => {
       const ctx = createMock<ProfilesWizardContext>({
         scene: {
-          enter: jest.fn(),
-          leave: jest.fn(),
+          reenter: jest.fn(),
         },
       });
       const msg = {
@@ -152,8 +159,7 @@ describe('ProfilesWizard', () => {
 
       await wizard.onAction(ctx, msg);
 
-      expect(ctx.scene.leave).toHaveBeenCalled();
-      expect(ctx.scene.enter).toHaveBeenCalledWith(PROFILES_WIZARD_ID);
+      expect(ctx.scene.reenter).toHaveBeenCalled();
     });
 
     it('should go to the next step if message text equals REPORT_CALLBACK', async () => {

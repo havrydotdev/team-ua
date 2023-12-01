@@ -17,7 +17,6 @@ import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { ReportUseCases } from 'src/use-cases/reports';
 import { UserUseCases } from 'src/use-cases/user/user.use-case';
-import { Markup } from 'telegraf';
 import { InlineQueryResult } from 'telegraf/typings/core/types/typegram';
 
 import { AppUpdate } from '../app.update';
@@ -217,14 +216,6 @@ describe('AppUpdate', () => {
       expect(replyUseCases.replyI18n).toHaveBeenCalledTimes(1);
       expect(replyUseCases.replyI18n).toHaveBeenNthCalledWith(
         1,
-        ctx,
-        'messages.searching_teammates',
-        {
-          reply_markup: Markup.removeKeyboard().reply_markup,
-        },
-      );
-      expect(replyUseCases.replyI18n).toHaveBeenNthCalledWith(
-        2,
         ctx,
         'commands.profiles',
         {

@@ -4,6 +4,8 @@ import { PathImpl2 } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Cache } from 'cache-manager';
 import { I18nService } from 'nestjs-i18n';
+import { User } from 'src/core/entities';
+import { getProfileCacheKey } from 'src/core/utils';
 import { I18nTranslations } from 'src/generated/i18n.generated';
 import { Extra, Language, MessageContext } from 'src/types';
 import { Telegraf } from 'telegraf';
@@ -14,6 +16,7 @@ describe('TelegrafReplyService', () => {
   let service: TelegrafReplyService;
   let i18n: I18nService<I18nTranslations>;
   let bot: Telegraf<MessageContext>;
+  let cache: Cache;
   const ctx = createMock<MessageContext>({
     chat: {
       id: 12345,
@@ -53,18 +56,25 @@ describe('TelegrafReplyService', () => {
     service = module.get<TelegrafReplyService>(TelegrafReplyService);
     i18n = module.get<I18nService<I18nTranslations>>(I18nService);
     bot = module.get<Telegraf<MessageContext>>('DEFAULT_BOT_NAME');
+    cache = module.get<Cache>(CACHE_MANAGER);
   });
 
-  it('should reply with a translated message', async () => {
+  it('should reply with a message', async () => {
     const msgCode: PathImpl2<I18nTranslations> = 'commands.help';
     const message = 'This is a test message';
     const extra: Extra = {};
 
+    const cacheSpy = jest.spyOn(cache, 'get').mockResolvedValue(
+      createMock<User>({
+        lang: Language.UA,
+      }),
+    );
     const i18nSpy = jest.spyOn(i18n, 't').mockReturnValue(message);
     const sendMsgToChatSpy = jest.spyOn(service, 'sendMsgToChat');
 
     await service.reply(ctx, msgCode, extra);
 
+    expect(cacheSpy).toHaveBeenCalledWith(getProfileCacheKey(ctx.from.id));
     expect(i18nSpy).toHaveBeenCalledWith(msgCode, {
       lang: Language.UA,
     });

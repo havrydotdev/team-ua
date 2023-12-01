@@ -33,7 +33,7 @@ export class ChangeLangWizard {
 
     const reply = [
       [
-        user ? 'messages.lang.update' : 'messages.lang.select',
+        user.profile ? 'messages.lang.update' : 'messages.lang.select',
         { reply_markup: Keyboards.selectLang },
       ],
     ] as MsgWithExtra[];

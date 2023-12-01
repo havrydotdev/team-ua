@@ -39,11 +39,16 @@ describe('ChangeLangWizard', () => {
         },
       });
 
-      const result = await wizard.onEnter(ctx, undefined);
+      const result = await wizard.onEnter(
+        ctx,
+        createMock<User>({
+          profile: undefined,
+        }),
+      );
 
       expect(result).toEqual([
-        'messages.lang.select',
-        { reply_markup: Keyboards.selectLang },
+        ['commands.start', {}],
+        ['messages.lang.select', { reply_markup: Keyboards.selectLang }],
       ]);
       expect(ctx.wizard.next).toHaveBeenCalled();
     });
@@ -55,11 +60,10 @@ describe('ChangeLangWizard', () => {
         },
       });
 
-      const result = await wizard.onEnter(ctx, createMock<User>());
+      const result = await wizard.onEnter(ctx, createMock<User>({}));
 
       expect(result).toEqual([
-        'messages.lang.update',
-        { reply_markup: Keyboards.selectLang },
+        ['messages.lang.update', { reply_markup: Keyboards.selectLang }],
       ]);
       expect(ctx.wizard.next).toHaveBeenCalled();
     });
@@ -92,7 +96,9 @@ describe('ChangeLangWizard', () => {
         await wizard.onLang(
           ctx,
           { text: testCase.input },
-          createMock<User>({}),
+          createMock<User>({
+            profile: undefined,
+          }),
         );
 
         expect(ctx.scene.leave).toHaveBeenCalled();
