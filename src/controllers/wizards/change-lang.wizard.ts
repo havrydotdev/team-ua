@@ -7,7 +7,7 @@ import {
   REGISTER_WIZARD_ID,
 } from 'src/core/constants';
 import { ReqUser } from 'src/core/decorators';
-import { Profile } from 'src/core/entities';
+import { User } from 'src/core/entities';
 import {
   HandlerResponse,
   Language,
@@ -27,18 +27,18 @@ export class ChangeLangWizard {
   @WizardStep(1)
   async onEnter(
     @Ctx() ctx: WizardContext,
-    @ReqUser() profile: Profile,
+    @ReqUser() user: User,
   ): Promise<HandlerResponse> {
     ctx.wizard.next();
 
     const reply = [
       [
-        profile ? 'messages.lang.update' : 'messages.lang.select',
+        user ? 'messages.lang.update' : 'messages.lang.select',
         { reply_markup: Keyboards.selectLang },
       ],
     ] as MsgWithExtra[];
 
-    if (!profile) {
+    if (!user.profile) {
       reply.unshift(['commands.start', {}]);
     }
 
@@ -50,7 +50,7 @@ export class ChangeLangWizard {
   async onLang(
     @Ctx() ctx: WizardContext,
     @Message() msg: { text: string },
-    @ReqUser() profile: Profile,
+    @ReqUser() user: User,
   ): Promise<HandlerResponse> {
     switch (msg.text) {
       case '🇺🇦':
@@ -73,7 +73,7 @@ export class ChangeLangWizard {
 
     await ctx.scene.leave();
 
-    if (!profile) {
+    if (!user.profile) {
       await this.replyUseCases.replyI18n(ctx, 'messages.lang.changed');
 
       await ctx.scene.enter(REGISTER_WIZARD_ID);
