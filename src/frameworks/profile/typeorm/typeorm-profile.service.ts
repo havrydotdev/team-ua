@@ -88,6 +88,7 @@ export class TypeOrmProfileService implements IProfileService {
   ): Promise<Profile> {
     const result = await this.profileRepo
       .createQueryBuilder('profile')
+      .select()
       .orderBy('RANDOM()')
       .addOrderBy('profile.age - :age', 'ASC', 'NULLS LAST')
       .setParameter('age', profile.age)
@@ -98,7 +99,6 @@ export class TypeOrmProfileService implements IProfileService {
       .andWhere('profile.id NOT IN (:...seenProfiles)', {
         seenProfiles: [...seenProfiles, profile.id],
       })
-      .limit(1)
       .getOne();
 
     return result;

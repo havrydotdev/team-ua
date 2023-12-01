@@ -30,7 +30,7 @@ export class ProfileUseCases {
     profile: Profile,
     seenProfiles: number[],
   ): Promise<Profile> {
-    return this.profileService.findRecommended(profile, seenProfiles ?? []);
+    return this.profileService.findRecommended(profile, seenProfiles);
   }
 
   async update(profileId: number, dto: CreateProfileDto) {
