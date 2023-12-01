@@ -1,3 +1,4 @@
+import { Language } from 'src/types';
 import {
   BaseEntity,
   Column,
@@ -16,6 +17,12 @@ class User extends BaseEntity {
     type: 'bigint',
   })
   id: number;
+
+  @Column({
+    default: 'ua',
+    enum: Language,
+  })
+  lang: Language;
 
   @OneToOne(() => Profile, (profile) => profile.user, {
     cascade: true,

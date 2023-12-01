@@ -6,15 +6,17 @@ import {
   CHANGE_LANG_WIZARD_ID,
   Keyboards,
   PROFILES_WIZARD_ID,
+  REGISTER_WIZARD_ID,
+  SEND_MESSAGE_WIZARD_ID,
 } from 'src/core/constants';
-import { Game, Profile } from 'src/core/entities';
+import { Game, Profile, User } from 'src/core/entities';
+import { getCaption, getMeMarkup } from 'src/core/utils';
 import { MessageContext } from 'src/types/telegraf';
 import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { ReportUseCases } from 'src/use-cases/reports';
 import { UserUseCases } from 'src/use-cases/user/user.use-case';
-import { Markup } from 'telegraf';
 import { InlineQueryResult } from 'telegraf/typings/core/types/typegram';
 
 import { AppUpdate } from '../app.update';
@@ -23,6 +25,8 @@ describe('AppUpdate', () => {
   let update: AppUpdate;
   let replyUseCases: ReplyUseCases;
   let gameUseCases: GameUseCases;
+  let reportUseCases: ReportUseCases;
+  let profileUseCases: ProfileUseCases;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -58,35 +62,13 @@ describe('AppUpdate', () => {
     update = module.get<AppUpdate>(AppUpdate);
     replyUseCases = module.get<ReplyUseCases>(ReplyUseCases);
     gameUseCases = module.get<GameUseCases>(GameUseCases);
+    reportUseCases = module.get<ReportUseCases>(ReportUseCases);
+    profileUseCases = module.get<ProfileUseCases>(ProfileUseCases);
   });
 
   describe('onStart', () => {
-    it('should create a new user if one does not exist in the session', async () => {
-      const chatId = 123;
-      const userId = 456;
-      const ctx = createMock<MessageContext>({
-        chat: {
-          id: chatId,
-        },
-        from: {
-          id: userId,
-        },
-        scene: {
-          enter: jest.fn(),
-        },
-      });
-
-      await update.onStart(ctx, undefined);
-
-      expect(ctx.scene.enter).toHaveBeenCalledWith(CHANGE_LANG_WIZARD_ID);
-    });
-
-    it('should not create a new user if one already exists in the session', async () => {
-      const ctx = createMock<MessageContext>({
-        session: {},
-      });
-
-      const resp = await update.onStart(ctx, createMock<Profile>());
+    it('should return start command message', async () => {
+      const resp = await update.onStart();
 
       expect(resp).toEqual('commands.start');
     });
@@ -107,7 +89,82 @@ describe('AppUpdate', () => {
   });
 
   describe('onMe', () => {
-    it('should reply with the user profile', async () => {});
+    it('should reply with the user profile', async () => {
+      const ctx = createMock<MessageContext>({
+        replyWithPhoto: jest.fn(),
+      });
+      const user = createMock<User>({
+        profile: createMock<Profile>({
+          fileId: '1234',
+          games: [
+            createMock<Game>({
+              title: 'Test',
+            }),
+            createMock<Game>({
+              title: 'Test2',
+            }),
+          ],
+        }),
+      });
+
+      await update.onMe(ctx, user);
+
+      expect(ctx.replyWithPhoto).toHaveBeenCalledWith(user.profile.fileId, {
+        caption: getCaption(user.profile),
+        reply_markup: getMeMarkup(
+          replyUseCases.translate('messages.profile.update', user.lang),
+        ),
+      });
+    });
+  });
+
+  describe('onSendMessage', () => {
+    it('should enter the send message wizard', async () => {
+      const ctx = createMock<MessageContext>({
+        scene: {
+          enter: jest.fn(),
+        },
+      });
+
+      await update.onSendMessage(ctx);
+
+      expect(ctx.scene.enter).toHaveBeenCalledWith(SEND_MESSAGE_WIZARD_ID);
+    });
+  });
+
+  describe('onUpdateProfile', () => {
+    it('should reply with the update profile message', async () => {
+      const ctx = createMock<MessageContext>({
+        scene: {
+          enter: jest.fn(),
+        },
+      });
+
+      await update.onUpdateProfile(ctx);
+
+      expect(ctx.scene.enter).toHaveBeenCalledWith(REGISTER_WIZARD_ID);
+    });
+  });
+
+  describe('onSetReportsBranch', () => {
+    it('should reply with the set reports branch message', async () => {
+      const ctx = createMock<MessageContext>({
+        scene: {
+          enter: jest.fn(),
+        },
+      });
+
+      const createReportsChannelSpy = jest
+        .spyOn(reportUseCases, 'createReportChannel')
+        .mockResolvedValueOnce(undefined);
+
+      const response = await update.onSetReportsBranch(ctx);
+
+      expect(createReportsChannelSpy).toHaveBeenCalledWith({
+        id: ctx.chat.id,
+      });
+      expect(response).toEqual('messages.report.channel.ok');
+    });
   });
 
   describe('onCoop', () => {
@@ -123,6 +180,29 @@ describe('AppUpdate', () => {
     });
   });
 
+  describe('onSentence', () => {
+    it('should delete the user profile', async () => {
+      const userId = 123;
+      const ctx = createMock<MessageContext>({
+        callbackQuery: {
+          data: `sen-${userId}`,
+        },
+      });
+
+      const deleteByUserSpy = jest
+        .spyOn(profileUseCases, 'deleteByUser')
+        .mockResolvedValueOnce(undefined);
+
+      await update.onSentence(ctx);
+
+      expect(deleteByUserSpy).toHaveBeenCalledWith(userId);
+      expect(replyUseCases.sendMsgToChatI18n).toHaveBeenCalledWith(
+        userId,
+        'messages.profile.deleted',
+      );
+    });
+  });
+
   describe('onProfiles', () => {
     it('should reply with the profiles message', async () => {
       const ctx = createMock<MessageContext>({
@@ -133,17 +213,9 @@ describe('AppUpdate', () => {
 
       await update.onProfiles(ctx);
 
-      expect(replyUseCases.replyI18n).toHaveBeenCalledTimes(2);
+      expect(replyUseCases.replyI18n).toHaveBeenCalledTimes(1);
       expect(replyUseCases.replyI18n).toHaveBeenNthCalledWith(
         1,
-        ctx,
-        'messages.searching_teammates',
-        {
-          reply_markup: Markup.removeKeyboard().reply_markup,
-        },
-      );
-      expect(replyUseCases.replyI18n).toHaveBeenNthCalledWith(
-        2,
         ctx,
         'commands.profiles',
         {

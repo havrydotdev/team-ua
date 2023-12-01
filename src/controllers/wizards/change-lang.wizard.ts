@@ -6,26 +6,43 @@ import {
   NEXT_WIZARD_ID,
   REGISTER_WIZARD_ID,
 } from 'src/core/constants';
-import { UserProfile } from 'src/core/decorators';
-import { Profile } from 'src/core/entities';
-import { HandlerResponse, Language, WizardContext } from 'src/types';
+import { ReqUser } from 'src/core/decorators';
+import { User } from 'src/core/entities';
+import {
+  HandlerResponse,
+  Language,
+  MsgWithExtra,
+  WizardContext,
+} from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
+import { UserUseCases } from 'src/use-cases/user';
 
 @Wizard(CHANGE_LANG_WIZARD_ID)
 export class ChangeLangWizard {
-  constructor(private readonly replyUseCases: ReplyUseCases) {}
+  constructor(
+    private readonly replyUseCases: ReplyUseCases,
+    private readonly userUseCases: UserUseCases,
+  ) {}
 
   @WizardStep(1)
   async onEnter(
     @Ctx() ctx: WizardContext,
-    @UserProfile() profile: Profile,
+    @ReqUser() user: User,
   ): Promise<HandlerResponse> {
     ctx.wizard.next();
 
-    return [
-      profile ? 'messages.lang.update' : 'messages.lang.select',
-      { reply_markup: Keyboards.selectLang },
-    ];
+    const reply = [
+      [
+        user.profile ? 'messages.lang.update' : 'messages.lang.select',
+        { reply_markup: Keyboards.selectLang },
+      ],
+    ] as MsgWithExtra[];
+
+    if (!user.profile) {
+      reply.unshift(['commands.start', {}]);
+    }
+
+    return reply;
   }
 
   @On('text')
@@ -33,14 +50,22 @@ export class ChangeLangWizard {
   async onLang(
     @Ctx() ctx: WizardContext,
     @Message() msg: { text: string },
-    @UserProfile() profile: Profile,
+    @ReqUser() user: User,
   ): Promise<HandlerResponse> {
     switch (msg.text) {
       case '🇺🇦':
-        ctx.session.lang = Language.UA;
+        await this.userUseCases.update({
+          id: ctx.message.from.id,
+          lang: Language.UA,
+        });
+
         break;
       case '🇬🇧':
-        ctx.session.lang = Language.EN;
+        await this.userUseCases.update({
+          id: ctx.message.from.id,
+          lang: Language.EN,
+        });
+
         break;
       default:
         return 'messages.lang.invalid';
@@ -48,16 +73,18 @@ export class ChangeLangWizard {
 
     await ctx.scene.leave();
 
-    if (!profile) {
+    if (!user.profile) {
       await this.replyUseCases.replyI18n(ctx, 'messages.lang.changed');
 
       await ctx.scene.enter(REGISTER_WIZARD_ID);
+
       return;
     }
 
     await this.replyUseCases.replyI18n(ctx, 'messages.lang.changed', {
       reply_markup: Keyboards.remove,
     });
+
     await ctx.scene.enter(NEXT_WIZARD_ID);
 
     return;

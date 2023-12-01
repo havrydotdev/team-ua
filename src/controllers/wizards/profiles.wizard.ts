@@ -4,13 +4,12 @@ import {
   CLEAR_LAST_WIZARD_ID,
   LEAVE_PROFILES_CALLBACK,
   NEXT_PROFILE_CALLBACK,
-  NEXT_WIZARD_ID,
   PROFILES_WIZARD_ID,
   REPORT_CALLBACK,
 } from 'src/core/constants';
-import { UserProfile } from 'src/core/decorators';
+import { ReqUser } from 'src/core/decorators';
 import { CreateReportDto } from 'src/core/dtos';
-import { Profile } from 'src/core/entities';
+import { Profile, User } from 'src/core/entities';
 import { getCaption, getProfileMarkup } from 'src/core/utils';
 import { HandlerResponse, ProfilesWizardContext } from 'src/types';
 import { ProfileUseCases } from 'src/use-cases/profile';
@@ -26,10 +25,11 @@ export class ProfilesWizard {
     private readonly reportUseCases: ReportUseCases,
   ) {}
 
+  // TODO: add ban button for admins
   @WizardStep(1)
   async onEnter(
     @Ctx() ctx: ProfilesWizardContext,
-    @UserProfile() profile: Profile,
+    @ReqUser() user: User,
   ): Promise<HandlerResponse> {
     if (!ctx.session.seenProfiles) {
       ctx.session.seenProfiles = [];
@@ -40,16 +40,16 @@ export class ProfilesWizard {
     }
 
     const current = await this.profileUseCases.findRecommended(
-      profile,
+      user.profile,
       ctx.session.seenProfiles,
     );
 
-    ctx.wizard.state.current = current;
     if (!current) {
       await ctx.scene.enter(CLEAR_LAST_WIZARD_ID);
 
       return;
     }
+    ctx.wizard.state.current = current;
 
     ctx.session.seenProfiles.push(current.id);
     ctx.session.seenLength++;
@@ -76,17 +76,13 @@ export class ProfilesWizard {
   ): Promise<HandlerResponse> {
     switch (msg.text) {
       case NEXT_PROFILE_CALLBACK: {
-        ctx.scene.leave();
-
-        await ctx.scene.enter(PROFILES_WIZARD_ID);
+        ctx.scene.reenter();
 
         break;
       }
 
       case LEAVE_PROFILES_CALLBACK: {
-        ctx.scene.leave();
-
-        await ctx.scene.enter(NEXT_WIZARD_ID);
+        ctx.scene.reenter();
 
         break;
       }
@@ -99,6 +95,7 @@ export class ProfilesWizard {
     }
   }
 
+  // TODO: add pipe for message validation
   @WizardStep(3)
   @On('text')
   async onReport(

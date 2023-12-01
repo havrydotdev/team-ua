@@ -4,7 +4,6 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { Cache } from 'cache-manager';
 import { Profile } from 'src/core/entities';
 import { getProfileCacheKey } from 'src/core/utils';
-import { ProfileUseCases } from 'src/use-cases/profile';
 import {
   DataSource,
   EntitySubscriberInterface,
@@ -20,7 +19,6 @@ export class ProfileSubscriber implements EntitySubscriberInterface {
   constructor(
     @InjectDataSource() readonly dataSource: DataSource,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
-    private readonly profileUseCases: ProfileUseCases,
   ) {
     dataSource.subscribers.push(this);
   }

@@ -1,5 +1,4 @@
 import { PathImpl2 } from '@nestjs/config';
-import { createClient } from 'redis';
 import { Profile } from 'src/core/entities';
 import { I18nTranslations } from 'src/generated/i18n.generated';
 import { Context } from 'telegraf';
@@ -86,7 +85,6 @@ type ProfilesWizardState = {
 };
 
 type SessionData = {
-  lang: Language;
   seenLength?: number;
   seenProfiles?: number[];
 };
@@ -109,8 +107,6 @@ type MsgKey = PathImpl2<I18nTranslations>;
 
 type MsgWithExtra = [MsgKey, Extra];
 
-type RedisClient = ReturnType<typeof createClient>;
-
 type HandlerResponse = MsgKey | MsgWithExtra | MsgWithExtra[] | void;
 
 export {
@@ -124,7 +120,6 @@ export {
   PhotoExtra,
   PhotoMessage,
   ProfilesWizardContext,
-  RedisClient,
   RegisterWizardContext,
   SessionData,
   WizardContext,

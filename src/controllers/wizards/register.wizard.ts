@@ -5,7 +5,7 @@ import {
   NEXT_WIZARD_ID,
   REGISTER_WIZARD_ID,
 } from 'src/core/constants';
-import { UserProfile } from 'src/core/decorators';
+import { ReqUser } from 'src/core/decorators';
 import { CreateProfileDto } from 'src/core/dtos';
 import { Profile } from 'src/core/entities';
 import { BotException } from 'src/core/errors';
@@ -30,7 +30,7 @@ export class RegisterWizard {
   @WizardStep(1)
   async onEnter(
     @Ctx() ctx: RegisterWizardContext,
-    @UserProfile() profile: Profile,
+    @ReqUser() profile: Profile,
   ): Promise<HandlerResponse> {
     ctx.wizard.next();
 
@@ -142,7 +142,7 @@ export class RegisterWizard {
     @Ctx()
     ctx: RegisterWizardContext,
     @Message() msg: PhotoMessage,
-    @UserProfile() profile: Profile,
+    @ReqUser() profile: Profile,
   ): Promise<HandlerResponse> {
     const fileId = msg.photo.pop().file_id;
 

@@ -8,7 +8,6 @@ import { join } from 'path';
     NestI18n.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService): I18nOptions => ({
-        disableMiddleware: true,
         fallbackLanguage:
           configService.get<string>('FALLBACK_LANGUAGE') ?? 'en',
         loaderOptions: {

@@ -14,7 +14,11 @@ import {
 } from './controllers/wizards';
 import { ClearLastProfilesWizard } from './controllers/wizards';
 import { SendMessageWizard } from './controllers/wizards';
-import { GlobalFilter } from './core/filters';
+import {
+  BotExceptionFilter,
+  ProfileExceptionFilter,
+  UnexpectedExceptionFilter,
+} from './core/filters';
 import { RoleGuard } from './core/guards';
 import { ProfileGuard } from './core/guards/profile.guard';
 import { I18nInterceptor } from './core/interceptors';
@@ -79,7 +83,15 @@ import { UserUseCasesModule } from './use-cases/user';
     },
     {
       provide: APP_FILTER,
-      useClass: GlobalFilter,
+      useClass: UnexpectedExceptionFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: BotExceptionFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: ProfileExceptionFilter,
     },
     {
       provide: APP_GUARD,

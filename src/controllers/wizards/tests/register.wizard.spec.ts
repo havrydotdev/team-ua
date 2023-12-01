@@ -192,7 +192,7 @@ describe('RegisterWizard', () => {
       expect(async () => await wizard.onGame(ctx, msg)).rejects.toThrowError(
         new BotException('messages.game.already_added'),
       );
-      expect(ctx.wizard.state['games']).toEqual([1]);
+      expect(ctx.wizard.state.games).toEqual([1]);
       expect(ctx.wizard.next).not.toHaveBeenCalled();
     });
 

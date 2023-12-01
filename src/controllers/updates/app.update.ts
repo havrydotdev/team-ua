@@ -21,15 +21,15 @@ import {
   SEND_MESSAGE_WIZARD_ID,
   UPDATE_PROFILE_CALLBACK,
 } from 'src/core/constants';
-import { Registered, Roles, UserProfile } from 'src/core/decorators';
-import { Game, Profile } from 'src/core/entities';
+import { Registered, ReqUser, Roles } from 'src/core/decorators';
+import { Game, User } from 'src/core/entities';
 import { getCaption, getMeMarkup } from 'src/core/utils';
-import { HandlerResponse, Language, MessageContext } from 'src/types';
+import { HandlerResponse, MessageContext } from 'src/types';
 import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { ReportUseCases } from 'src/use-cases/reports';
-import { deunionize, Markup } from 'telegraf';
+import { deunionize } from 'telegraf';
 import { InlineQueryResult } from 'telegraf/typings/core/types/typegram';
 
 // TODO: add release notes command
@@ -92,28 +92,20 @@ export class AppUpdate {
   @Hears(PROFILE_CALLBACK)
   async onMe(
     @Ctx() ctx: MessageContext,
-    @UserProfile() profile: Profile,
+    @ReqUser() user: User,
   ): Promise<HandlerResponse> {
-    await ctx.replyWithPhoto(profile.fileId, {
-      caption: getCaption(profile),
+    await ctx.replyWithPhoto(user.profile.fileId, {
+      caption: getCaption(user.profile),
       reply_markup: getMeMarkup(
-        this.replyUseCases.translate(
-          'messages.profile.update',
-          ctx.session.lang,
-        ),
+        this.replyUseCases.translate('messages.profile.update', user.lang),
       ),
     });
   }
 
-  // TODO: dont send that many messages
   @Command('profiles')
   @Registered()
   @Hears(LOOK_CALLBACK)
   async onProfiles(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
-    await this.replyUseCases.replyI18n(ctx, 'messages.searching_teammates', {
-      reply_markup: Markup.removeKeyboard().reply_markup,
-    });
-
     await this.replyUseCases.replyI18n(ctx, 'commands.profiles', {
       reply_markup: Keyboards.profiles,
     });
@@ -142,7 +134,6 @@ export class AppUpdate {
 
     await this.replyUseCases.sendMsgToChatI18n(
       userId,
-      Language.UA,
       'messages.profile.deleted',
     );
   }
@@ -160,14 +151,8 @@ export class AppUpdate {
   }
 
   @Start()
-  async onStart(
-    @Ctx() ctx: MessageContext,
-    @UserProfile() profile: Profile,
-  ): Promise<HandlerResponse> {
-    if (!profile) {
-      await ctx.scene.enter(CHANGE_LANG_WIZARD_ID);
-    }
-
+  @Registered()
+  async onStart(): Promise<HandlerResponse> {
     return 'commands.start';
   }
 
