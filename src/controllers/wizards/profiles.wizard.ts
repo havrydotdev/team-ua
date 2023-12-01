@@ -76,13 +76,15 @@ export class ProfilesWizard {
   ): Promise<HandlerResponse> {
     switch (msg.text) {
       case NEXT_PROFILE_CALLBACK: {
-        ctx.scene.reenter();
+        ctx.scene.leave();
+
+        ctx.scene.enter(PROFILES_WIZARD_ID);
 
         break;
       }
 
       case LEAVE_PROFILES_CALLBACK: {
-        ctx.scene.reenter();
+        ctx.scene.leave();
 
         break;
       }
