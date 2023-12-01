@@ -9,7 +9,7 @@ export class AgePipe implements PipeTransform {
     const age = parseInt(value.text);
 
     if (isNaN(age) || age < 0) {
-      throw new BotException('messages.age.invalid');
+      throw new BotException('errors.age.invalid');
     }
 
     return {

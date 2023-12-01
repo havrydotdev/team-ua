@@ -21,8 +21,8 @@ import {
   SEND_MESSAGE_WIZARD_ID,
   UPDATE_PROFILE_CALLBACK,
 } from 'src/core/constants';
-import { Registered, Roles, UserProfile } from 'src/core/decorators';
-import { Game, Profile } from 'src/core/entities';
+import { Registered, ReqUser, Roles } from 'src/core/decorators';
+import { Game, User } from 'src/core/entities';
 import { getCaption, getMeMarkup } from 'src/core/utils';
 import { HandlerResponse, MessageContext } from 'src/types';
 import { GameUseCases } from 'src/use-cases/game';
@@ -92,15 +92,12 @@ export class AppUpdate {
   @Hears(PROFILE_CALLBACK)
   async onMe(
     @Ctx() ctx: MessageContext,
-    @UserProfile() profile: Profile,
+    @ReqUser() user: User,
   ): Promise<HandlerResponse> {
-    await ctx.replyWithPhoto(profile.fileId, {
-      caption: getCaption(profile),
+    await ctx.replyWithPhoto(user.profile.fileId, {
+      caption: getCaption(user.profile),
       reply_markup: getMeMarkup(
-        this.replyUseCases.translate(
-          'messages.profile.update',
-          profile.user.lang,
-        ),
+        this.replyUseCases.translate('messages.profile.update', user.lang),
       ),
     });
   }
@@ -154,14 +151,8 @@ export class AppUpdate {
   }
 
   @Start()
-  async onStart(
-    @Ctx() ctx: MessageContext,
-    @UserProfile() profile: Profile,
-  ): Promise<HandlerResponse> {
-    if (!profile) {
-      await ctx.scene.enter(CHANGE_LANG_WIZARD_ID);
-    }
-
+  @Registered()
+  async onStart(): Promise<HandlerResponse> {
     return 'commands.start';
   }
 

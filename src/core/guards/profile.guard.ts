@@ -11,8 +11,9 @@ import { TelegrafExecutionContext } from 'nestjs-telegraf';
 import { MessageContext } from 'src/types';
 import { UserUseCases } from 'src/use-cases/user';
 
-import { CHANGE_LANG_WIZARD_ID, REGISTERED_METADATA_KEY } from '../constants';
-import { Profile } from '../entities';
+import { REGISTERED_METADATA_KEY } from '../constants';
+import { User } from '../entities';
+import { ProfileException } from '../errors';
 import { getProfileCacheKey } from '../utils';
 
 @Injectable()
@@ -33,8 +34,8 @@ export class ProfileGuard implements CanActivate {
       ctx.getHandler(),
     );
 
-    let profile = await this.cache.get<Profile>(profileKey);
-    if (!profile) {
+    let cachedUser = await this.cache.get<User>(profileKey);
+    if (!cachedUser) {
       const user = await this.userUseCases.findById(tgCtx.from.id);
       if (!user) {
         await this.userUseCases.create({
@@ -42,14 +43,18 @@ export class ProfileGuard implements CanActivate {
         });
       }
 
-      await this.cache.set(profileKey, user.profile);
-      profile = user.profile;
-    }
-    req.profile = profile;
-    if (isProfileRequired && !profile) {
-      await tgCtx.scene.enter(CHANGE_LANG_WIZARD_ID);
+      const userToCache =
+        user ?? ({ id: tgCtx.from.id, profile: null } as User);
 
-      return;
+      await this.cache.set(profileKey, userToCache);
+
+      cachedUser = userToCache;
+    }
+
+    req.user = cachedUser;
+
+    if (isProfileRequired && !cachedUser.profile) {
+      throw new ProfileException();
     }
 
     return true;

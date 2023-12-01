@@ -6,9 +6,14 @@ import {
   NEXT_WIZARD_ID,
   REGISTER_WIZARD_ID,
 } from 'src/core/constants';
-import { UserProfile } from 'src/core/decorators';
+import { ReqUser } from 'src/core/decorators';
 import { Profile } from 'src/core/entities';
-import { HandlerResponse, Language, WizardContext } from 'src/types';
+import {
+  HandlerResponse,
+  Language,
+  MsgWithExtra,
+  WizardContext,
+} from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { UserUseCases } from 'src/use-cases/user';
 
@@ -22,14 +27,22 @@ export class ChangeLangWizard {
   @WizardStep(1)
   async onEnter(
     @Ctx() ctx: WizardContext,
-    @UserProfile() profile: Profile,
+    @ReqUser() profile: Profile,
   ): Promise<HandlerResponse> {
     ctx.wizard.next();
 
-    return [
-      profile ? 'messages.lang.update' : 'messages.lang.select',
-      { reply_markup: Keyboards.selectLang },
-    ];
+    const reply = [
+      [
+        profile ? 'messages.lang.update' : 'messages.lang.select',
+        { reply_markup: Keyboards.selectLang },
+      ],
+    ] as MsgWithExtra[];
+
+    if (!profile) {
+      reply.unshift(['commands.start', {}]);
+    }
+
+    return reply;
   }
 
   @On('text')
@@ -37,7 +50,7 @@ export class ChangeLangWizard {
   async onLang(
     @Ctx() ctx: WizardContext,
     @Message() msg: { text: string },
-    @UserProfile() profile: Profile,
+    @ReqUser() profile: Profile,
   ): Promise<HandlerResponse> {
     switch (msg.text) {
       case '🇺🇦':
@@ -64,12 +77,14 @@ export class ChangeLangWizard {
       await this.replyUseCases.replyI18n(ctx, 'messages.lang.changed');
 
       await ctx.scene.enter(REGISTER_WIZARD_ID);
+
       return;
     }
 
     await this.replyUseCases.replyI18n(ctx, 'messages.lang.changed', {
       reply_markup: Keyboards.remove,
     });
+
     await ctx.scene.enter(NEXT_WIZARD_ID);
 
     return;

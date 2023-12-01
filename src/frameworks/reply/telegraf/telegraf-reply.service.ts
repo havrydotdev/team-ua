@@ -4,7 +4,7 @@ import { Cache } from 'cache-manager';
 import { I18nService } from 'nestjs-i18n';
 import { InjectBot } from 'nestjs-telegraf';
 import { IReplyService } from 'src/core/abstracts';
-import { Profile } from 'src/core/entities';
+import { User } from 'src/core/entities';
 import { getProfileCacheKey } from 'src/core/utils';
 import { I18nTranslations } from 'src/generated/i18n.generated';
 import {
@@ -31,17 +31,11 @@ class TelegrafReplyService extends IReplyService {
     msgCode: MsgKey,
     extra?: Extra,
   ): Promise<void> {
-    const profile = await this.cache.get<Profile>(
-      getProfileCacheKey(ctx.chat.id),
-    );
+    const user = await this.cache.get<User>(getProfileCacheKey(ctx.chat.id));
 
     await this.sendMsgToChat(
       ctx.chat.id,
-      this.translate(
-        msgCode,
-        profile.user.lang ?? Language.UA,
-        (extra ?? {}).i18nArgs,
-      ),
+      this.translate(msgCode, user.lang ?? Language.UA, (extra ?? {}).i18nArgs),
       extra,
     );
   }
@@ -55,15 +49,11 @@ class TelegrafReplyService extends IReplyService {
     msgCode: MsgKey,
     args?: Extra,
   ): Promise<void> {
-    const profile = await this.cache.get<Profile>(getProfileCacheKey(chatId));
+    const user = await this.cache.get<User>(getProfileCacheKey(chatId));
 
     await this.sendMsgToChat(
       chatId,
-      this.translate(
-        msgCode,
-        profile.user.lang ?? Language.UA,
-        (args ?? {}).i18nArgs,
-      ),
+      this.translate(msgCode, user.lang ?? Language.UA, (args ?? {}).i18nArgs),
       args,
     );
   }

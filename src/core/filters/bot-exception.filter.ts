@@ -3,16 +3,16 @@ import { TelegrafArgumentsHost } from 'nestjs-telegraf';
 import { MessageContext, MsgKey } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
 
-@Catch()
-export class UnexpectedExceptionFilter implements ExceptionFilter {
+import { BotException } from '../errors';
+
+@Catch(BotException)
+export class BotExceptionFilter implements ExceptionFilter {
   constructor(private readonly replyUseCases: ReplyUseCases) {}
 
-  async catch(_exception: Error, host: ArgumentsHost) {
+  async catch(exception: BotException, host: ArgumentsHost) {
     const telegrafHost = TelegrafArgumentsHost.create(host);
     const ctx = telegrafHost.getContext<MessageContext>();
 
-    const message: MsgKey = 'errors.unknown';
-
-    await this.replyUseCases.replyI18n(ctx, message);
+    await this.replyUseCases.replyI18n(ctx, exception.message as MsgKey);
   }
 }

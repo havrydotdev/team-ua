@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { IUserService } from 'src/core/abstracts';
 import { CreateUserDto, UpdateUserDto } from 'src/core/dtos';
-import { Profile, User } from 'src/core/entities';
+import { User } from 'src/core/entities';
 import { getProfileCacheKey } from 'src/core/utils';
 
 import { UserFactoryService } from './user-factory.service';
@@ -27,17 +27,17 @@ export class UserUseCases {
   }
 
   async update(dto: UpdateUserDto): Promise<User> {
-    const profile = await this.cache.get<Profile>(getProfileCacheKey(dto.id));
+    const user = await this.cache.get<User>(getProfileCacheKey(dto.id));
 
-    const user = this.userFactory.update(dto);
+    const userEntity = this.userFactory.update(dto);
 
-    if (profile) {
+    if (user) {
       await this.cache.set(getProfileCacheKey(dto.id), {
-        ...profile,
-        user,
+        ...user,
+        lang: dto.lang,
       });
     }
 
-    return this.userService.update(dto.id, user);
+    return this.userService.update(dto.id, userEntity);
   }
 }

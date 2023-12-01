@@ -7,9 +7,9 @@ import {
   PROFILES_WIZARD_ID,
   REPORT_CALLBACK,
 } from 'src/core/constants';
-import { UserProfile } from 'src/core/decorators';
+import { ReqUser } from 'src/core/decorators';
 import { CreateReportDto } from 'src/core/dtos';
-import { Profile } from 'src/core/entities';
+import { Profile, User } from 'src/core/entities';
 import { getCaption, getProfileMarkup } from 'src/core/utils';
 import { HandlerResponse, ProfilesWizardContext } from 'src/types';
 import { ProfileUseCases } from 'src/use-cases/profile';
@@ -29,7 +29,7 @@ export class ProfilesWizard {
   @WizardStep(1)
   async onEnter(
     @Ctx() ctx: ProfilesWizardContext,
-    @UserProfile() profile: Profile,
+    @ReqUser() user: User,
   ): Promise<HandlerResponse> {
     if (!ctx.session.seenProfiles) {
       ctx.session.seenProfiles = [];
@@ -40,7 +40,7 @@ export class ProfilesWizard {
     }
 
     const current = await this.profileUseCases.findRecommended(
-      profile,
+      user.profile,
       ctx.session.seenProfiles,
     );
 
