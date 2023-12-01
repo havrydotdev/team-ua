@@ -9,7 +9,7 @@ import {
   REGISTER_WIZARD_ID,
   SEND_MESSAGE_WIZARD_ID,
 } from 'src/core/constants';
-import { Game, Profile } from 'src/core/entities';
+import { Game, Profile, User } from 'src/core/entities';
 import { getCaption, getMeMarkup } from 'src/core/utils';
 import { MessageContext } from 'src/types/telegraf';
 import { GameUseCases } from 'src/use-cases/game';
@@ -68,32 +68,8 @@ describe('AppUpdate', () => {
   });
 
   describe('onStart', () => {
-    it('should create a new user if one does not exist in the session', async () => {
-      const chatId = 123;
-      const userId = 456;
-      const ctx = createMock<MessageContext>({
-        chat: {
-          id: chatId,
-        },
-        from: {
-          id: userId,
-        },
-        scene: {
-          enter: jest.fn(),
-        },
-      });
-
-      await update.onStart(ctx, undefined);
-
-      expect(ctx.scene.enter).toHaveBeenCalledWith(CHANGE_LANG_WIZARD_ID);
-    });
-
-    it('should not create a new user if one already exists in the session', async () => {
-      const ctx = createMock<MessageContext>({
-        session: {},
-      });
-
-      const resp = await update.onStart(ctx, createMock<Profile>());
+    it('should return start command message', async () => {
+      const resp = await update.onStart();
 
       expect(resp).toEqual('commands.start');
     });
@@ -118,24 +94,26 @@ describe('AppUpdate', () => {
       const ctx = createMock<MessageContext>({
         replyWithPhoto: jest.fn(),
       });
-      const profile = createMock<Profile>({
-        fileId: '1234',
-        games: [
-          createMock<Game>({
-            title: 'Test',
-          }),
-          createMock<Game>({
-            title: 'Test2',
-          }),
-        ],
+      const user = createMock<User>({
+        profile: createMock<Profile>({
+          fileId: '1234',
+          games: [
+            createMock<Game>({
+              title: 'Test',
+            }),
+            createMock<Game>({
+              title: 'Test2',
+            }),
+          ],
+        }),
       });
 
-      await update.onMe(ctx, profile);
+      await update.onMe(ctx, user);
 
-      expect(ctx.replyWithPhoto).toHaveBeenCalledWith(profile.fileId, {
-        caption: getCaption(profile),
+      expect(ctx.replyWithPhoto).toHaveBeenCalledWith(user.profile.fileId, {
+        caption: getCaption(user.profile),
         reply_markup: getMeMarkup(
-          replyUseCases.translate('messages.profile.update', profile.user.lang),
+          replyUseCases.translate('messages.profile.update', user.lang),
         ),
       });
     });
@@ -236,7 +214,7 @@ describe('AppUpdate', () => {
 
       await update.onProfiles(ctx);
 
-      expect(replyUseCases.replyI18n).toHaveBeenCalledTimes(2);
+      expect(replyUseCases.replyI18n).toHaveBeenCalledTimes(1);
       expect(replyUseCases.replyI18n).toHaveBeenNthCalledWith(
         1,
         ctx,

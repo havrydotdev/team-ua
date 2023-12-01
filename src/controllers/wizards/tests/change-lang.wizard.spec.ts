@@ -1,7 +1,7 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Keyboards, REGISTER_WIZARD_ID } from 'src/core/constants';
-import { Profile, User } from 'src/core/entities';
+import { User } from 'src/core/entities';
 import { Language, WizardContext } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { UserUseCases } from 'src/use-cases/user';
@@ -55,7 +55,7 @@ describe('ChangeLangWizard', () => {
         },
       });
 
-      const result = await wizard.onEnter(ctx, createMock<Profile>());
+      const result = await wizard.onEnter(ctx, createMock<User>());
 
       expect(result).toEqual([
         'messages.lang.update',
@@ -89,7 +89,11 @@ describe('ChangeLangWizard', () => {
           },
         });
 
-        await wizard.onLang(ctx, { text: testCase.input }, undefined);
+        await wizard.onLang(
+          ctx,
+          { text: testCase.input },
+          createMock<User>({}),
+        );
 
         expect(ctx.scene.leave).toHaveBeenCalled();
         expect(ctx.scene.enter).toHaveBeenCalledWith(REGISTER_WIZARD_ID);
@@ -126,7 +130,7 @@ describe('ChangeLangWizard', () => {
         });
         const msg = { text: testCase.input };
 
-        await wizard.onLang(ctx, msg, createMock<Profile>({}));
+        await wizard.onLang(ctx, msg, createMock<User>({}));
 
         expect(userUseCases.update).toHaveBeenCalledWith(
           createMock<User>({
