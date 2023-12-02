@@ -65,6 +65,29 @@ describe('ProfileUseCases', () => {
     expect(updateProfileSpy).toHaveBeenCalledWith(profileId, profile);
   });
 
+  it('should call deleteByUser on the profile service', async () => {
+    const userId = 1;
+
+    const deleteByUserSpy = jest.spyOn(service, 'deleteByUser');
+
+    await useCases.deleteByUser(userId);
+
+    expect(deleteByUserSpy).toHaveBeenCalledWith(userId);
+  });
+
+  it('should call findAll on the profile service', async () => {
+    const profiles = [createMock<Profile>()];
+
+    const findAllSpy = jest
+      .spyOn(service, 'findAll')
+      .mockResolvedValue(profiles);
+
+    const result = await useCases.findAll();
+
+    expect(result).toEqual(profiles);
+    expect(findAllSpy).toHaveBeenCalled();
+  });
+
   it('should call findByUser and findRecommended on the profile service', async () => {
     const recommended = createMock<Profile>({
       user: {
