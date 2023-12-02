@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RegisterWizard } from 'src/controllers/wizards/register.wizard';
 import { Keyboards, NEXT_WIZARD_ID } from 'src/core/constants';
 import { CreateProfileDto } from 'src/core/dtos';
-import { Profile } from 'src/core/entities';
+import { Profile, User } from 'src/core/entities';
 import { BotException } from 'src/core/errors';
 import { getNameMarkup } from 'src/core/utils';
 import { PhotoMessage, RegisterWizardContext } from 'src/types/telegraf';
@@ -315,8 +315,10 @@ describe('RegisterWizard', () => {
             }),
           ],
         }),
-        createMock<Profile>({
-          id: 1,
+        createMock<User>({
+          profile: createMock<Profile>({
+            id: 1,
+          }),
         }),
       );
 
