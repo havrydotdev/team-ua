@@ -7,7 +7,7 @@ import {
 } from 'src/core/constants';
 import { ReqUser } from 'src/core/decorators';
 import { CreateProfileDto } from 'src/core/dtos';
-import { Profile } from 'src/core/entities';
+import { Profile, User } from 'src/core/entities';
 import { BotException } from 'src/core/errors';
 import { AboutPipe, AgePipe, GamePipe } from 'src/core/pipes';
 import { getNameMarkup } from 'src/core/utils';
@@ -142,7 +142,7 @@ export class RegisterWizard {
     @Ctx()
     ctx: RegisterWizardContext,
     @Message() msg: PhotoMessage,
-    @ReqUser() profile: Profile,
+    @ReqUser() user: User,
   ): Promise<HandlerResponse> {
     const fileId = msg.photo.pop().file_id;
 
@@ -155,8 +155,10 @@ export class RegisterWizard {
       userId: ctx.from.id,
     };
 
-    if (profile) {
-      await this.profileUseCases.update(profile.id, profileDto);
+    if (user) {
+      await this.profileUseCases.update(user.profile.id, profileDto);
+
+      await this.replyUseCases.replyI18n(ctx, 'messages.register.completed');
 
       await ctx.scene.enter(NEXT_WIZARD_ID);
 

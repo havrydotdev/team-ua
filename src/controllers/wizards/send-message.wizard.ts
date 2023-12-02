@@ -13,7 +13,6 @@ import { ProfileUseCases } from 'src/use-cases/profile';
 export class SendMessageWizard {
   constructor(private readonly profileUseCases: ProfileUseCases) {}
 
-  // TODO: add error description
   @WizardStep(1)
   @Registered()
   async onEnter(
@@ -21,7 +20,7 @@ export class SendMessageWizard {
     @ReqUser() profile: Profile,
   ): Promise<HandlerResponse> {
     if (profile.user.role !== 'admin') {
-      throw new BotException('errors.unknown');
+      throw new BotException('errors.forbidden');
     }
 
     ctx.wizard.next();
