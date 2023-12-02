@@ -14,7 +14,7 @@ import { getCaption, getProfileMarkup } from 'src/core/utils';
 import { HandlerResponse, ProfilesWizardContext } from 'src/types';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
-import { ReportUseCases } from 'src/use-cases/reports';
+import { ReportUseCases } from 'src/use-cases/report';
 import { deunionize } from 'telegraf';
 
 @Wizard(PROFILES_WIZARD_ID)

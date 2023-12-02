@@ -65,7 +65,7 @@ describe('SendMessageWizard', () => {
       });
 
       expect(wizard.onEnter(ctx, profile)).rejects.toThrowError(
-        new BotException('errors.unknown'),
+        new BotException('errors.forbidden'),
       );
     });
   });

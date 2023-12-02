@@ -24,6 +24,7 @@ export type I18nTranslations = {
     about: {
       invalid: string;
     };
+    forbidden: string;
   };
   messages: {
     lang: {
