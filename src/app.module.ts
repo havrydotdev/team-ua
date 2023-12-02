@@ -36,7 +36,7 @@ import { SubscribersModule } from './subscribers/subscribers.module';
 import { GameUseCasesModule } from './use-cases/game';
 import { ProfileUseCasesModule } from './use-cases/profile';
 import { ReplyUseCasesModule } from './use-cases/reply';
-import { ReportUseCasesModule } from './use-cases/reports/report.use-case.module';
+import { ReportUseCasesModule } from './use-cases/report/report.use-case.module';
 import { UserUseCasesModule } from './use-cases/user';
 
 @Module({

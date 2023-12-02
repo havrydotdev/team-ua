@@ -15,7 +15,7 @@ import { MessageContext } from 'src/types/telegraf';
 import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
-import { ReportUseCases } from 'src/use-cases/reports';
+import { ReportUseCases } from 'src/use-cases/report';
 import { UserUseCases } from 'src/use-cases/user/user.use-case';
 import { InlineQueryResult } from 'telegraf/typings/core/types/typegram';
 
