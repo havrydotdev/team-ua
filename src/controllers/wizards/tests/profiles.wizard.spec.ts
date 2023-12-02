@@ -135,7 +135,7 @@ describe('ProfilesWizard', () => {
     it('should leave the scene if message text equals LEAVE_PROFILES_CALLBACK', async () => {
       const ctx = createMock<ProfilesWizardContext>({
         scene: {
-          reenter: jest.fn(),
+          leave: jest.fn(),
         },
       });
       const msg = {
@@ -144,7 +144,7 @@ describe('ProfilesWizard', () => {
 
       await wizard.onAction(ctx, msg);
 
-      expect(ctx.scene.reenter).toHaveBeenCalled();
+      expect(ctx.scene.leave).toHaveBeenCalled();
     });
 
     it('should re-enter the scene if message text equals NEXT_PROFILE_CALLBACK', async () => {
