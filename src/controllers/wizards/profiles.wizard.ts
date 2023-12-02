@@ -76,9 +76,7 @@ export class ProfilesWizard {
   ): Promise<HandlerResponse> {
     switch (msg.text) {
       case NEXT_PROFILE_CALLBACK: {
-        ctx.scene.leave();
-
-        ctx.scene.enter(PROFILES_WIZARD_ID);
+        ctx.scene.reenter();
 
         break;
       }
