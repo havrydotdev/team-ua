@@ -65,7 +65,7 @@
     "dotenv": "^16.3.1",
     "joi": "^17.11.0",
     "kysely": "^0.23.5",
-    "nestjs-i18n": "^10.3.7",
+    "nestjs-i18n": "^10.4.0",
     "nestjs-telegraf": "^2.7.0",
     "node-fetch": "^2.7.0",
     "pg": "^8.11.3",
