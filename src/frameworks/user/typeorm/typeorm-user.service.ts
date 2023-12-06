@@ -9,9 +9,16 @@ class TypeOrmUserService implements IUserService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
   ) {}
-
   async create(user: User): Promise<User> {
     return this.userRepo.save(user);
+  }
+
+  async findAll(): Promise<User[]> {
+    return this.userRepo.find({
+      relations: {
+        profile: true,
+      },
+    });
   }
 
   async findById(userId: number): Promise<null | User> {

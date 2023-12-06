@@ -2,6 +2,7 @@
 import { Ctx, Hears, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
 import {
   CLEAR_LAST_WIZARD_ID,
+  DELETE_PROFILE_CALLBACK,
   LEAVE_PROFILES_CALLBACK,
   NEXT_PROFILE_CALLBACK,
   PROFILES_WIZARD_ID,
@@ -10,6 +11,7 @@ import {
 import { ReqUser } from 'src/core/decorators';
 import { CreateReportDto } from 'src/core/dtos';
 import { Profile, User } from 'src/core/entities';
+import { AboutPipe } from 'src/core/pipes';
 import { getCaption, getProfileMarkup } from 'src/core/utils';
 import { HandlerResponse, ProfilesWizardContext } from 'src/types';
 import { ProfileUseCases } from 'src/use-cases/profile';
@@ -25,7 +27,6 @@ export class ProfilesWizard {
     private readonly reportUseCases: ReportUseCases,
   ) {}
 
-  // TODO: add ban button for admins
   @WizardStep(1)
   async onEnter(
     @Ctx() ctx: ProfilesWizardContext,
@@ -73,6 +74,7 @@ export class ProfilesWizard {
   async onAction(
     @Ctx() ctx: ProfilesWizardContext,
     @Message() msg: { text: string },
+    @ReqUser() user: User,
   ): Promise<HandlerResponse> {
     switch (msg.text) {
       case NEXT_PROFILE_CALLBACK: {
@@ -92,15 +94,38 @@ export class ProfilesWizard {
 
         return 'messages.report.send';
       }
+
+      case DELETE_PROFILE_CALLBACK: {
+        if (user.role !== 'admin') {
+          return 'errors.forbidden';
+        }
+
+        const profile = ctx.wizard.state.current;
+
+        await this.profileUseCases.deleteByUser(profile.user.id);
+
+        await this.replyUseCases.sendMsgToChatI18n(
+          profile.user.id,
+          'messages.profile.deleted',
+        );
+
+        await this.replyUseCases.replyI18n(
+          ctx,
+          'messages.profile.delete_success',
+        );
+
+        await ctx.scene.reenter();
+
+        break;
+      }
     }
   }
 
-  // TODO: add pipe for message validation
   @WizardStep(3)
   @On('text')
   async onReport(
     @Ctx() ctx: ProfilesWizardContext,
-    @Message() msg: { text: string },
+    @Message(AboutPipe) msg: { text: string },
   ): Promise<HandlerResponse> {
     const reportDto: CreateReportDto = {
       description: msg.text,

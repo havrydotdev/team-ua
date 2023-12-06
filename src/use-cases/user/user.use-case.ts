@@ -22,6 +22,10 @@ export class UserUseCases {
     return this.userService.create(user);
   }
 
+  async findAll(): Promise<User[]> {
+    return this.userService.findAll();
+  }
+
   async findById(userId: number): Promise<null | User> {
     return this.userService.findById(userId);
   }
