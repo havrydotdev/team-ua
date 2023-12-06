@@ -53,7 +53,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.465.0",
-    "@aws-sdk/lib-storage": "^3.456.0",
+    "@aws-sdk/lib-storage": "^3.465.0",
     "@nestjs/cache-manager": "^2.1.1",
     "@nestjs/common": "^10.2.10",
     "@nestjs/config": "^3.1.1",
