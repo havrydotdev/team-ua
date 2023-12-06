@@ -76,6 +76,18 @@ type RegisterWizardState = {
   };
 };
 
+type SendMessageWizardState = {
+  wizard: {
+    state: {
+      message?: {
+        en?: string;
+        ua?: string;
+      };
+      photo?: string;
+    };
+  };
+};
+
 type ProfilesWizardState = {
   wizard: {
     state: {
@@ -101,6 +113,8 @@ type ProfilesWizardContext = WizardContext & ProfilesWizardState;
 
 type RegisterWizardContext = WizardContext & RegisterWizardState;
 
+type SendMessageWizardContext = WizardContext & SendMessageWizardState;
+
 type PhotoMessage = Message.PhotoMessage;
 
 type MsgKey = PathImpl2<I18nTranslations>;
@@ -121,6 +135,7 @@ export {
   PhotoMessage,
   ProfilesWizardContext,
   RegisterWizardContext,
+  SendMessageWizardContext,
   SessionData,
   WizardContext,
 };

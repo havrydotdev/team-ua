@@ -9,9 +9,11 @@ import { NEXT_WIZARD_ID } from '../constants';
 export class UnexpectedExceptionFilter implements ExceptionFilter {
   constructor(private readonly replyUseCases: ReplyUseCases) {}
 
-  async catch(_exception: Error, host: ArgumentsHost) {
+  async catch(exception: Error, host: ArgumentsHost) {
     const telegrafHost = TelegrafArgumentsHost.create(host);
     const ctx = telegrafHost.getContext<MessageContext>();
+
+    console.error(exception.message);
 
     if (ctx.scene.current) {
       ctx.scene.leave();

@@ -211,7 +211,12 @@ describe('AppUpdate', () => {
         },
       });
 
-      await update.onProfiles(ctx);
+      await update.onProfiles(
+        ctx,
+        createMock<User>({
+          role: 'user',
+        }),
+      );
 
       expect(replyUseCases.replyI18n).toHaveBeenCalledTimes(1);
       expect(replyUseCases.replyI18n).toHaveBeenNthCalledWith(

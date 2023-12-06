@@ -16,7 +16,7 @@ import {
   UnexpectedExceptionFilter,
 } from './core/filters';
 import { RoleGuard } from './core/guards';
-import { ProfileGuard } from './core/guards/profile.guard';
+import { ProfileGuard } from './core/guards';
 import { I18nInterceptor } from './core/interceptors';
 import {
   DatabaseModule,
@@ -34,7 +34,7 @@ import { SubscribersModule } from './subscribers/subscribers.module';
 import { GameUseCasesModule } from './use-cases/game';
 import { ProfileUseCasesModule } from './use-cases/profile';
 import { ReplyUseCasesModule } from './use-cases/reply';
-import { ReportUseCasesModule } from './use-cases/report/report.use-case.module';
+import { ReportUseCasesModule } from './use-cases/report';
 import { UserUseCasesModule } from './use-cases/user';
 
 @Module({

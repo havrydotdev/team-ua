@@ -12,7 +12,6 @@ import {
   CHANGE_LANG_WIZARD_ID,
   COOP_CALLBACK,
   HELP_CALLBACK,
-  Keyboards,
   LANG_CALLBACK,
   LOOK_CALLBACK,
   PROFILE_CALLBACK,
@@ -23,7 +22,11 @@ import {
 } from 'src/core/constants';
 import { Registered, ReqUser, Roles } from 'src/core/decorators';
 import { Game, User } from 'src/core/entities';
-import { getCaption, getMeMarkup } from 'src/core/utils';
+import {
+  getCaption,
+  getMeMarkup,
+  getProfilesWizardMarkup,
+} from 'src/core/utils';
 import { HandlerResponse, MessageContext } from 'src/types';
 import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
@@ -105,9 +108,12 @@ export class AppUpdate {
   @Command('profiles')
   @Registered()
   @Hears(LOOK_CALLBACK)
-  async onProfiles(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
+  async onProfiles(
+    @Ctx() ctx: MessageContext,
+    @ReqUser() user: User,
+  ): Promise<HandlerResponse> {
     await this.replyUseCases.replyI18n(ctx, 'commands.profiles', {
-      reply_markup: Keyboards.profiles,
+      reply_markup: getProfilesWizardMarkup(user.role),
     });
 
     await ctx.scene.enter(PROFILES_WIZARD_ID);

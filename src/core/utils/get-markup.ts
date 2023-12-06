@@ -6,6 +6,10 @@ import {
 
 import {
   AD_CALLBACK,
+  DELETE_PROFILE_CALLBACK,
+  LEAVE_PROFILES_CALLBACK,
+  NEXT_PROFILE_CALLBACK,
+  REPORT_CALLBACK,
   TEXT_CALLBACK,
   UPDATE_PROFILE_CALLBACK,
 } from '../constants';
@@ -60,10 +64,29 @@ const getMeMarkup = (text: string): InlineKeyboardMarkup => {
   return markup;
 };
 
+const getProfilesWizardMarkup = (
+  userRole: 'admin' | 'user',
+): ReplyKeyboardMarkup => {
+  const buttons = [
+    Markup.button.callback(NEXT_PROFILE_CALLBACK, NEXT_PROFILE_CALLBACK),
+    Markup.button.callback(LEAVE_PROFILES_CALLBACK, LEAVE_PROFILES_CALLBACK),
+    Markup.button.callback(REPORT_CALLBACK, REPORT_CALLBACK),
+  ];
+
+  if (userRole === 'admin') {
+    buttons.push(
+      Markup.button.callback(DELETE_PROFILE_CALLBACK, DELETE_PROFILE_CALLBACK),
+    );
+  }
+
+  return Markup.keyboard([buttons]).resize(true).reply_markup;
+};
+
 export {
   getAdMarkup,
   getMeMarkup,
   getNameMarkup,
   getProfileMarkup,
+  getProfilesWizardMarkup,
   getReportMarkup,
 };
