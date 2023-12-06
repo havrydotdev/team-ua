@@ -12,8 +12,8 @@ import {
   SendMessageWizardContext,
 } from 'src/types';
 import { UserUseCases } from 'src/use-cases/user';
-import { Markup } from 'telegraf';
 
+// TODO: add confirm step
 @Wizard(SEND_MESSAGE_WIZARD_ID)
 export class SendMessageWizard {
   constructor(private readonly userUseCases: UserUseCases) {}
@@ -47,11 +47,7 @@ export class SendMessageWizard {
     return [
       'messages.send_message.enter_en',
       {
-        reply_markup: Markup.keyboard([
-          Markup.button.callback(SKIP_STEP_CALLBACK, SKIP_STEP_CALLBACK),
-        ])
-          .oneTime()
-          .resize().reply_markup,
+        reply_markup: Keyboards.skipStep,
       },
     ];
   }
@@ -77,11 +73,7 @@ export class SendMessageWizard {
     return [
       'messages.send_message.photo',
       {
-        reply_markup: Markup.keyboard([
-          Markup.button.callback(SKIP_STEP_CALLBACK, SKIP_STEP_CALLBACK),
-        ])
-          .oneTime()
-          .resize().reply_markup,
+        reply_markup: Keyboards.skipStep,
       },
     ];
   }
@@ -92,7 +84,7 @@ export class SendMessageWizard {
     @Ctx() ctx: SendMessageWizardContext,
     @Message() msg: PhotoMessage,
   ): Promise<HandlerResponse> {
-    const photo = (msg.photo || []).pop();
+    const photo = (msg.photo ?? []).pop();
     const users = await this.userUseCases.findAll();
 
     for (const user of users) {

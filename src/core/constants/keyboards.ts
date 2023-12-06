@@ -11,6 +11,7 @@ import {
   NEXT_PROFILE_CALLBACK,
   PROFILE_CALLBACK,
   REPORT_CALLBACK,
+  SKIP_STEP_CALLBACK,
 } from './callbacks';
 
 export class Keyboards {
@@ -53,4 +54,10 @@ export class Keyboards {
   ])
     .resize(true)
     .oneTime(true).reply_markup;
+
+  static skipStep = Markup.keyboard([
+    Markup.button.callback(SKIP_STEP_CALLBACK, SKIP_STEP_CALLBACK),
+  ])
+    .oneTime()
+    .resize().reply_markup;
 }

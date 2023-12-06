@@ -1,93 +1,180 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Profile } from 'src/core/entities';
-import { BotException } from 'src/core/errors';
-import { WizardContext } from 'src/types';
-import { ProfileUseCases } from 'src/use-cases/profile';
+import {
+  Keyboards,
+  NEXT_WIZARD_ID,
+  SKIP_STEP_CALLBACK,
+} from 'src/core/constants';
+import { PhotoMessage, SendMessageWizardContext } from 'src/types';
+import { UserUseCases } from 'src/use-cases/user';
 
 import { SendMessageWizard } from '../send-message.wizard';
 
 describe('SendMessageWizard', () => {
   let wizard: SendMessageWizard;
-  let profileUseCases: ProfileUseCases;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SendMessageWizard,
         {
-          provide: ProfileUseCases,
-          useValue: {
-            findAll: jest
-              .fn()
-              .mockResolvedValue([
-                { user: { id: 'test1' } },
-                { user: { id: 'test2' } },
-              ]),
-          },
+          provide: UserUseCases,
+          useValue: createMock<UserUseCases>(),
         },
       ],
     }).compile();
 
     wizard = module.get<SendMessageWizard>(SendMessageWizard);
-    profileUseCases = module.get<ProfileUseCases>(ProfileUseCases);
   });
 
   describe('onEnter', () => {
     it('should advance the wizard and return the expected message', async () => {
-      const ctx = createMock<WizardContext>({
+      const ctx = createMock<SendMessageWizardContext>({
         wizard: {
           next: jest.fn(),
-        },
-      });
-      const profile = createMock<Profile>({
-        user: {
-          role: 'admin',
+          state: {},
         },
       });
 
-      const result = await wizard.onEnter(ctx, profile);
+      const result = await wizard.onEnter(ctx);
 
       expect(ctx.wizard.next).toHaveBeenCalled();
-      expect(result).toEqual('messages.send_message.enter');
-    });
-
-    it('should throw an error when the user is not an admin', async () => {
-      const ctx = createMock<WizardContext>({
-        wizard: {
-          next: jest.fn(),
+      expect(result).toEqual([
+        'messages.send_message.enter_ua',
+        {
+          reply_markup: Keyboards.remove,
         },
-      });
-      const profile = createMock<Profile>({
-        user: {
-          role: 'user',
-        },
-      });
-
-      expect(wizard.onEnter(ctx, profile)).rejects.toThrowError(
-        new BotException('errors.forbidden'),
-      );
+      ]);
+      expect(ctx.wizard.state.message).not.toBeUndefined();
     });
   });
 
-  describe('onLang', () => {
-    it('should send a message to all profiles', async () => {
-      const ctx = createMock<WizardContext>({
-        scene: {
-          leave: jest.fn(),
-        },
-        telegram: {
-          sendMessage: jest.fn(),
+  describe('onUa', () => {
+    it('should advance the wizard and return the expected message', async () => {
+      const ctx = createMock<SendMessageWizardContext>({
+        wizard: {
+          next: jest.fn(),
+          state: {
+            message: {},
+          },
         },
       });
-      const msg = { text: 'test' };
 
-      await wizard.onLang(ctx, msg);
+      const result = await wizard.onUa(ctx, { text: 'text' });
 
-      expect(profileUseCases.findAll).toHaveBeenCalled();
-      expect(ctx.telegram.sendMessage).toHaveBeenCalledTimes(2);
-      expect(ctx.telegram.sendMessage).toHaveBeenCalledWith('test1', 'test');
-      expect(ctx.telegram.sendMessage).toHaveBeenCalledWith('test2', 'test');
+      expect(ctx.wizard.next).toHaveBeenCalled();
+      expect(result).toEqual([
+        'messages.send_message.enter_en',
+        {
+          reply_markup: Keyboards.skipStep,
+        },
+      ]);
+      expect(ctx.wizard.state.message.ua).toEqual('text');
+    });
+  });
+
+  describe('onEn', () => {
+    it('should advance the wizard and return the expected message', async () => {
+      const ctx = createMock<SendMessageWizardContext>({
+        wizard: {
+          next: jest.fn(),
+          state: {
+            message: {
+              ua: 'ua',
+            },
+          },
+        },
+      });
+
+      const result = await wizard.onEn(ctx, { text: 'text' });
+
+      expect(ctx.wizard.next).toHaveBeenCalled();
+      expect(result).toEqual([
+        'messages.send_message.photo',
+        {
+          reply_markup: Keyboards.skipStep,
+        },
+      ]);
+      expect(ctx.wizard.state.message.en).toEqual('text');
+    });
+
+    it('should advance the wizard and return the expected message when skip step', async () => {
+      const ctx = createMock<SendMessageWizardContext>({
+        wizard: {
+          next: jest.fn(),
+          state: {
+            message: {
+              ua: 'ua',
+            },
+          },
+        },
+      });
+
+      const result = await wizard.onEn(ctx, {
+        text: SKIP_STEP_CALLBACK,
+      });
+
+      expect(ctx.wizard.next).toHaveBeenCalled();
+      expect(result).toBeUndefined();
+      expect(ctx.wizard.state.message.en).toEqual('ua');
+    });
+  });
+
+  describe('onPhoto', () => {
+    it('should advance the wizard and return the expected message', async () => {
+      const ctx = createMock<SendMessageWizardContext>({
+        scene: {
+          enter: jest.fn(),
+        },
+        wizard: {
+          next: jest.fn(),
+          state: {
+            message: {
+              en: 'en',
+              ua: 'ua',
+            },
+          },
+        },
+      });
+
+      const result = await wizard.onPhoto(
+        ctx,
+        createMock<PhotoMessage>({
+          photo: [],
+        }),
+      );
+
+      expect(ctx.scene.enter).toHaveBeenCalledWith(NEXT_WIZARD_ID);
+      expect(result).toEqual('messages.send_message.sent');
+      expect(ctx.wizard.state.photo).toEqual(undefined);
+    });
+
+    it('should advance the wizard and return the expected message when skip step', async () => {
+      const ctx = createMock<SendMessageWizardContext>({
+        scene: {
+          enter: jest.fn(),
+        },
+        wizard: {
+          next: jest.fn(),
+          state: {
+            message: {
+              en: 'en',
+              ua: 'ua',
+            },
+          },
+        },
+      });
+
+      const result = await wizard.onPhoto(
+        ctx,
+        createMock<PhotoMessage>({
+          photo: undefined,
+        }),
+      );
+
+      expect(ctx.scene.enter).toHaveBeenCalledWith(NEXT_WIZARD_ID);
+      expect(result).toEqual('messages.send_message.sent');
+      expect(ctx.wizard.state.photo).toBeUndefined();
     });
   });
 });
