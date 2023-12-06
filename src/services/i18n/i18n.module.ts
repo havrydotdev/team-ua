@@ -15,10 +15,10 @@ import { join } from 'path';
           watch: true,
         },
         logging: false,
-        typesOutputPath: join(
-          __dirname,
-          '../../../src/generated/i18n.generated.ts',
-        ),
+        typesOutputPath:
+          configService.get<string>('NODE_ENV') === 'dev'
+            ? join(__dirname, '../../../src/generated/i18n.generated.ts')
+            : undefined,
       }),
     }),
   ],
