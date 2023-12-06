@@ -83,7 +83,7 @@
     "@nestjs/cli": "^10.2.1",
     "@nestjs/schematics": "^10.0.3",
     "@nestjs/testing": "^10.2.10",
-    "@types/jest": "^29.5.2",
+    "@types/jest": "^29.5.11",
     "@types/node": "^20.10.1",
     "@types/node-fetch": "^2.6.8",
     "@types/uuid": "^9.0.6",
