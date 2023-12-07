@@ -78,7 +78,7 @@
   "devDependencies": {
     "@babel/plugin-proposal-private-methods": "^7.18.6",
     "@commitlint/config-angular": "^18.4.3",
-    "@compodoc/compodoc": "^1.1.21",
+    "@compodoc/compodoc": "^1.1.23",
     "@golevelup/ts-jest": "^0.4.0",
     "@nestjs/cli": "^10.2.1",
     "@nestjs/schematics": "^10.0.3",
