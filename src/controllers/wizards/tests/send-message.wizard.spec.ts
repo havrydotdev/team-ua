@@ -1,5 +1,5 @@
+import { TestBed } from '@automock/jest';
 import { createMock } from '@golevelup/ts-jest';
-import { Test, TestingModule } from '@nestjs/testing';
 import {
   Keyboards,
   NEXT_WIZARD_ID,
@@ -12,19 +12,13 @@ import { SendMessageWizard } from '../send-message.wizard';
 
 describe('SendMessageWizard', () => {
   let wizard: SendMessageWizard;
+  let userUseCases: jest.Mocked<UserUseCases>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        SendMessageWizard,
-        {
-          provide: UserUseCases,
-          useValue: createMock<UserUseCases>(),
-        },
-      ],
-    }).compile();
+    const { unit, unitRef } = TestBed.create(SendMessageWizard).compile();
 
-    wizard = module.get<SendMessageWizard>(SendMessageWizard);
+    wizard = unit;
+    userUseCases = unitRef.get(UserUseCases);
   });
 
   describe('onEnter', () => {
@@ -137,6 +131,8 @@ describe('SendMessageWizard', () => {
         },
       });
 
+      const findSpy = jest.spyOn(userUseCases, 'findAll').mockResolvedValue([]);
+
       const result = await wizard.onPhoto(
         ctx,
         createMock<PhotoMessage>({
@@ -144,6 +140,7 @@ describe('SendMessageWizard', () => {
         }),
       );
 
+      expect(findSpy).toHaveBeenCalled();
       expect(ctx.scene.enter).toHaveBeenCalledWith(NEXT_WIZARD_ID);
       expect(result).toEqual('messages.send_message.sent');
       expect(ctx.wizard.state.photo).toEqual(undefined);
@@ -165,6 +162,8 @@ describe('SendMessageWizard', () => {
         },
       });
 
+      const findSpy = jest.spyOn(userUseCases, 'findAll').mockResolvedValue([]);
+
       const result = await wizard.onPhoto(
         ctx,
         createMock<PhotoMessage>({
@@ -172,6 +171,7 @@ describe('SendMessageWizard', () => {
         }),
       );
 
+      expect(findSpy).toHaveBeenCalled();
       expect(ctx.scene.enter).toHaveBeenCalledWith(NEXT_WIZARD_ID);
       expect(result).toEqual('messages.send_message.sent');
       expect(ctx.wizard.state.photo).toBeUndefined();

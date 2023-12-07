@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 
+// TODO: add custom config wrapper
 @Module({
   imports: [
     ConfigModule.forRoot({

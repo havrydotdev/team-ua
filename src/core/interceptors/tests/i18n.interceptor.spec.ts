@@ -1,6 +1,6 @@
+import { TestBed } from '@automock/jest';
 import { createMock } from '@golevelup/ts-jest';
 import { CallHandler, ExecutionContext } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
 import { TelegrafExecutionContext } from 'nestjs-telegraf';
 import { of } from 'rxjs';
 import { Extra, MessageContext, MsgKey, MsgWithExtra } from 'src/types';
@@ -11,21 +11,13 @@ import { I18nInterceptor } from '../i18n.interceptor';
 
 describe('I18nInterceptor', () => {
   let interceptor: I18nInterceptor;
-  let replyUseCases: ReplyUseCases;
+  let replyUseCases: jest.Mocked<ReplyUseCases>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        I18nInterceptor,
-        {
-          provide: ReplyUseCases,
-          useValue: createMock<ReplyUseCases>(),
-        },
-      ],
-    }).compile();
+    const { unit, unitRef } = TestBed.create(I18nInterceptor).compile();
 
-    interceptor = module.get<I18nInterceptor>(I18nInterceptor);
-    replyUseCases = module.get<ReplyUseCases>(ReplyUseCases);
+    interceptor = unit;
+    replyUseCases = unitRef.get(ReplyUseCases);
   });
 
   describe('intercept', () => {
@@ -43,15 +35,12 @@ describe('I18nInterceptor', () => {
           getContext: jest.fn().mockReturnValue(tgCtx),
         }),
       );
-      const replySpy = jest
-        .spyOn(replyUseCases, 'replyI18n')
-        .mockImplementationOnce(async () => {});
 
       const response = await interceptor.intercept(context, handler);
 
       response.subscribe({
         complete: () => {
-          expect(replySpy).toHaveBeenCalledTimes(1);
+          expect(replyUseCases.replyI18n).toHaveBeenCalledTimes(1);
         },
         next: () => {
           expect(replyUseCases.replyI18n).toHaveBeenCalledWith(

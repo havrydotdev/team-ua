@@ -1,5 +1,5 @@
+import { TestBed } from '@automock/jest';
 import { createMock } from '@golevelup/ts-jest';
-import { Test, TestingModule } from '@nestjs/testing';
 import { IProfileService } from 'src/core/abstracts';
 import { CreateProfileDto } from 'src/core/dtos';
 import { Profile } from 'src/core/entities';
@@ -13,23 +13,12 @@ describe('ProfileUseCases', () => {
   let factory: ProfileFactoryService;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ProfileUseCases,
-        {
-          provide: IProfileService,
-          useValue: createMock<IProfileService>(),
-        },
-        {
-          provide: ProfileFactoryService,
-          useValue: createMock<ProfileFactoryService>(),
-        },
-      ],
-    }).compile();
+    const { unit, unitRef } = TestBed.create(ProfileUseCases).compile();
 
-    useCases = module.get<ProfileUseCases>(ProfileUseCases);
-    service = module.get<IProfileService>(IProfileService);
-    factory = module.get<ProfileFactoryService>(ProfileFactoryService);
+    useCases = unit;
+    // @ts-expect-error - abstract class
+    service = unitRef.get(IProfileService);
+    factory = unitRef.get(ProfileFactoryService);
   });
 
   it('should call createProfile on the profile service with a new profile', async () => {

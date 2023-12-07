@@ -1,34 +1,21 @@
+import { TestBed } from '@automock/jest';
 import { createMock } from '@golevelup/ts-jest';
-import { Test, TestingModule } from '@nestjs/testing';
 import { Keyboards, REGISTER_WIZARD_ID } from 'src/core/constants';
 import { User } from 'src/core/entities';
 import { Language, WizardContext } from 'src/types';
-import { ReplyUseCases } from 'src/use-cases/reply';
 import { UserUseCases } from 'src/use-cases/user';
 
 import { ChangeLangWizard } from '../change-lang.wizard';
 
 describe('ChangeLangWizard', () => {
   let wizard: ChangeLangWizard;
-  let userUseCases: UserUseCases;
+  let userUseCases: jest.Mocked<UserUseCases>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ChangeLangWizard,
-        {
-          provide: ReplyUseCases,
-          useValue: createMock<ReplyUseCases>(),
-        },
-        {
-          provide: UserUseCases,
-          useValue: createMock<UserUseCases>(),
-        },
-      ],
-    }).compile();
+    const { unit, unitRef } = TestBed.create(ChangeLangWizard).compile();
 
-    wizard = module.get<ChangeLangWizard>(ChangeLangWizard);
-    userUseCases = module.get<UserUseCases>(UserUseCases);
+    wizard = unit;
+    userUseCases = unitRef.get<UserUseCases>(UserUseCases);
   });
 
   describe('onEnter', () => {

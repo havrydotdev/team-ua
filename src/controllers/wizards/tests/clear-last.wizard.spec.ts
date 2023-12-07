@@ -1,5 +1,5 @@
+import { TestBed } from '@automock/jest';
 import { createMock } from '@golevelup/ts-jest';
-import { Test, TestingModule } from '@nestjs/testing';
 import { CLEAR_LAST_YES_CALLBACK, Keyboards } from 'src/core/constants';
 import { MessageContext, WizardContext } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
@@ -11,20 +11,10 @@ describe('ClearLastProfilesWizard', () => {
   let replyUseCases: ReplyUseCases;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ClearLastProfilesWizard,
-        {
-          provide: ReplyUseCases,
-          useValue: {
-            replyI18n: jest.fn(),
-          },
-        },
-      ],
-    }).compile();
+    const { unit, unitRef } = TestBed.create(ClearLastProfilesWizard).compile();
 
-    wizard = module.get<ClearLastProfilesWizard>(ClearLastProfilesWizard);
-    replyUseCases = module.get<ReplyUseCases>(ReplyUseCases);
+    wizard = unit;
+    replyUseCases = unitRef.get(ReplyUseCases);
   });
 
   describe('onEnter', () => {

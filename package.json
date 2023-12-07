@@ -76,6 +76,8 @@
     "typeorm": "^0.3.17"
   },
   "devDependencies": {
+    "@automock/adapters.nestjs": "^2.0.0",
+    "@automock/jest": "^2.0.0",
     "@babel/plugin-proposal-private-methods": "^7.18.6",
     "@commitlint/config-angular": "^17.8.0",
     "@compodoc/compodoc": "^1.1.21",

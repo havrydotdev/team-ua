@@ -1,7 +1,5 @@
+import { TestBed } from '@automock/jest';
 import { createMock } from '@golevelup/ts-jest';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Test, TestingModule } from '@nestjs/testing';
-import { Cache } from 'cache-manager';
 import {
   CHANGE_LANG_WIZARD_ID,
   Keyboards,
@@ -16,54 +14,25 @@ import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { ReportUseCases } from 'src/use-cases/report';
-import { UserUseCases } from 'src/use-cases/user/user.use-case';
 import { InlineQueryResult } from 'telegraf/typings/core/types/typegram';
 
 import { AppUpdate } from '../app.update';
 
 describe('AppUpdate', () => {
   let update: AppUpdate;
-  let replyUseCases: ReplyUseCases;
-  let gameUseCases: GameUseCases;
-  let reportUseCases: ReportUseCases;
-  let profileUseCases: ProfileUseCases;
+  let replyUseCases: jest.Mocked<ReplyUseCases>;
+  let gameUseCases: jest.Mocked<GameUseCases>;
+  let reportUseCases: jest.Mocked<ReportUseCases>;
+  let profileUseCases: jest.Mocked<ProfileUseCases>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AppUpdate,
-        {
-          provide: UserUseCases,
-          useValue: createMock<UserUseCases>(),
-        },
-        {
-          provide: ReplyUseCases,
-          useValue: createMock<ReplyUseCases>(),
-        },
-        {
-          provide: GameUseCases,
-          useValue: createMock<GameUseCases>(),
-        },
-        {
-          provide: ReportUseCases,
-          useValue: createMock<ReportUseCases>(),
-        },
-        {
-          provide: ProfileUseCases,
-          useValue: createMock<ProfileUseCases>(),
-        },
-        {
-          provide: CACHE_MANAGER,
-          useValue: createMock<Cache>(),
-        },
-      ],
-    }).compile();
+    const { unit, unitRef } = TestBed.create(AppUpdate).compile();
 
-    update = module.get<AppUpdate>(AppUpdate);
-    replyUseCases = module.get<ReplyUseCases>(ReplyUseCases);
-    gameUseCases = module.get<GameUseCases>(GameUseCases);
-    reportUseCases = module.get<ReportUseCases>(ReportUseCases);
-    profileUseCases = module.get<ProfileUseCases>(ProfileUseCases);
+    update = unit;
+    replyUseCases = unitRef.get<ReplyUseCases>(ReplyUseCases);
+    gameUseCases = unitRef.get<GameUseCases>(GameUseCases);
+    reportUseCases = unitRef.get<ReportUseCases>(ReportUseCases);
+    profileUseCases = unitRef.get<ProfileUseCases>(ProfileUseCases);
   });
 
   describe('onStart', () => {

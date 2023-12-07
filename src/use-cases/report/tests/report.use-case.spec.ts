@@ -1,5 +1,5 @@
+import { TestBed } from '@automock/jest';
 import { createMock } from '@golevelup/ts-jest';
-import { Test, TestingModule } from '@nestjs/testing';
 import { IReportService } from 'src/core/abstracts';
 import { CreateReportDto, CreateReportsChannelDto } from 'src/core/dtos';
 import { ReportsChannel } from 'src/core/entities';
@@ -9,28 +9,16 @@ import { ReportUseCases } from '../report.use-case';
 
 describe('ReportUseCases', () => {
   let useCases: ReportUseCases;
-  let reportService: IReportService;
-  let reportFactoryService: ReportFactoryService;
+  let reportService: jest.Mocked<IReportService>;
+  let reportFactoryService: jest.Mocked<ReportFactoryService>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ReportUseCases,
-        {
-          provide: IReportService,
-          useValue: createMock<IReportService>(),
-        },
-        {
-          provide: ReportFactoryService,
-          useValue: createMock<ReportFactoryService>(),
-        },
-      ],
-    }).compile();
+    const { unit, unitRef } = TestBed.create(ReportUseCases).compile();
 
-    useCases = module.get<ReportUseCases>(ReportUseCases);
-    reportService = module.get<IReportService>(IReportService);
-    reportFactoryService =
-      module.get<ReportFactoryService>(ReportFactoryService);
+    useCases = unit;
+    // @ts-expect-error - abstract class
+    reportService = unitRef.get(IReportService);
+    reportFactoryService = unitRef.get(ReportFactoryService);
   });
 
   it('should create a report', async () => {

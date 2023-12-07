@@ -1,5 +1,5 @@
+import { TestBed } from '@automock/jest';
 import { createMock } from '@golevelup/ts-jest';
-import { Test, TestingModule } from '@nestjs/testing';
 import { IGameService } from 'src/core/abstracts/game.abstract.service';
 import { Game } from 'src/core/entities';
 
@@ -10,18 +10,11 @@ describe('GameUseCases', () => {
   let gameService: IGameService;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        GameUseCases,
-        {
-          provide: IGameService,
-          useValue: createMock<IGameService>(),
-        },
-      ],
-    }).compile();
+    const { unit, unitRef } = TestBed.create(GameUseCases).compile();
 
-    gameService = module.get<IGameService>(IGameService);
-    gameUseCases = module.get<GameUseCases>(GameUseCases);
+    gameUseCases = unit;
+    // @ts-expect-error - abstract class
+    gameService = unitRef.get(IGameService);
   });
 
   describe('findAll', () => {

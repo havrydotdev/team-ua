@@ -1,11 +1,10 @@
+import { TestBed } from '@automock/jest';
 import { createMock } from '@golevelup/ts-jest';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Test, TestingModule } from '@nestjs/testing';
 import { Cache } from 'cache-manager';
 import { IUserService } from 'src/core/abstracts';
 import { CreateUserDto, UpdateUserDto } from 'src/core/dtos';
 import { Profile, User } from 'src/core/entities';
-import { TypeOrmUserService } from 'src/frameworks/user/typeorm/typeorm-user.service';
 import { Language } from 'src/types';
 
 import { UserFactoryService } from '../user-factory.service';
@@ -13,33 +12,18 @@ import { UserUseCases } from '../user.use-case';
 
 describe('UserUseCases', () => {
   let useCases: UserUseCases;
-  let service: IUserService;
-  let factory: UserFactoryService;
-  let cache: Cache;
+  let service: jest.Mocked<IUserService>;
+  let factory: jest.Mocked<UserFactoryService>;
+  let cache: jest.Mocked<Cache>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        UserUseCases,
-        {
-          provide: IUserService,
-          useValue: createMock<TypeOrmUserService>(),
-        },
-        {
-          provide: UserFactoryService,
-          useValue: createMock<UserFactoryService>(),
-        },
-        {
-          provide: CACHE_MANAGER,
-          useValue: createMock<Cache>(),
-        },
-      ],
-    }).compile();
+    const { unit, unitRef } = TestBed.create(UserUseCases).compile();
 
-    useCases = module.get<UserUseCases>(UserUseCases);
-    service = module.get<IUserService>(IUserService);
-    factory = module.get<UserFactoryService>(UserFactoryService);
-    cache = module.get<Cache>(CACHE_MANAGER);
+    useCases = unit;
+    // @ts-expect-error - abstract class
+    service = unitRef.get(IUserService);
+    factory = unitRef.get(UserFactoryService);
+    cache = unitRef.get(CACHE_MANAGER);
   });
 
   describe('create', () => {

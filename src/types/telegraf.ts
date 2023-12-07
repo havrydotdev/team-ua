@@ -123,7 +123,11 @@ type MsgWithExtra = [MsgKey, Extra];
 
 type HandlerResponse = MsgKey | MsgWithExtra | MsgWithExtra[] | void;
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+type Constructor<T> = Function & { prototype: T };
+
 export {
+  Constructor,
   Extra,
   HandlerResponse,
   I18nArgs,
