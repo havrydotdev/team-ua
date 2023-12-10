@@ -1,29 +1,21 @@
+import { TestBed } from '@automock/jest';
 import { createMock } from '@golevelup/ts-jest';
-import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Profile } from 'src/core/entities';
-import { InsertResult, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 import { TypeOrmProfileService } from '../typeorm-profile.service';
 
 describe('TypeOrmProfileService', () => {
   let service: TypeOrmProfileService;
-  let repo: Repository<Profile>;
+  let repo: jest.Mocked<Repository<Profile>>;
 
   beforeEach(async () => {
     const repoToken = getRepositoryToken(Profile);
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        TypeOrmProfileService,
-        {
-          provide: repoToken,
-          useValue: createMock<Repository<Profile>>(),
-        },
-      ],
-    }).compile();
+    const { unit, unitRef } = TestBed.create(TypeOrmProfileService).compile();
 
-    service = module.get<TypeOrmProfileService>(TypeOrmProfileService);
-    repo = module.get<Repository<Profile>>(repoToken);
+    service = unit;
+    repo = unitRef.get(repoToken as string);
   });
 
   it('should return a profile for a given user ID', async () => {
@@ -50,9 +42,11 @@ describe('TypeOrmProfileService', () => {
   it('should create a profile', async () => {
     const profile = createMock<Profile>();
 
-    jest.spyOn(repo, 'insert').mockResolvedValue({
-      identifiers: [{ id: 1 }],
-    } as unknown as InsertResult);
+    jest.spyOn(repo, 'save').mockResolvedValue(
+      createMock<Profile>({
+        id: 2,
+      }),
+    );
 
     jest.spyOn(repo, 'findOne').mockResolvedValue(profile);
 
@@ -77,12 +71,17 @@ describe('TypeOrmProfileService', () => {
   });
 
   it('should delete a profile', async () => {
-    const profileId = 1;
+    const profile = createMock<Profile>({
+      id: 3,
+    });
+
+    const findSpy = jest.spyOn(service, 'findById').mockResolvedValue(profile);
 
     const deleteSpy = jest.spyOn(repo, 'remove').mockResolvedValue(undefined);
 
-    await service.delete(profileId);
+    await service.delete(profile.id);
 
-    expect(deleteSpy).toHaveBeenCalledWith(profileId);
+    expect(findSpy).toHaveBeenCalledWith(profile.id);
+    expect(deleteSpy).toHaveBeenCalledWith(profile);
   });
 });

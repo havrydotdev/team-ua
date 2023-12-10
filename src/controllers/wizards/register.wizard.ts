@@ -20,6 +20,8 @@ import {
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
 
+// TODO: add confirm step
+// TODO: add "do not change" button for each step
 @Wizard(REGISTER_WIZARD_ID)
 export class RegisterWizard {
   constructor(

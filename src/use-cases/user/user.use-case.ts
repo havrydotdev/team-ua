@@ -1,7 +1,7 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { IUserService } from 'src/core/abstracts';
+import { InjectCache } from 'src/core/decorators';
 import { CreateUserDto, UpdateUserDto } from 'src/core/dtos';
 import { User } from 'src/core/entities';
 import { getProfileCacheKey } from 'src/core/utils';
@@ -11,9 +11,9 @@ import { UserFactoryService } from './user-factory.service';
 @Injectable()
 export class UserUseCases {
   constructor(
+    @InjectCache() private readonly cache: Cache,
     private readonly userService: IUserService,
     private readonly userFactory: UserFactoryService,
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
   ) {}
 
   async create(dto: CreateUserDto): Promise<User> {

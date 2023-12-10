@@ -1,5 +1,5 @@
+import { TestBed } from '@automock/jest';
 import { createMock } from '@golevelup/ts-jest';
-import { Test, TestingModule } from '@nestjs/testing';
 import { RegisterWizard } from 'src/controllers/wizards/register.wizard';
 import { Keyboards, NEXT_WIZARD_ID } from 'src/core/constants';
 import { CreateProfileDto } from 'src/core/dtos';
@@ -7,10 +7,8 @@ import { Profile, User } from 'src/core/entities';
 import { BotException } from 'src/core/errors';
 import { getNameMarkup } from 'src/core/utils';
 import { PhotoMessage, RegisterWizardContext } from 'src/types/telegraf';
-import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
-import { UserUseCases } from 'src/use-cases/user';
 import { PhotoSize } from 'telegraf/typings/core/types/typegram';
 
 jest.mock('src/core/utils', () => {
@@ -31,35 +29,15 @@ jest.mock('src/core/utils', () => {
 
 describe('RegisterWizard', () => {
   let wizard: RegisterWizard;
-  let profileUseCases: ProfileUseCases;
-  let replyUseCases: ReplyUseCases;
+  let profileUseCases: jest.Mocked<ProfileUseCases>;
+  let replyUseCases: jest.Mocked<ReplyUseCases>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        RegisterWizard,
-        {
-          provide: GameUseCases,
-          useValue: createMock<GameUseCases>(),
-        },
-        {
-          provide: ReplyUseCases,
-          useValue: createMock<ReplyUseCases>(),
-        },
-        {
-          provide: UserUseCases,
-          useValue: createMock<UserUseCases>(),
-        },
-        {
-          provide: ProfileUseCases,
-          useValue: createMock<ProfileUseCases>(),
-        },
-      ],
-    }).compile();
+    const { unit, unitRef } = TestBed.create(RegisterWizard).compile();
 
-    wizard = module.get<RegisterWizard>(RegisterWizard);
-    profileUseCases = module.get<ProfileUseCases>(ProfileUseCases);
-    replyUseCases = module.get<ReplyUseCases>(ReplyUseCases);
+    wizard = unit;
+    profileUseCases = unitRef.get(ProfileUseCases);
+    replyUseCases = unitRef.get(ReplyUseCases);
   });
 
   describe('onEnter', () => {

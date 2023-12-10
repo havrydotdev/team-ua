@@ -1,5 +1,5 @@
+import { TestBed } from '@automock/jest';
 import { createMock } from '@golevelup/ts-jest';
-import { Test, TestingModule } from '@nestjs/testing';
 import { IReplyService } from 'src/core/abstracts';
 import { IReportService } from 'src/core/abstracts';
 import { Profile, Report, ReportsChannel, User } from 'src/core/entities';
@@ -26,23 +26,13 @@ describe('ReplyUseCases', () => {
   let reportService: IReportService;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ReplyUseCases,
-        {
-          provide: IReplyService,
-          useValue: createMock<IReplyService>(),
-        },
-        {
-          provide: IReportService,
-          useValue: createMock<IReportService>(),
-        },
-      ],
-    }).compile();
+    const { unit, unitRef } = TestBed.create(ReplyUseCases).compile();
 
-    useCases = module.get<ReplyUseCases>(ReplyUseCases);
-    replyService = module.get<IReplyService>(IReplyService);
-    reportService = module.get<IReportService>(IReportService);
+    useCases = unit;
+    // @ts-expect-error - abstract class
+    replyService = unitRef.get<IReplyService>(IReplyService);
+    // @ts-expect-error - abstract class
+    reportService = unitRef.get<IReportService>(IReportService);
   });
 
   it('should reply with i18n', async () => {

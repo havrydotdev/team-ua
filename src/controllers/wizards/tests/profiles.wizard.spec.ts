@@ -1,5 +1,5 @@
+import { TestBed } from '@automock/jest';
 import { createMock } from '@golevelup/ts-jest';
-import { Test, TestingModule } from '@nestjs/testing';
 import {
   CLEAR_LAST_WIZARD_ID,
   LEAVE_PROFILES_CALLBACK,
@@ -10,8 +10,6 @@ import { Profile, User } from 'src/core/entities';
 import { getCaption, getProfileMarkup } from 'src/core/utils';
 import { ProfilesWizardContext } from 'src/types';
 import { ProfileUseCases } from 'src/use-cases/profile';
-import { ReplyUseCases } from 'src/use-cases/reply';
-import { ReportUseCases } from 'src/use-cases/report';
 import { deunionize } from 'telegraf';
 import { ChatFromGetChat } from 'telegraf/typings/core/types/typegram';
 
@@ -30,29 +28,13 @@ jest.mock('telegraf', () => {
 
 describe('ProfilesWizard', () => {
   let wizard: ProfilesWizard;
-  let profileUseCases: ProfileUseCases;
+  let profileUseCases: jest.Mocked<ProfileUseCases>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ProfilesWizard,
-        {
-          provide: ProfileUseCases,
-          useValue: createMock<ProfileUseCases>(),
-        },
-        {
-          provide: ReplyUseCases,
-          useValue: createMock<ReplyUseCases>(),
-        },
-        {
-          provide: ReportUseCases,
-          useValue: createMock<ReportUseCases>(),
-        },
-      ],
-    }).compile();
+    const { unit, unitRef } = TestBed.create(ProfilesWizard).compile();
 
-    wizard = module.get<ProfilesWizard>(ProfilesWizard);
-    profileUseCases = module.get<ProfileUseCases>(ProfileUseCases);
+    wizard = unit;
+    profileUseCases = unitRef.get(ProfileUseCases);
   });
 
   describe('onEnter', () => {

@@ -1,7 +1,7 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { Cache } from 'cache-manager';
+import { InjectCache } from 'src/core/decorators';
 import { Profile } from 'src/core/entities';
 import { getProfileCacheKey } from 'src/core/utils';
 import {
@@ -18,7 +18,7 @@ import {
 export class ProfileSubscriber implements EntitySubscriberInterface {
   constructor(
     @InjectDataSource() readonly dataSource: DataSource,
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
+    @InjectCache() private readonly cache: Cache,
   ) {
     dataSource.subscribers.push(this);
   }

@@ -1,10 +1,4 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import {
-  CanActivate,
-  ExecutionContext,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Cache } from 'cache-manager';
 import { TelegrafExecutionContext } from 'nestjs-telegraf';
@@ -12,6 +6,7 @@ import { MessageContext } from 'src/types';
 import { UserUseCases } from 'src/use-cases/user';
 
 import { REGISTERED_METADATA_KEY } from '../constants';
+import { InjectCache } from '../decorators';
 import { User } from '../entities';
 import { ProfileException } from '../errors';
 import { getProfileCacheKey } from '../utils';
@@ -19,7 +14,7 @@ import { getProfileCacheKey } from '../utils';
 @Injectable()
 export class ProfileGuard implements CanActivate {
   constructor(
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
+    @InjectCache() private readonly cache: Cache,
     private readonly userUseCases: UserUseCases,
     private readonly reflector: Reflector,
   ) {}

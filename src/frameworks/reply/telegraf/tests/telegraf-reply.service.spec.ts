@@ -1,7 +1,7 @@
+import { TestBed } from '@automock/jest';
 import { createMock } from '@golevelup/ts-jest';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { PathImpl2 } from '@nestjs/config';
-import { Test, TestingModule } from '@nestjs/testing';
 import { Cache } from 'cache-manager';
 import { I18nService } from 'nestjs-i18n';
 import { User } from 'src/core/entities';
@@ -14,9 +14,9 @@ import { TelegrafReplyService } from '../telegraf-reply.service';
 
 describe('TelegrafReplyService', () => {
   let service: TelegrafReplyService;
-  let i18n: I18nService<I18nTranslations>;
-  let bot: Telegraf<MessageContext>;
-  let cache: Cache;
+  let i18n: jest.Mocked<I18nService<I18nTranslations>>;
+  let bot: jest.Mocked<Telegraf<MessageContext>>;
+  let cache: jest.Mocked<Cache>;
   const ctx = createMock<MessageContext>({
     chat: {
       id: 12345,
@@ -30,33 +30,22 @@ describe('TelegrafReplyService', () => {
   });
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        TelegrafReplyService,
-        {
-          provide: I18nService,
-          useValue: createMock<I18nService<I18nTranslations>>(),
-        },
-        {
-          provide: 'DEFAULT_BOT_NAME',
-          useValue: createMock<Telegraf<MessageContext>>({
-            telegram: {
-              sendMessage: jest.fn(),
-              sendPhoto: jest.fn(),
-            },
-          }),
-        },
-        {
-          provide: CACHE_MANAGER,
-          useValue: createMock<Cache>(),
-        },
-      ],
-    }).compile();
+    const { unit, unitRef } = TestBed.create(TelegrafReplyService)
+      .mock('DEFAULT_BOT_NAME')
+      .using(
+        createMock<Telegraf<MessageContext>>({
+          telegram: {
+            sendMessage: jest.fn(),
+            sendPhoto: jest.fn(),
+          },
+        }),
+      )
+      .compile();
 
-    service = module.get<TelegrafReplyService>(TelegrafReplyService);
-    i18n = module.get<I18nService<I18nTranslations>>(I18nService);
-    bot = module.get<Telegraf<MessageContext>>('DEFAULT_BOT_NAME');
-    cache = module.get<Cache>(CACHE_MANAGER);
+    service = unit;
+    i18n = unitRef.get<I18nService<I18nTranslations>>(I18nService);
+    bot = unitRef.get<Telegraf<MessageContext>>('DEFAULT_BOT_NAME');
+    cache = unitRef.get<Cache>(CACHE_MANAGER);
   });
 
   it('should reply with a message', async () => {

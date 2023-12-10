@@ -1,5 +1,5 @@
+import { TestBed } from '@automock/jest';
 import { createMock } from '@golevelup/ts-jest';
-import { Test, TestingModule } from '@nestjs/testing';
 import { Keyboards } from 'src/core/constants';
 import { MessageContext } from 'src/types';
 
@@ -9,11 +9,9 @@ describe('NextActionWizard', () => {
   let wizard: NextActionWizard;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [NextActionWizard],
-    }).compile();
+    const { unit } = TestBed.create(NextActionWizard).compile();
 
-    wizard = module.get<NextActionWizard>(NextActionWizard);
+    wizard = unit;
   });
 
   describe('onEnter', () => {
