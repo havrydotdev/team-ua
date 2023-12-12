@@ -1,3 +1,4 @@
+import { SkipThrottle } from '@nestjs/throttler';
 import {
   Action,
   Command,
@@ -63,6 +64,7 @@ export class AppUpdate {
   }
 
   @On('inline_query')
+  @SkipThrottle()
   async onInlineQuery(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
     const games: Game[] = await this.gameUseCases.findStartsWith(
       ctx.inlineQuery.query,
@@ -145,6 +147,7 @@ export class AppUpdate {
   }
 
   @Roles(['admin'])
+  @Registered()
   @Command('set_reports_channel')
   async onSetReportsBranch(
     @Ctx() ctx: MessageContext,
@@ -162,8 +165,8 @@ export class AppUpdate {
     return 'commands.start';
   }
 
-  @Action(UPDATE_PROFILE_CALLBACK)
   @Registered()
+  @Action(UPDATE_PROFILE_CALLBACK)
   async onUpdateProfile(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
     await ctx.scene.enter(REGISTER_WIZARD_ID);
   }

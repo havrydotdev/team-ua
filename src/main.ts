@@ -1,20 +1,18 @@
-import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { getBotToken } from 'nestjs-telegraf';
 import { Telegraf } from 'telegraf';
 
 import { AppModule } from './app.module';
+import ApiConfigService from './services/config/api-config.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const configService = app.get<ConfigService>(ConfigService);
+  const configService = app.get<ApiConfigService>(ApiConfigService);
 
-  if (configService.get<string>('NODE_ENV') === 'production') {
+  if (configService.isWebhooksEnabled) {
     const bot = app.get<Telegraf>(getBotToken());
-    const webhookCallbackPath = configService.get<string>(
-      'WEBHOOK_CALLBACK_PATH',
-    );
+    const webhookCallbackPath = configService.webhookCallbackPath;
 
     app.use(bot.webhookCallback(webhookCallbackPath));
   }

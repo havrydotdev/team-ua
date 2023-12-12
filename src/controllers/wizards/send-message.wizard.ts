@@ -1,4 +1,5 @@
 /* eslint-disable perfectionist/sort-classes */
+import { SkipThrottle } from '@nestjs/throttler';
 import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
 import {
   Keyboards,
@@ -13,6 +14,7 @@ import {
 } from 'src/types';
 import { UserUseCases } from 'src/use-cases/user';
 
+@SkipThrottle()
 // TODO: add confirm step
 @Wizard(SEND_MESSAGE_WIZARD_ID)
 export class SendMessageWizard {

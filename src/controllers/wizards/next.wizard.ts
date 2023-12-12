@@ -8,6 +8,7 @@ export class NextActionWizard {
   @WizardStep(1)
   async onEnter(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
     await ctx.scene.leave();
+
     return [
       'messages.next_action',
       {

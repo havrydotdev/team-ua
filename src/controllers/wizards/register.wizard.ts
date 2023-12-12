@@ -1,4 +1,5 @@
 /* eslint-disable perfectionist/sort-classes */
+import { SkipThrottle } from '@nestjs/throttler';
 import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
 import {
   Keyboards,
@@ -22,6 +23,7 @@ import { ReplyUseCases } from 'src/use-cases/reply';
 
 // TODO: add confirm step
 // TODO: add "do not change" button for each step
+@SkipThrottle()
 @Wizard(REGISTER_WIZARD_ID)
 export class RegisterWizard {
   constructor(
@@ -157,7 +159,7 @@ export class RegisterWizard {
       userId: ctx.from.id,
     };
 
-    if (user) {
+    if (user.profile) {
       await this.profileUseCases.update(user.profile.id, profileDto);
 
       await this.replyUseCases.replyI18n(ctx, 'messages.register.completed');

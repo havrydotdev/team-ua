@@ -7,8 +7,11 @@ import {
 } from '@nestjs/common';
 import { TelegrafExecutionContext } from 'nestjs-telegraf';
 import { map } from 'rxjs';
-import { Extra, MessageContext, MsgKey } from 'src/types';
+import { MessageContext } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
+
+import { BotException } from '../errors';
+import { isI18nKey, isMsgWithExtra, isMsgWithExtraArr } from '../utils';
 
 @Injectable()
 export class I18nInterceptor implements NestInterceptor {
@@ -24,34 +27,26 @@ export class I18nInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       map(async (data) => {
-        switch (typeof data) {
-          case 'string':
-            await this.replyUseCases.replyI18n(tgCtx, data as MsgKey);
+        switch (true) {
+          case typeof data === 'undefined':
             break;
 
-          case 'undefined':
+          case isI18nKey(data):
+            await this.replyUseCases.replyI18n(tgCtx, data);
+            break;
+
+          case isMsgWithExtra(data):
+            await this.replyUseCases.replyI18n(tgCtx, data[0], data[1]);
+            break;
+
+          case isMsgWithExtraArr(data):
+            for (let i = 0; i < data.length; i++) {
+              await this.replyUseCases.replyI18n(tgCtx, data[i][0], data[i][1]);
+            }
             break;
 
           default:
-            switch (typeof data[0]) {
-              case 'string':
-                await this.replyUseCases.replyI18n(
-                  tgCtx,
-                  data[0] as MsgKey,
-                  data[1] as Extra,
-                );
-                break;
-
-              default:
-                for (let i = 0; i < data.length; i++) {
-                  await this.replyUseCases.replyI18n(
-                    tgCtx,
-                    data[i][0] as MsgKey,
-                    data[i][1] as Extra,
-                  );
-                }
-                break;
-            }
+            throw new BotException('errors.unknown');
         }
       }),
     );

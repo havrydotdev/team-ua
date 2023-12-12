@@ -1,24 +1,23 @@
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { I18nOptions, I18nModule as NestI18n } from 'nestjs-i18n';
 import { join } from 'path';
+
+import ApiConfigService from '../config/api-config.service';
 
 @Module({
   imports: [
     NestI18n.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService): I18nOptions => ({
-        fallbackLanguage:
-          configService.get<string>('FALLBACK_LANGUAGE') ?? 'en',
+      inject: [ApiConfigService],
+      useFactory: (config: ApiConfigService): I18nOptions => ({
+        fallbackLanguage: config.fallbackLanguage,
         loaderOptions: {
           path: join(__dirname, '../../i18n/'),
           watch: true,
         },
         logging: false,
-        typesOutputPath:
-          configService.get<string>('NODE_ENV') === 'dev'
-            ? join(__dirname, '../../../src/generated/i18n.generated.ts')
-            : undefined,
+        typesOutputPath: config.isProd
+          ? undefined
+          : join(__dirname, '../../../src/generated/i18n.generated.ts'),
       }),
     }),
   ],

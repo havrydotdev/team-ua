@@ -1,7 +1,7 @@
 import { PathImpl2 } from '@nestjs/config';
 import { Profile } from 'src/core/entities';
 import { I18nTranslations } from 'src/generated/i18n.generated';
-import { Context } from 'telegraf';
+import { Context, Telegraf } from 'telegraf';
 import {
   ForceReply,
   InlineKeyboardMarkup,
@@ -123,11 +123,9 @@ type MsgWithExtra = [MsgKey, Extra];
 
 type HandlerResponse = MsgKey | MsgWithExtra | MsgWithExtra[] | void;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type Constructor<T> = Function & { prototype: T };
+type WebhookConfig = Telegraf.LaunchOptions['webhook'];
 
 export {
-  Constructor,
   Extra,
   HandlerResponse,
   I18nArgs,
@@ -141,5 +139,6 @@ export {
   RegisterWizardContext,
   SendMessageWizardContext,
   SessionData,
+  WebhookConfig,
   WizardContext,
 };
