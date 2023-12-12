@@ -1,4 +1,5 @@
 /* eslint-disable perfectionist/sort-classes */
+import { SkipThrottle } from '@nestjs/throttler';
 import { Context, Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
 import {
   CLEAR_LAST_WIZARD_ID,
@@ -9,6 +10,7 @@ import {
 import { HandlerResponse, MessageContext, WizardContext } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
 
+@SkipThrottle()
 @Wizard(CLEAR_LAST_WIZARD_ID)
 export class ClearLastProfilesWizard {
   constructor(private readonly replyUseCases: ReplyUseCases) {}

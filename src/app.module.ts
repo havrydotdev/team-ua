@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 import { AppUpdate } from './controllers/updates';
 import {
@@ -15,7 +16,7 @@ import {
   ProfileExceptionFilter,
   UnexpectedExceptionFilter,
 } from './core/filters';
-import { RoleGuard } from './core/guards';
+import { RoleGuard, TelegrafThrottlerGuard } from './core/guards';
 import { ProfileGuard } from './core/guards';
 import { I18nInterceptor } from './core/interceptors';
 import {
@@ -39,6 +40,12 @@ import { UserUseCasesModule } from './use-cases/user';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([
+      {
+        limit: 1,
+        ttl: 1000,
+      },
+    ]),
     ApiCacheModule,
     ApiConfigModule,
     TelegramModule,
@@ -87,6 +94,10 @@ import { UserUseCasesModule } from './use-cases/user';
     {
       provide: APP_GUARD,
       useClass: ProfileGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: TelegrafThrottlerGuard,
     },
   ],
 })

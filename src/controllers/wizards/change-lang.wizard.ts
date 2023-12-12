@@ -1,4 +1,5 @@
 /* eslint-disable perfectionist/sort-classes */
+import { SkipThrottle } from '@nestjs/throttler';
 import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
 import {
   CHANGE_LANG_WIZARD_ID,
@@ -18,6 +19,7 @@ import { ReplyUseCases } from 'src/use-cases/reply';
 import { UserUseCases } from 'src/use-cases/user';
 
 @Wizard(CHANGE_LANG_WIZARD_ID)
+@SkipThrottle()
 export class ChangeLangWizard {
   constructor(
     private readonly replyUseCases: ReplyUseCases,

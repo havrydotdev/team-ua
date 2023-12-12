@@ -1,3 +1,4 @@
+import { SkipThrottle } from '@nestjs/throttler';
 import {
   Action,
   Command,
@@ -63,6 +64,7 @@ export class AppUpdate {
   }
 
   @On('inline_query')
+  @SkipThrottle()
   async onInlineQuery(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
     const games: Game[] = await this.gameUseCases.findStartsWith(
       ctx.inlineQuery.query,
