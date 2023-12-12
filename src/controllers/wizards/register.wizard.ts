@@ -159,7 +159,7 @@ export class RegisterWizard {
       userId: ctx.from.id,
     };
 
-    if (user) {
+    if (user.profile) {
       await this.profileUseCases.update(user.profile.id, profileDto);
 
       await this.replyUseCases.replyI18n(ctx, 'messages.register.completed');
