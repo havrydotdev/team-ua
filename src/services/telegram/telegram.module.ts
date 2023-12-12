@@ -1,33 +1,23 @@
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Redis } from '@telegraf/session/redis';
 import { TelegrafModule, TelegrafModuleOptions } from 'nestjs-telegraf';
 import { session } from 'telegraf';
 
+import ApiConfigService from '../config/api-config.service';
+
 @Module({
   imports: [
     TelegrafModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService): TelegrafModuleOptions => {
+      inject: [ApiConfigService],
+      useFactory: (config: ApiConfigService): TelegrafModuleOptions => {
         const store = Redis({
-          url: configService.get<string>('REDIS_URL'),
+          url: config.redisUrl,
         });
 
-        console.log(configService.get<string>('NODE_ENV'));
-
         return {
-          launchOptions:
-            configService.get<string>('NODE_ENV') === 'production'
-              ? {
-                  webhook: {
-                    domain: configService.get<string>('WEBHOOK_DOMAIN'),
-                    path: configService.get<string>('WEBHOOK_CALLBACK_PATH'),
-                    port: configService.get<number>('WEBHOOK_PORT'),
-                  },
-                }
-              : undefined,
+          launchOptions: config.telegrafLaunchOptions,
           middlewares: [session({ store })],
-          token: configService.get<string>('TELEGRAM_BOT_TOKEN'),
+          token: config.botToken,
         };
       },
     }),
