@@ -29,7 +29,7 @@ export class SendMessageWizard {
     ctx.wizard.next();
 
     return [
-      'messages.send_message.enter_ua',
+      'messages.send_message.enter.ua',
       {
         reply_markup: Keyboards.remove,
       },
@@ -47,7 +47,7 @@ export class SendMessageWizard {
     ctx.wizard.next();
 
     return [
-      'messages.send_message.enter_en',
+      'messages.send_message.enter.en',
       {
         reply_markup: Keyboards.skipStep,
       },

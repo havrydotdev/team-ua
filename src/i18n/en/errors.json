@@ -8,5 +8,6 @@
   "about": {
     "invalid": "Please, enter valid about"
   },
-  "forbidden": "Unfortunately, you can't use this command"
+  "forbidden": "Unfortunately, you can't use this command",
+  "throttler": "Hey, slow down!"
 }

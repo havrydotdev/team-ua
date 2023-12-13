@@ -17,7 +17,7 @@ export class TelegrafThrottlerGuard extends ThrottlerGuard {
     const tgCtx = tgExecutionContext.getContext<MessageContext>();
     const key = this.generateKey(
       context,
-      tgCtx.message.from.id.toString(),
+      tgCtx.from.id.toString(),
       throttler.name,
     );
     const { totalHits } = await this.storageService.increment(key, ttl);

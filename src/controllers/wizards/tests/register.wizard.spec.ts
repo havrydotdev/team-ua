@@ -237,7 +237,9 @@ describe('RegisterWizard', () => {
             }),
           ],
         }),
-        undefined,
+        createMock<User>({
+          profile: undefined,
+        }),
       );
 
       expect(createSpy).toHaveBeenCalledWith(profileDto);

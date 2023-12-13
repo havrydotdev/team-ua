@@ -1,9 +1,9 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { I18nService } from 'nestjs-i18n';
 import { InjectBot } from 'nestjs-telegraf';
 import { IReplyService } from 'src/core/abstracts';
+import { InjectCache } from 'src/core/decorators';
 import { User } from 'src/core/entities';
 import { getProfileCacheKey } from 'src/core/utils';
 import { I18nTranslations } from 'src/generated/i18n.generated';
@@ -16,12 +16,13 @@ import {
 } from 'src/types/telegraf';
 import { Telegraf } from 'telegraf';
 
+// TODO: don't use telegraf context but user entity
 @Injectable()
 class TelegrafReplyService extends IReplyService {
   constructor(
     protected readonly i18n: I18nService<I18nTranslations>,
     @InjectBot() private bot: Telegraf<MessageContext>,
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
+    @InjectCache() private readonly cache: Cache,
   ) {
     super(i18n);
   }
@@ -32,6 +33,7 @@ class TelegrafReplyService extends IReplyService {
     extra?: Extra,
   ): Promise<void> {
     const user = await this.cache.get<User>(getProfileCacheKey(ctx.chat.id));
+    console.log({ user });
 
     await this.sendMsgToChat(
       ctx.chat.id,

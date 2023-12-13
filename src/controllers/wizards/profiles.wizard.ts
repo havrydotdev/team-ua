@@ -106,12 +106,12 @@ export class ProfilesWizard {
 
         await this.replyUseCases.sendMsgToChatI18n(
           profile.user.id,
-          'messages.profile.deleted',
+          'messages.profile.delete.message',
         );
 
         await this.replyUseCases.replyI18n(
           ctx,
-          'messages.profile.delete_success',
+          'messages.profile.delete.success',
         );
 
         await ctx.scene.reenter();
