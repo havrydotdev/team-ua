@@ -45,13 +45,17 @@
       "cleared": "Viewed profiles list wiped",
       "no_more": "It seems that you have already viewed all profiles."
     },
-    "delete_success": "Profile was deleteed successfully",
-    "deleted": "Hi! I'm sorry, but your profile has been deleted by admin. You can create a new one. Have a nice day!",
+    "delete": {
+      "message": "Hi! I'm sorry, but your profile has been deleted by admin. You can create a new one. Have a nice day!",
+      "success": "Profile was deleteed successfully"
+    },
     "update": "Update profile"
   },
   "send_message": {
-    "enter_ua": "Enter message text in ukrainian",
-    "enter_en": "Enter message text in english",
+    "enter": {
+      "ua": "Enter message text in ukrainian",
+      "en": "Enter message text in english"
+    },
     "photo": "Send message photo",
     "sent": "Message sent to all users"
   }

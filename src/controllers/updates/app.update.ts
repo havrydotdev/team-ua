@@ -142,7 +142,7 @@ export class AppUpdate {
 
     await this.replyUseCases.sendMsgToChatI18n(
       userId,
-      'messages.profile.deleted',
+      'messages.profile.delete.message',
     );
   }
 
@@ -168,6 +168,7 @@ export class AppUpdate {
   @Registered()
   @Action(UPDATE_PROFILE_CALLBACK)
   async onUpdateProfile(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
+    console.log({ ctx });
     await ctx.scene.enter(REGISTER_WIZARD_ID);
   }
 }

@@ -167,7 +167,7 @@ describe('AppUpdate', () => {
       expect(deleteByUserSpy).toHaveBeenCalledWith(userId);
       expect(replyUseCases.sendMsgToChatI18n).toHaveBeenCalledWith(
         userId,
-        'messages.profile.deleted',
+        'messages.profile.delete.message',
       );
     });
   });

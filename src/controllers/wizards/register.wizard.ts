@@ -36,6 +36,7 @@ export class RegisterWizard {
     @Ctx() ctx: RegisterWizardContext,
     @ReqUser() profile: Profile,
   ): Promise<HandlerResponse> {
+    console.log({ ctx });
     ctx.wizard.next();
 
     ctx.wizard.state.games = [];
@@ -148,6 +149,7 @@ export class RegisterWizard {
     @Message() msg: PhotoMessage,
     @ReqUser() user: User,
   ): Promise<HandlerResponse> {
+    console.log({ user });
     const fileId = msg.photo.pop().file_id;
 
     const profileDto: CreateProfileDto = {
@@ -161,8 +163,6 @@ export class RegisterWizard {
 
     if (user.profile) {
       await this.profileUseCases.update(user.profile.id, profileDto);
-
-      await this.replyUseCases.replyI18n(ctx, 'messages.register.completed');
 
       await ctx.scene.enter(NEXT_WIZARD_ID);
 

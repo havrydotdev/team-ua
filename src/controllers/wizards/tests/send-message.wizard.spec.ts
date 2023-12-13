@@ -34,7 +34,7 @@ describe('SendMessageWizard', () => {
 
       expect(ctx.wizard.next).toHaveBeenCalled();
       expect(result).toEqual([
-        'messages.send_message.enter_ua',
+        'messages.send_message.enter.ua',
         {
           reply_markup: Keyboards.remove,
         },
@@ -58,7 +58,7 @@ describe('SendMessageWizard', () => {
 
       expect(ctx.wizard.next).toHaveBeenCalled();
       expect(result).toEqual([
-        'messages.send_message.enter_en',
+        'messages.send_message.enter.en',
         {
           reply_markup: Keyboards.skipStep,
         },
