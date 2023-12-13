@@ -121,9 +121,18 @@ export class AppUpdate {
     await ctx.scene.enter(PROFILES_WIZARD_ID);
   }
 
-  // TODO
-  // @Action(/reporter-info-*/)
-  // async onReporterInfo(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {}
+  @Action(/reporter-info-*/)
+  async onReporterInfo(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
+    const userId = parseInt(
+      deunionize(ctx.callbackQuery).data.replace('sen-', ''),
+    );
+
+    const profile = await this.profileUseCases.findByUser(userId);
+
+    await ctx.replyWithPhoto(profile.fileId, {
+      caption: getCaption(profile),
+    });
+  }
 
   @Roles(['admin'])
   @Command('send_message')

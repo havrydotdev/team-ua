@@ -63,6 +63,7 @@ export class ProfilesWizard {
     );
 
     const caption = getCaption(current);
+
     await ctx.replyWithPhoto(current.fileId, {
       caption,
       reply_markup,
