@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { Cache } from 'cache-manager';
 import { InjectCache } from 'src/core/decorators';
-import { Profile } from 'src/core/entities';
+import { Profile, User } from 'src/core/entities';
 import { getProfileCacheKey } from 'src/core/utils';
 import {
   DataSource,
@@ -24,15 +24,33 @@ export class ProfileSubscriber implements EntitySubscriberInterface {
   }
 
   async afterInsert(event: InsertEvent<Profile>) {
-    await this.cache.del(getProfileCacheKey(event.entity.user.id));
+    const cacheKey = getProfileCacheKey(event.entity.user.id);
+    const user = await this.cache.get<User>(cacheKey);
+
+    await this.cache.set(cacheKey, {
+      ...user,
+      profile: undefined,
+    });
   }
 
   async afterRemove(event: RemoveEvent<Profile>): Promise<any> {
-    await this.cache.del(getProfileCacheKey(event.entity.user.id));
+    const cacheKey = getProfileCacheKey(event.entity.user.id);
+    const user = await this.cache.get<User>(cacheKey);
+
+    await this.cache.set(cacheKey, {
+      ...user,
+      profile: undefined,
+    });
   }
 
   async afterUpdate(event: UpdateEvent<any>): Promise<any> {
-    await this.cache.del(getProfileCacheKey(event.entity.user.id));
+    const cacheKey = getProfileCacheKey(event.entity.user.id);
+    const user = await this.cache.get<User>(cacheKey);
+
+    await this.cache.set(cacheKey, {
+      ...user,
+      profile: undefined,
+    });
   }
 
   listenTo() {

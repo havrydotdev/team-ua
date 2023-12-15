@@ -1,6 +1,7 @@
 import { Markup } from 'telegraf';
 
 import {
+  CANCEL_CALLBACK,
   CLEAR_LAST_NO_CALLBACK,
   CLEAR_LAST_YES_CALLBACK,
   CONFIRM_CALLBACK,
@@ -24,9 +25,9 @@ export class Keyboards {
     ],
   ]).resize(true).reply_markup;
 
-  static games = Markup.keyboard([[Markup.button.callback('✅', '✅')]]).resize(
-    true,
-  ).reply_markup;
+  static games = Markup.keyboard([
+    [Markup.button.callback(CONFIRM_CALLBACK, CONFIRM_CALLBACK)],
+  ]).resize(true).reply_markup;
 
   static gamesWithSkip = Markup.keyboard([
     [Markup.button.callback(CONFIRM_CALLBACK, CONFIRM_CALLBACK)],
@@ -50,6 +51,15 @@ export class Keyboards {
       Markup.button.callback(REPORT_CALLBACK, REPORT_CALLBACK),
     ],
   ]).resize(true).reply_markup;
+
+  static refill = Markup.keyboard([
+    [
+      Markup.button.callback(CONFIRM_CALLBACK, CONFIRM_CALLBACK),
+      Markup.button.callback(CANCEL_CALLBACK, CANCEL_CALLBACK),
+    ],
+  ])
+    .resize(true)
+    .oneTime(true).reply_markup;
 
   static remove = Markup.removeKeyboard().reply_markup;
 

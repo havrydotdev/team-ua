@@ -24,6 +24,7 @@
   "game": {
     "invalid": "Please, enter valid game",
     "ok": "Game added",
+    "maximum_added": "You cant add more games",
     "already_added": "You already choosed this game",
     "send": "Send games you play (use @{username} to search available games)",
     "send_existing": "Send games you play (use @{username} to search available games or click {callback} button to not change)"
@@ -51,7 +52,9 @@
       "message": "Hi! I'm sorry, but your profile has been deleted by admin. You can create a new one. Have a nice day!",
       "success": "Profile was deleteed successfully"
     },
-    "update": "Update profile"
+    "update": "Update profile",
+    "ready": "We're here! Your profile will look like this:",
+    "refill": "Do you want to re-fill your profile?"
   },
   "send_message": {
     "enter": {

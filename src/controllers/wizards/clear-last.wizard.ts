@@ -35,8 +35,8 @@ export class ClearLastProfilesWizard {
     ];
   }
 
-  @WizardStep(2)
   @On('text')
+  @WizardStep(2)
   async onAnswer(
     @Context() ctx: MessageContext,
     @Message() msg: { text: string },

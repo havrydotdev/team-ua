@@ -1,7 +1,8 @@
 /* eslint-disable perfectionist/sort-classes */
 import { SkipThrottle } from '@nestjs/throttler';
-import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
+import { Ctx, Hears, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
 import {
+  CANCEL_CALLBACK,
   CONFIRM_CALLBACK,
   DONT_CHANGE_CALLBACK,
   Keyboards,
@@ -13,7 +14,7 @@ import { CreateProfileDto } from 'src/core/dtos';
 import { User } from 'src/core/entities';
 import { BotException } from 'src/core/errors';
 import { AboutPipe, AgePipe, GameExistPipe } from 'src/core/pipes';
-import { getDontChangeMarkup } from 'src/core/utils';
+import { getCaption, getDontChangeMarkup } from 'src/core/utils';
 import {
   GameExistMessage,
   HandlerResponse,
@@ -170,13 +171,11 @@ export class RegisterWizard {
     const gameMsg = msg as GameExistMessage;
 
     if (ctx.wizard.state.games.includes(gameMsg.gameId)) {
-      // TODO: add message description
       throw new BotException('messages.game.already_added');
     }
 
     if (ctx.wizard.state.games.length === 10) {
-      // TODO: add message description
-      throw new BotException();
+      throw new BotException('messages.game.maximum_added');
     }
 
     ctx.wizard.state.games.push(gameMsg.gameId);
@@ -207,20 +206,38 @@ export class RegisterWizard {
       userId: ctx.from.id,
     };
 
-    if (user.profile) {
-      await this.profileUseCases.update(user.profile.id, profileDto);
+    const profile = user.profile
+      ? await this.profileUseCases.update(user.profile.id, profileDto)
+      : await this.profileUseCases.create(profileDto);
 
-      await ctx.scene.enter(NEXT_WIZARD_ID);
+    await this.replyUseCases.replyI18n(ctx, 'messages.profile.ready');
 
-      return;
+    await ctx.replyWithPhoto(user.profile.fileId, {
+      caption: getCaption(profile),
+    });
+
+    await this.replyUseCases.replyI18n(ctx, 'messages.profile.refill', {
+      reply_markup: Keyboards.refill,
+    });
+
+    ctx.wizard.next();
+  }
+
+  @Hears([CONFIRM_CALLBACK, CANCEL_CALLBACK])
+  @WizardStep(7)
+  async onAnswer(
+    @Ctx()
+    ctx: RegisterWizardContext,
+    @Message() msg: TextMessage,
+  ): Promise<HandlerResponse> {
+    switch (msg.text) {
+      case CONFIRM_CALLBACK:
+        await ctx.scene.reenter();
+        break;
+
+      case CANCEL_CALLBACK:
+        await ctx.scene.enter(NEXT_WIZARD_ID);
+        break;
     }
-
-    await this.profileUseCases.create(profileDto);
-
-    await this.replyUseCases.replyI18n(ctx, 'messages.register.completed');
-
-    await ctx.scene.enter(NEXT_WIZARD_ID);
-
-    return;
   }
 }

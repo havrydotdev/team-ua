@@ -30,14 +30,14 @@ export class ProfileGuard implements CanActivate {
     );
 
     let cachedUser = await this.cache.get<User>(profileKey);
-    if (!cachedUser) {
+    if (!cachedUser || !cachedUser.profile) {
       let user = await this.userUseCases.findById(tgCtx.from.id);
       if (!user) {
         const createdUser = await this.userUseCases.create({
           id: tgCtx.from.id,
         });
 
-        user ??= createdUser;
+        user = createdUser;
       }
 
       await this.cache.set(profileKey, user);

@@ -54,6 +54,7 @@ export type I18nTranslations = {
         "game": {
             "invalid": string;
             "ok": string;
+            "maximum_added": string;
             "already_added": string;
             "send": string;
             "send_existing": string;
@@ -82,6 +83,8 @@ export type I18nTranslations = {
                 "success": string;
             };
             "update": string;
+            "ready": string;
+            "refill": string;
             "deleted": string;
         };
         "send_message": {
