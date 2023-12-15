@@ -36,7 +36,6 @@ import { ReportUseCases } from 'src/use-cases/report';
 import { deunionize } from 'telegraf';
 import { InlineQueryResult } from 'telegraf/typings/core/types/typegram';
 
-// TODO: add release notes command
 @Update()
 export class AppUpdate {
   constructor(

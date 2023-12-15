@@ -5,3 +5,4 @@ export * from './get-caption';
 export * from './get-markup';
 export * from './partial';
 export * from './handler-response';
+export * from './memoize';

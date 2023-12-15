@@ -3,7 +3,9 @@ import { Markup } from 'telegraf';
 import {
   CLEAR_LAST_NO_CALLBACK,
   CLEAR_LAST_YES_CALLBACK,
+  CONFIRM_CALLBACK,
   COOP_CALLBACK,
+  DONT_CHANGE_CALLBACK,
   HELP_CALLBACK,
   LANG_CALLBACK,
   LEAVE_PROFILES_CALLBACK,
@@ -25,6 +27,11 @@ export class Keyboards {
   static games = Markup.keyboard([[Markup.button.callback('✅', '✅')]]).resize(
     true,
   ).reply_markup;
+
+  static gamesWithSkip = Markup.keyboard([
+    [Markup.button.callback(CONFIRM_CALLBACK, CONFIRM_CALLBACK)],
+    [Markup.button.callback(DONT_CHANGE_CALLBACK, DONT_CHANGE_CALLBACK)],
+  ]).resize(true).reply_markup;
 
   static mainMenu = Markup.keyboard([
     [

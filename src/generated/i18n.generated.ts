@@ -46,6 +46,7 @@ export type I18nTranslations = {
         };
         "picture": {
             "send": string;
+            "send_existing": string;
         };
         "about": {
             "send": string;
@@ -55,6 +56,7 @@ export type I18nTranslations = {
             "ok": string;
             "already_added": string;
             "send": string;
+            "send_existing": string;
         };
         "register": {
             "completed": string;

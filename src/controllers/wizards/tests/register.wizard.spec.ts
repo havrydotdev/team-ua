@@ -1,12 +1,20 @@
 import { TestBed } from '@automock/jest';
 import { createMock } from '@golevelup/ts-jest';
 import { RegisterWizard } from 'src/controllers/wizards/register.wizard';
-import { Keyboards, NEXT_WIZARD_ID } from 'src/core/constants';
+import {
+  DONT_CHANGE_CALLBACK,
+  Keyboards,
+  NEXT_WIZARD_ID,
+} from 'src/core/constants';
 import { CreateProfileDto } from 'src/core/dtos';
 import { Profile, User } from 'src/core/entities';
 import { BotException } from 'src/core/errors';
-import { getNameMarkup } from 'src/core/utils';
-import { PhotoMessage, RegisterWizardContext } from 'src/types/telegraf';
+import { getDontChangeMarkup } from 'src/core/utils';
+import {
+  KeywordMessage,
+  PhotoMessage,
+  RegisterWizardContext,
+} from 'src/types/telegraf';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { PhotoSize } from 'telegraf/typings/core/types/typegram';
@@ -54,15 +62,51 @@ describe('RegisterWizard', () => {
         },
       });
 
-      const resp = await wizard.onEnter(ctx, undefined);
-
-      console.log({ resp });
+      const resp = await wizard.onEnter(
+        ctx,
+        createMock<User>({
+          profile: undefined,
+        }),
+      );
 
       expect(resp).toEqual([
         ['messages.user.new', {}],
         [
           'messages.name.send',
-          { reply_markup: getNameMarkup(ctx.from.first_name) },
+          { reply_markup: getDontChangeMarkup(ctx.from.first_name) },
+        ],
+      ]);
+      expect(ctx.wizard.next).toHaveBeenCalled();
+      expect(ctx.wizard.state.games).not.toBeUndefined();
+    });
+
+    it('should send message with current name button if profile is defined', async () => {
+      const ctx = createMock<RegisterWizardContext>({
+        from: {
+          first_name: 'John',
+        },
+        wizard: {
+          next: jest.fn(),
+          state: {
+            games: undefined,
+          },
+        },
+      });
+      const profile = createMock<Profile>({
+        name: 'test123',
+      });
+
+      const resp = await wizard.onEnter(
+        ctx,
+        createMock<User>({
+          profile,
+        }),
+      );
+
+      expect(resp).toEqual([
+        [
+          'messages.name.send',
+          { reply_markup: getDontChangeMarkup(profile.name) },
         ],
       ]);
       expect(ctx.wizard.next).toHaveBeenCalled();
@@ -80,7 +124,13 @@ describe('RegisterWizard', () => {
       });
       const msg = { text: 'name' };
 
-      const resp = await wizard.onName(ctx, msg);
+      const resp = await wizard.onName(
+        ctx,
+        msg,
+        createMock<User>({
+          profile: undefined,
+        }),
+      );
 
       expect(ctx.wizard.state.name).toEqual(msg.text);
       expect(resp).toEqual([
@@ -91,10 +141,40 @@ describe('RegisterWizard', () => {
       ]);
       expect(ctx.wizard.next).toHaveBeenCalled();
     });
+
+    it('should send message with current age button if profile is defined', async () => {
+      const ctx = createMock<RegisterWizardContext>({
+        wizard: {
+          next: jest.fn(),
+          state: {},
+        },
+      });
+      const profile = createMock<Profile>({
+        age: 17,
+      });
+      const msg = { text: 'name' };
+
+      const resp = await wizard.onName(
+        ctx,
+        msg,
+        createMock<User>({
+          profile,
+        }),
+      );
+
+      expect(ctx.wizard.state.name).toEqual(msg.text);
+      expect(resp).toEqual([
+        'messages.age.send',
+        {
+          reply_markup: getDontChangeMarkup(profile.age.toString()),
+        },
+      ]);
+      expect(ctx.wizard.next).toHaveBeenCalled();
+    });
   });
 
   describe('onAge', () => {
-    it('should call enterAge on the reply use cases and go to the next step', async () => {
+    it('should go to the next step if user profile is undefined', async () => {
       const ctx = createMock<RegisterWizardContext>({
         wizard: {
           next: jest.fn(),
@@ -102,9 +182,20 @@ describe('RegisterWizard', () => {
         },
       });
 
-      const resp = await wizard.onAge(ctx, { text: 17 });
+      const resp = await wizard.onAge(
+        ctx,
+        { text: 17 },
+        createMock<User>({
+          profile: undefined,
+        }),
+      );
 
-      expect(resp).toEqual('messages.about.send');
+      expect(resp).toEqual([
+        'messages.about.send',
+        {
+          reply_markup: Keyboards.remove,
+        },
+      ]);
       expect(ctx.wizard.state.age).toEqual(17);
       expect(ctx.wizard.next).toHaveBeenCalled();
     });
@@ -120,7 +211,13 @@ describe('RegisterWizard', () => {
         },
       });
       const msg = { text: 'Kharkiv' };
-      const resp = await wizard.onAbout(ctx, msg);
+      const resp = await wizard.onAbout(
+        ctx,
+        msg,
+        createMock<User>({
+          profile: undefined,
+        }),
+      );
 
       expect(ctx.wizard.state.about).toEqual(msg.text);
       expect(ctx.wizard.next).toHaveBeenCalled();
@@ -128,6 +225,7 @@ describe('RegisterWizard', () => {
         'messages.game.send',
         {
           i18nArgs: {
+            callback: DONT_CHANGE_CALLBACK,
             username: ctx.me,
           },
           reply_markup: Keyboards.games,
@@ -149,7 +247,13 @@ describe('RegisterWizard', () => {
 
       const msg = { gameId: 1, text: 'game1' };
 
-      const resp = await wizard.onGame(ctx, msg);
+      const resp = await wizard.onGame(
+        ctx,
+        msg,
+        createMock<User>({
+          profile: undefined,
+        }),
+      );
 
       expect(ctx.wizard.state.games).toEqual([1]);
       expect(ctx.wizard.next).not.toHaveBeenCalled();
@@ -167,14 +271,21 @@ describe('RegisterWizard', () => {
       });
       const msg = { gameId: 1, text: 'game1' };
 
-      expect(async () => await wizard.onGame(ctx, msg)).rejects.toThrowError(
-        new BotException('messages.game.already_added'),
-      );
+      expect(
+        async () =>
+          await wizard.onGame(
+            ctx,
+            msg,
+            createMock<User>({
+              profile: undefined,
+            }),
+          ),
+      ).rejects.toThrow(new BotException('messages.game.already_added'));
       expect(ctx.wizard.state.games).toEqual([1]);
       expect(ctx.wizard.next).not.toHaveBeenCalled();
     });
 
-    it('should go to the next step if the message is ✅', async () => {
+    it('should throw an error if the message is ✅ and games length is zero', async () => {
       const ctx = createMock<RegisterWizardContext>({
         wizard: {
           next: jest.fn(),
@@ -183,11 +294,17 @@ describe('RegisterWizard', () => {
           },
         },
       });
-      const msg = { gameId: 1, text: '✅' };
+      const msg: KeywordMessage = { keyword: true, text: '✅' };
 
-      expect(wizard.onGame(ctx, msg)).rejects.toThrowError(
-        new BotException('errors.unknown'),
-      );
+      expect(
+        wizard.onGame(
+          ctx,
+          msg,
+          createMock<User>({
+            profile: undefined,
+          }),
+        ),
+      ).rejects.toThrow(new BotException('errors.unknown'));
       expect(ctx.wizard.next).not.toHaveBeenCalled();
     });
   });

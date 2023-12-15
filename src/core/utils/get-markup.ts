@@ -14,7 +14,7 @@ import {
   UPDATE_PROFILE_CALLBACK,
 } from '../constants';
 
-const getNameMarkup = (name: string): ReplyKeyboardMarkup => {
+const getDontChangeMarkup = (name: string): ReplyKeyboardMarkup => {
   const reply_markup = Markup.keyboard([
     [Markup.button.callback(name, name)],
   ]).reply_markup;
@@ -84,8 +84,8 @@ const getProfilesWizardMarkup = (
 
 export {
   getAdMarkup,
+  getDontChangeMarkup,
   getMeMarkup,
-  getNameMarkup,
   getProfileMarkup,
   getProfilesWizardMarkup,
   getReportMarkup,

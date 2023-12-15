@@ -15,7 +15,8 @@
     "send": "Enter your age"
   },
   "picture": {
-    "send": "Send photo for your profile"
+    "send": "Send photo for your profile",
+    "send_existing": "Send photo for your profile (to not change, click {callback}) button"
   },
   "about": {
     "send": "Tell about yourself"
@@ -24,7 +25,8 @@
     "invalid": "Please, enter valid game",
     "ok": "Game added",
     "already_added": "You already choosed this game",
-    "send": "Send games you play (use @{username} to search available games)"
+    "send": "Send games you play (use @{username} to search available games)",
+    "send_existing": "Send games you play (use @{username} to search available games or click {callback} button to not change)"
   },
   "register": {
     "completed": "Registration completed"
