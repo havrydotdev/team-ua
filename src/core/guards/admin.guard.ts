@@ -5,6 +5,7 @@ import { MessageContext } from 'src/types';
 import { UserUseCases } from 'src/use-cases/user';
 
 import { Roles } from '../decorators';
+import { BotException } from '../errors';
 
 @Injectable()
 export class RoleGuard implements CanActivate {
@@ -24,6 +25,10 @@ export class RoleGuard implements CanActivate {
 
     const user = await this.userUseCases.findById(from.id);
 
-    return roles.includes(user.role);
+    if (!roles.includes(user.role)) {
+      throw new BotException('errors.forbidden');
+    }
+
+    return true;
   }
 }

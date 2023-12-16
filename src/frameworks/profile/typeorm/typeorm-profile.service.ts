@@ -105,9 +105,19 @@ export class TypeOrmProfileService implements IProfileService {
   }
 
   async updateProfile(profileId: number, profile: Profile): Promise<Profile> {
-    return this.profileRepo.save({
+    await this.profileRepo.save({
       id: profileId,
       ...profile,
+    });
+
+    return this.profileRepo.findOne({
+      relations: {
+        games: true,
+        user: true,
+      },
+      where: {
+        id: profileId,
+      },
     });
   }
 }

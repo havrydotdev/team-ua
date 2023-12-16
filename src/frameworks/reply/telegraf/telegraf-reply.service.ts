@@ -33,7 +33,6 @@ class TelegrafReplyService extends IReplyService {
     extra?: Extra,
   ): Promise<void> {
     const user = await this.cache.get<User>(getProfileCacheKey(ctx.chat.id));
-    console.log({ user });
 
     await this.sendMsgToChat(
       ctx.chat.id,

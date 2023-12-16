@@ -26,6 +26,10 @@ export class ProfileUseCases {
     return this.profileService.findAll();
   }
 
+  async findByUser(userId: number): Promise<Profile> {
+    return this.profileService.findByUser(userId);
+  }
+
   async findRecommended(
     profile: Profile,
     seenProfiles: number[],

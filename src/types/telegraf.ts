@@ -125,10 +125,24 @@ type HandlerResponse = MsgKey | MsgWithExtra | MsgWithExtra[] | void;
 
 type WebhookConfig = Telegraf.LaunchOptions['webhook'];
 
+type TextMessage = {
+  text: string;
+};
+
+type GameExistMessage = TextMessage & {
+  gameId: number;
+};
+
+type KeywordMessage = TextMessage & {
+  keyword: true;
+};
+
 export {
   Extra,
+  GameExistMessage,
   HandlerResponse,
   I18nArgs,
+  KeywordMessage,
   Language,
   MessageContext,
   MsgKey,
@@ -139,6 +153,7 @@ export {
   RegisterWizardContext,
   SendMessageWizardContext,
   SessionData,
+  TextMessage,
   WebhookConfig,
   WizardContext,
 };

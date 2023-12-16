@@ -5,7 +5,6 @@ import { Language } from 'src/types';
 
 import ApiConfigService from './api-config.service';
 
-// TODO: add custom config wrapper
 @Global()
 @Module({
   exports: [ApiConfigService],
