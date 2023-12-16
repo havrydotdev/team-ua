@@ -1,24 +1,33 @@
 /* eslint-disable perfectionist/sort-classes */
 import { SkipThrottle } from '@nestjs/throttler';
-import { Ctx, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
+import { Ctx, Hears, Message, On, Wizard, WizardStep } from 'nestjs-telegraf';
 import {
+  CANCEL_CALLBACK,
+  CONFIRM_CALLBACK,
   Keyboards,
   NEXT_WIZARD_ID,
   SEND_MESSAGE_WIZARD_ID,
   SKIP_STEP_CALLBACK,
 } from 'src/core/constants';
+import { ReqUser } from 'src/core/decorators';
+import { User } from 'src/core/entities';
 import {
   HandlerResponse,
   PhotoMessage,
   SendMessageWizardContext,
+  TextMessage,
 } from 'src/types';
+import { ReplyUseCases } from 'src/use-cases/reply';
 import { UserUseCases } from 'src/use-cases/user';
 
 @SkipThrottle()
 // TODO: add confirm step
 @Wizard(SEND_MESSAGE_WIZARD_ID)
 export class SendMessageWizard {
-  constructor(private readonly userUseCases: UserUseCases) {}
+  constructor(
+    private readonly userUseCases: UserUseCases,
+    private readonly replyUseCases: ReplyUseCases,
+  ) {}
 
   @WizardStep(1)
   async onEnter(
@@ -85,18 +94,55 @@ export class SendMessageWizard {
   async onPhoto(
     @Ctx() ctx: SendMessageWizardContext,
     @Message() msg: PhotoMessage,
+    @ReqUser() user: User,
   ): Promise<HandlerResponse> {
+    await this.replyUseCases.replyI18n(ctx, 'messages.send_message.ready');
+
     const photo = (msg.photo ?? []).pop();
+    ctx.wizard.state.photo = photo ? photo.file_id : undefined;
+
+    const text =
+      ctx.wizard.state.message[user.lang] ?? ctx.wizard.state.message.ua;
+
+    if (ctx.wizard.state.photo) {
+      await ctx.telegram.sendPhoto(user.id, ctx.wizard.state.photo, {
+        caption: text,
+      });
+    } else {
+      await ctx.telegram.sendMessage(user.id, text);
+    }
+
+    ctx.wizard.next();
+
+    return [
+      'messages.send_message.accept',
+      {
+        reply_markup: Keyboards.refill,
+      },
+    ];
+  }
+
+  @Hears([CONFIRM_CALLBACK, CANCEL_CALLBACK])
+  @WizardStep(5)
+  async onAccept(
+    @Ctx() ctx: SendMessageWizardContext,
+    @Message() msg: TextMessage,
+  ): Promise<HandlerResponse> {
+    if (msg.text == CANCEL_CALLBACK) {
+      ctx.scene.enter(NEXT_WIZARD_ID);
+
+      return 'messages.send_message.canceled';
+    }
+
     const users = await this.userUseCases.findAll();
 
     for (const user of users) {
-      console.log(ctx.wizard.state.message[user.lang]);
       try {
         const text =
           ctx.wizard.state.message[user.lang] ?? ctx.wizard.state.message.ua;
 
-        if (photo) {
-          await ctx.telegram.sendPhoto(user.id, photo.file_id, {
+        if (ctx.wizard.state.photo) {
+          await ctx.telegram.sendPhoto(user.id, ctx.wizard.state.photo, {
             caption: text,
           });
         } else {

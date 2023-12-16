@@ -27,7 +27,6 @@ import {
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
 
-// TODO: add confirm step
 @SkipThrottle()
 @Wizard(REGISTER_WIZARD_ID)
 export class RegisterWizard {

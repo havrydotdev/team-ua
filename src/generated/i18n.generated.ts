@@ -94,6 +94,9 @@ export type I18nTranslations = {
             };
             "photo": string;
             "sent": string;
+            "ready": string;
+            "accept": string;
+            "canceled": string;
         };
     };
 };

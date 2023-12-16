@@ -62,6 +62,9 @@
       "en": "Enter message text in english"
     },
     "photo": "Send message photo",
-    "sent": "Message sent to all users"
+    "sent": "Message sent to all users",
+    "ready": "We're here! Message will look like this:",
+    "accept": "Are you sure you want to send it to all users?",
+    "canceled": "Sending canceled."
   }
 }
