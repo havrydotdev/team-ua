@@ -23,6 +23,6 @@ export class UnexpectedExceptionFilter implements ExceptionFilter {
 
     const message: MsgKey = 'errors.unknown';
 
-    await this.replyUseCases.replyI18n(ctx, message);
+    await this.replyUseCases.replyI18n(ctx.chat.id, message);
   }
 }

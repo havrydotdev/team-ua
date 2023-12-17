@@ -1,4 +1,4 @@
-const getProfileCacheKey = (userId: number) => {
+const getProfileCacheKey = (userId: number | string) => {
   return `profile:${userId}`;
 };
 

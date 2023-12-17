@@ -12,6 +12,7 @@ import { ReqUser } from 'src/core/decorators';
 import { CreateReportDto } from 'src/core/dtos';
 import { Profile, User } from 'src/core/entities';
 import { AboutPipe } from 'src/core/pipes';
+import { I18nTextProps } from 'src/core/props/i18n-text.props';
 import { getCaption, getProfileMarkup } from 'src/core/utils';
 import { HandlerResponse, ProfilesWizardContext } from 'src/types';
 import { ProfileUseCases } from 'src/use-cases/profile';
@@ -105,14 +106,17 @@ export class ProfilesWizard {
 
         await this.profileUseCases.deleteByUser(profile.user.id);
 
-        await this.replyUseCases.sendMsgToChatI18n(
-          profile.user.id,
-          'messages.profile.delete.message',
-        );
-
-        await this.replyUseCases.replyI18n(
-          ctx,
-          'messages.profile.delete.success',
+        this.replyUseCases.send(
+          new I18nTextProps([
+            profile.user.id,
+            profile.user.lang,
+            'messages.profile.delete.message',
+          ]),
+          new I18nTextProps([
+            ctx.chat.id,
+            user.lang,
+            'messages.profile.delete.success',
+          ]),
         );
 
         await ctx.scene.reenter();

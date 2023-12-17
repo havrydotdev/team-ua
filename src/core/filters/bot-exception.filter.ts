@@ -4,7 +4,6 @@ import { MessageContext, MsgKey } from 'src/types';
 import { ReplyUseCases } from 'src/use-cases/reply';
 
 import { BotException } from '../errors';
-
 @Catch(BotException)
 export class BotExceptionFilter implements ExceptionFilter {
   constructor(private readonly replyUseCases: ReplyUseCases) {}
@@ -13,6 +12,9 @@ export class BotExceptionFilter implements ExceptionFilter {
     const telegrafHost = TelegrafArgumentsHost.create(host);
     const ctx = telegrafHost.getContext<MessageContext>();
 
-    await this.replyUseCases.replyI18n(ctx, exception.message as MsgKey);
+    await this.replyUseCases.replyI18n(
+      ctx.chat.id,
+      exception.message as MsgKey,
+    );
   }
 }

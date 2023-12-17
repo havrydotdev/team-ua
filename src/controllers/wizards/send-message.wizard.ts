@@ -21,7 +21,6 @@ import { ReplyUseCases } from 'src/use-cases/reply';
 import { UserUseCases } from 'src/use-cases/user';
 
 @SkipThrottle()
-// TODO: add confirm step
 @Wizard(SEND_MESSAGE_WIZARD_ID)
 export class SendMessageWizard {
   constructor(
@@ -96,21 +95,15 @@ export class SendMessageWizard {
     @Message() msg: PhotoMessage,
     @ReqUser() user: User,
   ): Promise<HandlerResponse> {
-    await this.replyUseCases.replyI18n(ctx, 'messages.send_message.ready');
+    await this.replyUseCases.replyI18n(
+      ctx.chat.id,
+      'messages.send_message.ready',
+    );
 
     const photo = (msg.photo ?? []).pop();
     ctx.wizard.state.photo = photo ? photo.file_id : undefined;
 
-    const text =
-      ctx.wizard.state.message[user.lang] ?? ctx.wizard.state.message.ua;
-
-    if (ctx.wizard.state.photo) {
-      await ctx.telegram.sendPhoto(user.id, ctx.wizard.state.photo, {
-        caption: text,
-      });
-    } else {
-      await ctx.telegram.sendMessage(user.id, text);
-    }
+    await this.sendMessage(ctx, user);
 
     ctx.wizard.next();
 
@@ -137,24 +130,28 @@ export class SendMessageWizard {
     const users = await this.userUseCases.findAll();
 
     for (const user of users) {
-      try {
-        const text =
-          ctx.wizard.state.message[user.lang] ?? ctx.wizard.state.message.ua;
-
-        if (ctx.wizard.state.photo) {
-          await ctx.telegram.sendPhoto(user.id, ctx.wizard.state.photo, {
-            caption: text,
-          });
-        } else {
-          await ctx.telegram.sendMessage(user.id, text);
-        }
-      } catch (e) {
-        console.log(e);
-      }
+      await this.sendMessage(ctx, user);
     }
 
     await ctx.scene.enter(NEXT_WIZARD_ID);
 
     return 'messages.send_message.sent';
+  }
+
+  private async sendMessage(ctx: SendMessageWizardContext, user: User) {
+    try {
+      const text =
+        ctx.wizard.state.message[user.lang] ?? ctx.wizard.state.message.ua;
+
+      if (ctx.wizard.state.photo) {
+        await this.replyUseCases.sendPhoto(user.id, ctx.wizard.state.photo, {
+          caption: text,
+        });
+      } else {
+        await this.replyUseCases.sendMessage(user.id, text);
+      }
+    } catch (e) {
+      console.log(e);
+    }
   }
 }

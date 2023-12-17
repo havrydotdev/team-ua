@@ -1,6 +1,7 @@
 import { PathImpl2 } from '@nestjs/config';
 import { Profile } from 'src/core/entities';
 import { I18nTranslations } from 'src/generated/i18n.generated';
+import { ReplyUseCases } from 'src/use-cases/reply';
 import { Context, Telegraf } from 'telegraf';
 import {
   ForceReply,
@@ -137,6 +138,18 @@ type KeywordMessage = TextMessage & {
   keyword: true;
 };
 
+type SendI18nTextArgs = Parameters<ReplyUseCases['sendMessageI18n']>;
+
+type SendTextArgs = Parameters<MessageContext['telegram']['sendMessage']>;
+
+type SendTextReturnType = ReturnType<MessageContext['telegram']['sendMessage']>;
+
+type SendPhotoArgs = Parameters<MessageContext['telegram']['sendPhoto']>;
+
+type SendPhotoReturnType = ReturnType<MessageContext['telegram']['sendPhoto']>;
+
+type ReplyI18nArgs = Parameters<ReplyUseCases['replyI18n']>;
+
 export {
   Extra,
   GameExistMessage,
@@ -151,7 +164,13 @@ export {
   PhotoMessage,
   ProfilesWizardContext,
   RegisterWizardContext,
+  ReplyI18nArgs,
+  SendI18nTextArgs,
   SendMessageWizardContext,
+  SendPhotoArgs,
+  SendPhotoReturnType,
+  SendTextArgs,
+  SendTextReturnType,
   SessionData,
   TextMessage,
   WebhookConfig,

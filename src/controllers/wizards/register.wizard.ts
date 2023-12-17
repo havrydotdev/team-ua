@@ -14,6 +14,8 @@ import { CreateProfileDto } from 'src/core/dtos';
 import { User } from 'src/core/entities';
 import { BotException } from 'src/core/errors';
 import { AboutPipe, AgePipe, GameExistPipe } from 'src/core/pipes';
+import { PhotoProps } from 'src/core/props';
+import { I18nTextProps } from 'src/core/props/i18n-text.props';
 import { getCaption, getDontChangeMarkup } from 'src/core/utils';
 import {
   GameExistMessage,
@@ -209,21 +211,30 @@ export class RegisterWizard {
       ? await this.profileUseCases.update(user.profile.id, profileDto)
       : await this.profileUseCases.create(profileDto);
 
-    await this.replyUseCases.replyI18n(ctx, 'messages.profile.ready');
-
-    await ctx.replyWithPhoto(user.profile.fileId, {
-      caption: getCaption(profile),
-    });
-
-    await this.replyUseCases.replyI18n(ctx, 'messages.profile.refill', {
-      reply_markup: Keyboards.refill,
-    });
+    this.replyUseCases.send(
+      new I18nTextProps([ctx.chat.id, user.lang, 'messages.profile.ready']),
+      new PhotoProps([
+        ctx.chat.id,
+        user.profile.fileId,
+        {
+          caption: getCaption(profile),
+        },
+      ]),
+      new I18nTextProps([
+        ctx.chat.id,
+        user.lang,
+        'messages.profile.refill',
+        {
+          reply_markup: Keyboards.refill,
+        },
+      ]),
+    );
 
     ctx.wizard.next();
   }
 
-  @Hears([CONFIRM_CALLBACK, CANCEL_CALLBACK])
   @WizardStep(7)
+  @Hears([CONFIRM_CALLBACK, CANCEL_CALLBACK])
   async onAnswer(
     @Ctx()
     ctx: RegisterWizardContext,

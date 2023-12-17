@@ -32,16 +32,20 @@ export class I18nInterceptor implements NestInterceptor {
             break;
 
           case isI18nKey(data):
-            await this.replyUseCases.replyI18n(tgCtx, data);
+            await this.replyUseCases.replyI18n(tgCtx.chat.id, data);
             break;
 
           case isMsgWithExtra(data):
-            await this.replyUseCases.replyI18n(tgCtx, data[0], data[1]);
+            await this.replyUseCases.replyI18n(tgCtx.chat.id, data[0], data[1]);
             break;
 
           case isMsgWithExtraArr(data):
             for (let i = 0; i < data.length; i++) {
-              await this.replyUseCases.replyI18n(tgCtx, data[i][0], data[i][1]);
+              await this.replyUseCases.replyI18n(
+                tgCtx.chat.id,
+                data[i][0],
+                data[i][1],
+              );
             }
             break;
 

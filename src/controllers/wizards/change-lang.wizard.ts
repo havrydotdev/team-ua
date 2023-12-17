@@ -76,14 +76,14 @@ export class ChangeLangWizard {
     await ctx.scene.leave();
 
     if (!user.profile) {
-      await this.replyUseCases.replyI18n(ctx, 'messages.lang.changed');
+      await this.replyUseCases.replyI18n(ctx.chat.id, 'messages.lang.changed');
 
       await ctx.scene.enter(REGISTER_WIZARD_ID);
 
       return;
     }
 
-    await this.replyUseCases.replyI18n(ctx, 'messages.lang.changed', {
+    await this.replyUseCases.replyI18n(ctx.chat.id, 'messages.lang.changed', {
       reply_markup: Keyboards.remove,
     });
 

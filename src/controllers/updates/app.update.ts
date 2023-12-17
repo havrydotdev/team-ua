@@ -33,6 +33,7 @@ import { GameUseCases } from 'src/use-cases/game';
 import { ProfileUseCases } from 'src/use-cases/profile';
 import { ReplyUseCases } from 'src/use-cases/reply';
 import { ReportUseCases } from 'src/use-cases/report';
+import { UserUseCases } from 'src/use-cases/user';
 import { deunionize } from 'telegraf';
 import { InlineQueryResult } from 'telegraf/typings/core/types/typegram';
 
@@ -43,6 +44,7 @@ export class AppUpdate {
     private readonly gameUseCases: GameUseCases,
     private readonly reportUseCases: ReportUseCases,
     private readonly profileUseCases: ProfileUseCases,
+    private readonly userUseCases: UserUseCases,
   ) {}
 
   @Command('coop')
@@ -98,7 +100,7 @@ export class AppUpdate {
     @Ctx() ctx: MessageContext,
     @ReqUser() user: User,
   ): Promise<HandlerResponse> {
-    await ctx.replyWithPhoto(user.profile.fileId, {
+    await this.replyUseCases.sendPhoto(ctx.chat.id, user.profile.fileId, {
       caption: getCaption(user.profile),
       reply_markup: getMeMarkup(
         this.replyUseCases.translate('messages.profile.update', user.lang),
@@ -113,7 +115,7 @@ export class AppUpdate {
     @Ctx() ctx: MessageContext,
     @ReqUser() user: User,
   ): Promise<HandlerResponse> {
-    await this.replyUseCases.replyI18n(ctx, 'commands.profiles', {
+    await this.replyUseCases.replyI18n(ctx.chat.id, 'commands.profiles', {
       reply_markup: getProfilesWizardMarkup(user.role),
     });
 
@@ -128,7 +130,7 @@ export class AppUpdate {
 
     const profile = await this.profileUseCases.findByUser(userId);
 
-    await ctx.replyWithPhoto(profile.fileId, {
+    await this.replyUseCases.sendPhoto(ctx.chat.id, profile.fileId, {
       caption: getCaption(profile),
     });
   }
@@ -148,8 +150,11 @@ export class AppUpdate {
 
     await this.profileUseCases.deleteByUser(userId);
 
-    await this.replyUseCases.sendMsgToChatI18n(
+    const user = await this.userUseCases.findById(userId);
+
+    await this.replyUseCases.sendMessageI18n(
       userId,
+      user.lang,
       'messages.profile.delete.message',
     );
   }
@@ -176,7 +181,6 @@ export class AppUpdate {
   @Registered()
   @Action(UPDATE_PROFILE_CALLBACK)
   async onUpdateProfile(@Ctx() ctx: MessageContext): Promise<HandlerResponse> {
-    console.log({ ctx });
     await ctx.scene.enter(REGISTER_WIZARD_ID);
   }
 }
