@@ -87,7 +87,7 @@
     "@nestjs/schematics": "^10.0.3",
     "@nestjs/testing": "^10.2.10",
     "@types/jest": "^29.5.11",
-    "@types/node": "^20.10.4",
+    "@types/node": "^20.10.7",
     "@types/node-fetch": "^2.6.8",
     "@types/uuid": "^9.0.6",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
